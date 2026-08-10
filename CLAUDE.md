@@ -2,6 +2,18 @@
 
 プロジェクトマネジメント×SRPGのシミュレーションゲーム。
 
+## コミットメッセージ
+
+Conventional Commits 形式＋日本語で記述する。
+
+```
+<type>: <日本語の要約>
+
+<本文（任意、日本語）>
+```
+
+type の例: feat, fix, docs, refactor, chore, test, style
+
 ## ナレッジグラフ
 
 設計・コードの内容を確認する際は、まずMCP経由でNeo4jグラフDBを参照すること。
