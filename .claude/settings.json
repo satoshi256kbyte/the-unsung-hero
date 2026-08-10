@@ -1,0 +1,17 @@
+{
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "このターンでdocs/またはソースコードに変更があったか確認してください。変更があった場合は /sync-graphdb を実行してください。変更がなければ何もせず終了してください。"
+          }
+        ]
+      }
+    ]
+  }
+}
