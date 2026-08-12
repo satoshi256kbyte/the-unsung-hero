@@ -29,9 +29,23 @@ type の例: feat, fix, docs, refactor, chore, test, style
 
 グラフDBが「正」の状態。設計会話で決まった内容は以下の手順で管理する。
 
-1. 設計決定事項を `docs/design-session/YYYY-MM-DD-<topic>.md` に書き留める
+1. 設計決定事項と経緯（ADR）を `docs/design-session/YYYY-MM-DD-<topic>.md` に書き留める
 2. セッション終了時に `/sync-graphdb` を実行してグラフDBへ反映（Fix）
 3. 一時ファイルは sync-graphdb スキルが自動削除する
+
+一時ファイルのフォーマット:
+
+```markdown
+## 設計決定事項
+（変更するノード・プロパティ・リレーションシップ）
+
+## ADR
+- **タイトル**: 決定の短いタイトル
+- **背景**: 何が問題だったか
+- **決定**: 何をどう決めたか
+- **理由**: なぜその選択か・却下した代替案
+- **影響**: トレードオフ・今後への影響
+```
 
 `docs/design-session/` は `.gitignore` に登録済み（一時ファイルのためGit管理外）。
 詳細な手順は `README.md` の「DBデータの永続化と復元」を参照。

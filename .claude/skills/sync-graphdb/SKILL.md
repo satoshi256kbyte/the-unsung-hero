@@ -35,6 +35,9 @@ description: >
 MATCH (n) RETURN labels(n) AS label, count(n) AS cnt ORDER BY cnt DESC
 ```
 
+一時ファイルには設計内容だけでなく、決定の経緯（ADR）も含まれている場合がある。
+後述の「ADRノードの投入」を参照してADRも必ず反映する。
+
 ## Phase 1: シードファイル生成
 
 グラフDBの現状と今回の決定事項を統合して `db/neo4j-seed.cypher` を更新する。
@@ -85,6 +88,49 @@ MATCH (n:Label {name: '削除するノード'}) DETACH DELETE n;
 - 概念間の関係（依存、参照、構成）が辿れるようにする
 - CREATEではなくMERGEを使い、冪等性を保つ
 - 数値・計算式・係数はプロパティとして保持する
+
+## ADRノードの投入
+
+設計会話で「なぜそう決めたか」が明確になった場合は、ADRノードとしてグラフDBに投入する。
+一時ファイルに `## ADR` セクションがある場合は必ず反映する。
+会話から読み取れる場合も積極的に抽出してADRとして記録する。
+
+### ADRノードのスキーマ
+
+```cypher
+MERGE (:ADR {
+  id:        'ADR-001',           // 連番（既存の最大値+1）
+  title:     '決定の短いタイトル',
+  date:      '2026-08-12',        // 決定日（今日の日付）
+  status:    'accepted',          // accepted / superseded / deprecated
+  context:   '何が問題だったか・背景',
+  decision:  '何をどう決めたか',
+  rationale: 'なぜその選択をしたか・却下した代替案とその理由',
+  consequences: 'この決定によるトレードオフ・影響'
+})
+```
+
+### ADRと関連ノードの紐付け
+
+決定が影響するノード（Concept / Parameter / Card / Event / Rule など）と
+リレーションシップで結ぶ。
+
+```cypher
+MATCH (adr:ADR {id: 'ADR-001'}), (n:Parameter {name: '技'})
+MERGE (adr)-[:AFFECTS]->(n);
+
+MATCH (adr:ADR {id: 'ADR-001'}), (prev:ADR {id: 'ADR-000'})
+MERGE (adr)-[:SUPERSEDES]->(prev);  // 以前の決定を上書きする場合
+```
+
+### 既存ADRの上書き
+
+同じ事項について決定が変わった場合は新しいADRを追加し、
+古いADRの `status` を `superseded` に更新してから `SUPERSEDES` リレーションを張る。
+
+```cypher
+MATCH (old:ADR {id: 'ADR-001'}) SET old.status = 'superseded';
+```
 
 ## Phase 2: DBへのロード
 
