@@ -31,7 +31,7 @@
 Neo4j公式の `neo4j_mcp_server` を使用。
 
 | 項目 | 値 |
-|------|-----|
+| ------ | ----- |
 | パッケージ | `neo4j-mcp-server` |
 | 実行方法 | `uvx neo4j-mcp-server`（uv経由） |
 | トランスポート | stdio |
@@ -40,7 +40,7 @@ Neo4j公式の `neo4j_mcp_server` を使用。
 主要な環境変数:
 
 | 変数 | 値 | 備考 |
-|------|-----|------|
+| ------ | ----- | ------ |
 | `NEO4J_URI` | `bolt://localhost:7687` | Bolt接続先 |
 | `NEO4J_USERNAME` | `neo4j` | ユーザー名 |
 | `NEO4J_PASSWORD` | `password` | パスワード |
@@ -52,18 +52,18 @@ Neo4j公式の `neo4j_mcp_server` を使用。
 ## ファイル構成（変更分）
 
 | ファイル | 操作 |
-|---------|------|
+| --------- | ------ |
 | `docker-compose.yml` | 新規作成 |
 | `.mcp.json` | 新規作成（MCPサーバー設定） |
 
 ## 運用コマンド
 
 | 操作 | コマンド |
-|------|---------|
+| ------ | --------- |
 | 起動 | `docker compose up -d` |
 | 停止 | `docker compose down` |
 | データリセット | `docker compose down -v` |
-| ブラウザUI | http://localhost:7474 |
+| ブラウザUI | <http://localhost:7474> |
 
 ## 前提条件
 
