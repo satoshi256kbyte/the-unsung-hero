@@ -2,6 +2,15 @@
 .DS_Store
 .envrc
 
+# Node.js
+node_modules/
+dist/
+coverage/
+
+# Playwright
+playwright-report/
+test-results/
+
 # Neo4j bind mount data (regeneratable from docs/ via /sync-graphdb)
 data/neo4j/
 
