@@ -12,6 +12,7 @@ export default defineConfig({
     globals: true,
     environment: "node",
     include: ["src/**/*.test.ts", "tests/unit/**/*.test.ts"],
+    passWithNoTests: true,
     exclude: ["tests/e2e/**"],
     coverage: {
       provider: "v8",

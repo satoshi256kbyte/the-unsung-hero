@@ -1,0 +1,18 @@
+set -e
+
+echo "▶ typecheck..."
+npm run typecheck
+
+echo "▶ unit & property tests..."
+npm run test
+
+echo "▶ e2e tests..."
+npm run test:e2e
+
+echo "▶ dependency audit (SCA)..."
+npm audit --audit-level=high
+
+echo "▶ license check..."
+npm run license:check
+
+echo "✔ All pre-push checks passed."
