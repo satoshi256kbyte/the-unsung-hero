@@ -10,11 +10,11 @@
     "exactOptionalPropertyTypes": true,
     "skipLibCheck": true,
     "jsx": "preserve",
-    "baseUrl": ".",
     "paths": {
-      "@game/*": ["src/game/*"],
-      "@scenes/*": ["src/scenes/*"],
-      "@ui/*": ["src/ui/*"]
+      "@game/*": ["./src/game/*"],
+      "@scenes/*": ["./src/scenes/*"],
+      "@ui/*": ["./src/ui/*"],
+      "*": ["./*"]
     }
   },
   "include": ["src", "tests"]
