@@ -20,10 +20,6 @@
     "prepare": "husky",
     "lint:md": "markdownlint-cli2 '**/*.md' '#node_modules'"
   },
-  "lint-staged": {
-    "*.{ts,tsx}": ["biome check --write"],
-    "*.md": ["markdownlint-cli2 --fix"]
-  },
   "dependencies": {
     "phaser": "^3.90.0"
   },

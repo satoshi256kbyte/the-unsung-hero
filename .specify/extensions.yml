@@ -1,0 +1,48 @@
+hooks:
+  after_constitution:
+    - extension: sync-graphdb
+      command: sync-graphdb
+      description: グラフDBへの設計反映
+      optional: false
+
+  after_specify:
+    - extension: sync-graphdb
+      command: sync-graphdb
+      description: グラフDBへの設計反映
+      optional: false
+
+  after_clarify:
+    - extension: sync-graphdb
+      command: sync-graphdb
+      description: グラフDBへの設計反映
+      optional: false
+
+  after_plan:
+    - extension: sync-graphdb
+      command: sync-graphdb
+      description: グラフDBへの設計反映
+      optional: false
+
+  after_tasks:
+    - extension: sync-graphdb
+      command: sync-graphdb
+      description: グラフDBへの設計反映
+      optional: false
+
+  after_checklist:
+    - extension: sync-graphdb
+      command: sync-graphdb
+      description: グラフDBへの設計反映
+      optional: false
+
+  after_analyze:
+    - extension: sync-graphdb
+      command: sync-graphdb
+      description: グラフDBへの設計反映
+      optional: false
+
+  after_implement:
+    - extension: sync-graphdb
+      command: sync-graphdb
+      description: グラフDBへの設計反映
+      optional: false

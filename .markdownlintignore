@@ -1,0 +1,6 @@
+# Spec Kit が生成したサードパーティファイル（変更不可）
+.claude/skills/speckit-*/
+.specify/templates/
+.specify/scripts/
+.specify/workflows/
+.specify/integrations/
