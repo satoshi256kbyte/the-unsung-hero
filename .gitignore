@@ -4,3 +4,6 @@
 
 # Neo4j bind mount data (regeneratable from docs/ via /sync-graphdb)
 data/neo4j/
+
+# 設計会話の一時ファイル（/sync-graphdb でグラフDBに反映後に削除）
+docs/design-session/

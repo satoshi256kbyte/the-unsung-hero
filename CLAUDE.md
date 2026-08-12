@@ -25,7 +25,13 @@ type の例: feat, fix, docs, refactor, chore, test, style
 2. `read_neo4j_cypher` でグラフを検索し、コンテキストを得る
 3. ファイルを直接読む前にグラフDBで全体像を把握する
 
-### データ更新
+### 設計フロー
 
-docs/ やソースコードを変更した場合は `/sync-graphdb` を実行する。
-詳細な手順（2フェーズ構成・復元手順）は `README.md` の「DBデータの永続化と復元」を参照。
+グラフDBが「正」の状態。設計会話で決まった内容は以下の手順で管理する。
+
+1. 設計決定事項を `docs/design-session/YYYY-MM-DD-<topic>.md` に書き留める
+2. セッション終了時に `/sync-graphdb` を実行してグラフDBへ反映（Fix）
+3. 一時ファイルは sync-graphdb スキルが自動削除する
+
+`docs/design-session/` は `.gitignore` に登録済み（一時ファイルのためGit管理外）。
+詳細な手順は `README.md` の「DBデータの永続化と復元」を参照。

@@ -9,7 +9,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if git diff --name-only HEAD 2>/dev/null | grep -qE '^docs/|^src/|^lib/'; then echo '/sync-graphdb を実行してください（docs/ またはソースコードに変更があります）'; exit 2; fi"
+            "command": "if git diff --name-only HEAD 2>/dev/null | grep -vE '^docs/design-session/' | grep -qE '^docs/|^src/|^lib/'; then echo '/sync-graphdb を実行してください（docs/ またはソースコードに変更があります）'; exit 2; fi"
           }
         ]
       }
