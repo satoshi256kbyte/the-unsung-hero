@@ -325,3 +325,102 @@ MATCH (a:Card {name: 'リスケ'}), (b:Concept {name: 'ガントチャート'}) 
 MATCH (a:Card {name: 'リスケ'}), (b:Concept {name: 'ガントチャートバリエーション'}) MERGE (a)-[:USES]->(b);
 // 全カード → カード自動解決
 MATCH (a:Card), (b:Concept {name: 'カード自動解決'}) MERGE (a)-[:USES]->(b);
+
+// =============================================================================
+// ノード: Document（追加）— SDD関連ドキュメント
+// =============================================================================
+MERGE (:Document {name: 'バランスパラメータ', path: 'docs/03-詳細設計/バランスパラメータ.md', description: '進捗ダイス計算式・経験値カーブ・心体変動・イベント確率・カードコストの仮値定数'});
+MERGE (:Document {name: 'SDDタスクリスト', path: 'docs/sdd-tasks.md', description: 'Spec Kit SDDで実装する10 Spec / 4フェーズのタスクリスト'});
+MERGE (:Document {name: 'SDD分割計画', path: 'docs/superpowers/plans/2026-08-12-sdd-task-breakdown.md', description: '各SpecのスコープとSpecKitコマンドの指示例', type: 'plan'});
+MERGE (:Document {name: '技術スタック', path: 'docs/02-基本設計/技術スタック.md', description: 'Phaser3/TypeScript/Vite/Biome/Vitest等の技術選定、SDDワークフロー'});
+MERGE (:Document {name: 'Spec-01 spec', path: 'specs/001-core-types-constants/spec.md', description: 'コアデータ型定義・定数・balance関数のフィーチャースペック', type: 'spec'});
+MERGE (:Document {name: 'プロジェクト憲章', path: '.specify/memory/constitution.md', description: 'アーキテクチャ境界・テストゲート・ゲームバランス不変条件等の開発原則（Spec Kit constitution）'});
+
+// =============================================================================
+// ノード: Concept（追加）— SDD・技術スタック関連
+// =============================================================================
+MERGE (:Concept {name: 'SDD', fullName: 'Spec-Driven Development', description: 'specifyで仕様→計画→タスク→実装の順に進める開発手法'});
+MERGE (:Concept {name: 'Spec Kit', description: 'GitHub製のSDD実装支援ツールキット。specify CLIとスキル群を提供する'});
+MERGE (:Concept {name: 'アーキテクチャ境界', description: 'src/game/(ロジック), src/scenes/(Phaser描画), src/ui/(DOM overlay)の3層分離'});
+MERGE (:Concept {name: 'コアデータ型', description: 'Member/Card/Event/GameState/GanttTask/GanttChart/TurnResult/StageDataの型定義群'});
+MERGE (:Concept {name: '定数ファイル', description: 'バランスパラメータ.mdの全数値定数を一箇所に集約したファイル。チューニング時の変更点を最小化する'});
+MERGE (:Concept {name: 'balance関数', description: 'skill_factor(技)とhealth_factor(体)の乱数範囲を返す純粋関数'});
+
+// =============================================================================
+// ノード: ADR
+// =============================================================================
+MERGE (:ADR {
+  id: 'ADR-001',
+  title: 'SDD + Spec Kit を実装手法として採用',
+  date: '2026-08-12',
+  status: 'accepted',
+  context: '実装に入るにあたり、AIエージェントによる大規模コード生成で品質を担保する手法が必要だった。仕様が曖昧なままコード生成すると手戻りが大きくなるリスクがある。',
+  decision: 'GitHub製 Spec Kit（specify CLI）を使い、specify→plan→tasks→implementの順でSDDを実施する。各ステップ後に/sync-graphdbでグラフDBを更新することを義務化した。',
+  rationale: 'Spec Kitは仕様(what/why)をコード生成前に固定する構造を強制するため、AIエージェントの生成物の品質が安定する。Claude Code向けintegrationが公式サポートされており、.claude/skills/に自動インストールされる。',
+  consequences: '各Specの実装前にspecify+planのオーバーヘッドが発生するが、手戻りの削減でトータルは短縮される見込み。Spec Kitの外部ファイルがmarkdownlintに引っかかるため.lintstagedrc.cjsで除外設定が必要だった。'
+});
+MERGE (:ADR {
+  id: 'ADR-002',
+  title: 'コアデータ型をPhaser非依存のpure TSで定義',
+  date: '2026-08-12',
+  status: 'accepted',
+  context: 'src/game/をPhaser非依存にするアーキテクチャ境界の原則を具体化する際、型定義の置き場所と依存関係を明確にする必要があった。',
+  decision: 'src/game/types.ts・constants.ts・balance.tsをPhaser/DOM非依存のpure TypeScriptとして定義する。Spec-01の実装スコープをこの3ファイルに限定した。',
+  rationale: 'ゲームロジックをPhaser非依存にすることでVitestによる高速ユニットテストが可能になる。Phaserのcanvasはヘッドレス環境で扱いにくいため、ロジック層は完全に分離する必要がある。',
+  consequences: '型定義がPhaser型と混在しないため、後続SpecでPhaser Scene実装時に明確な境界を維持できる。一方、Phaser独自型（例: Phaser.Math.Vector2）はscenes/側でラップして使う必要がある。'
+});
+MERGE (:ADR {
+  id: 'ADR-003',
+  title: 'バランスパラメータを定数ファイルに一括集約',
+  date: '2026-08-12',
+  status: 'accepted',
+  context: 'テストプレイ後のチューニングで多数の数値変更が発生する想定。数値がコード各所に散在するとマジックナンバー問題と修正ミスのリスクがある。',
+  decision: 'バランスパラメータ.mdの全数値（進捗ダイス・イベント確率・カードコスト・心体変動量等）をsrc/game/constants.tsに集約する。変更はこのファイルのみで完結する設計にする。',
+  rationale: 'チューニングフェーズで頻繁に数値変更が発生するため、変更箇所を最小化することが重要。定数ファイルを単一の真実の源にすることでバランス調整の安全性が高まる。',
+  consequences: 'バランスパラメータ.mdとconstants.tsの二重管理が発生する。ドキュメントは設計の意図を説明し、constants.tsが実際の数値の正とする運用で対応する。'
+});
+
+// =============================================================================
+// リレーションシップ: ADR → Concept/Document (AFFECTS)
+// =============================================================================
+MATCH (adr:ADR {id: 'ADR-001'}), (n:Concept {name: 'SDD'}) MERGE (adr)-[:AFFECTS]->(n);
+MATCH (adr:ADR {id: 'ADR-001'}), (n:Concept {name: 'Spec Kit'}) MERGE (adr)-[:AFFECTS]->(n);
+MATCH (adr:ADR {id: 'ADR-001'}), (n:Document {name: 'プロジェクト憲章'}) MERGE (adr)-[:AFFECTS]->(n);
+MATCH (adr:ADR {id: 'ADR-002'}), (n:Concept {name: 'アーキテクチャ境界'}) MERGE (adr)-[:AFFECTS]->(n);
+MATCH (adr:ADR {id: 'ADR-002'}), (n:Concept {name: 'コアデータ型'}) MERGE (adr)-[:AFFECTS]->(n);
+MATCH (adr:ADR {id: 'ADR-003'}), (n:Concept {name: '定数ファイル'}) MERGE (adr)-[:AFFECTS]->(n);
+MATCH (adr:ADR {id: 'ADR-003'}), (n:Document {name: 'バランスパラメータ'}) MERGE (adr)-[:AFFECTS]->(n);
+
+// Spec-01 spec document → Concept
+MATCH (a:Document {name: 'Spec-01 spec'}), (b:Concept {name: 'コアデータ型'}) MERGE (a)-[:DEFINES]->(b);
+MATCH (a:Document {name: 'Spec-01 spec'}), (b:Concept {name: '定数ファイル'}) MERGE (a)-[:DEFINES]->(b);
+MATCH (a:Document {name: 'Spec-01 spec'}), (b:Concept {name: 'balance関数'}) MERGE (a)-[:DEFINES]->(b);
+
+// =============================================================================
+// ノード: Document（追加）— Spec-01 plan artifacts
+// =============================================================================
+MERGE (:Document {name: 'Spec-01 plan', path: 'specs/001-core-types-constants/plan.md', description: 'コアデータ型定数の実装計画（Technical Context・Constitution Check・ファイル構成）', type: 'plan'});
+MERGE (:Document {name: 'Spec-01 data-model', path: 'specs/001-core-types-constants/data-model.md', description: 'コアデータ型の全エンティティ定義・フィールド一覧・依存関係', type: 'data-model'});
+MERGE (:Document {name: 'Spec-01 quickstart', path: 'specs/001-core-types-constants/quickstart.md', description: 'Spec-01検証手順（typecheck/test/マジックナンバーチェック）', type: 'quickstart'});
+
+// Spec-01 plan → Concept
+MATCH (a:Document {name: 'Spec-01 plan'}), (b:Concept {name: 'アーキテクチャ境界'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-01 plan'}), (b:Concept {name: 'コアデータ型'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-01 plan'}), (b:Concept {name: '定数ファイル'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-01 tasks
+// =============================================================================
+MERGE (:Document {
+  name: 'Spec-01 tasks',
+  path: 'specs/001-core-types-constants/tasks.md',
+  description: 'Spec-01の実装タスクリスト（T001〜T021・5フェーズ構成。types.ts→constants.ts→balance.tsの依存順で実装）',
+  type: 'tasks'
+});
+
+// Spec-01 tasks → Concept/Document
+MATCH (a:Document {name: 'Spec-01 tasks'}), (b:Concept {name: 'コアデータ型'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-01 tasks'}), (b:Concept {name: '定数ファイル'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-01 tasks'}), (b:Concept {name: 'balance関数'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-01 tasks'}), (b:Document {name: 'Spec-01 plan'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-01 tasks'}), (b:Document {name: 'Spec-01 data-model'}) MERGE (a)-[:REFERENCES]->(b);

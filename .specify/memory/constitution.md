@@ -53,19 +53,30 @@ All numerical parameters (dice formulae, event probabilities, card costs, EXP cu
 documented in `docs/03-詳細設計/` before implementation. Design rationale MUST be stored in the
 Neo4j graph DB as ADR nodes—not in repository documents.
 
-### IV. Design Knowledge in Graph DB
+### IV. Design Knowledge in Graph DB (NON-NEGOTIABLE)
 
-The Neo4j graph DB (`docker compose up -d`) is the authoritative source for design rationale, ADRs,
-and entity relationships. Repository documents (`docs/`) MUST contain only:
+The Neo4j graph DB (`docker compose up -d`) is the ONLY authoritative source for design knowledge.
+Before reading any document in `docs/`, the graph DB MUST be consulted first to understand the
+overall picture. Details not visible in `docs/` files are always in the graph DB.
+
+```cypher
+// Start every design/implementation session with this query
+MATCH (n) RETURN labels(n) AS label, count(n) AS cnt ORDER BY cnt DESC
+```
+
+Repository documents (`docs/`) MUST contain ONLY:
 
 - Numerical values, formulae, and coefficients
 - Event and card lists
 - Stage data
-- Screen layout diagrams
+- Screen layout diagrams (Mermaid)
 
-Narrative rationale, ADRs, and "why" decisions MUST be stored only in Neo4j. When design decisions
-are made in a session, they MUST be written to `docs/design-session/<date>-<topic>.md` (git-ignored)
-and synced to Neo4j via `/sync-graphdb` before the session ends.
+Everything else — entity relationships, design rationale, ADRs, "why" decisions,
+concept definitions — MUST be stored only in Neo4j.
+
+When design decisions are made in a session, they MUST be written to
+`docs/design-session/<date>-<topic>.md` (git-ignored) and synced to Neo4j via
+`/sync-graphdb` before the session ends.
 
 ### V. Dependency Hygiene
 
@@ -98,6 +109,8 @@ and synced to Neo4j via `/sync-graphdb` before the session ends.
 3. **Tasks**: Use `/speckit-tasks` to break the plan into trackable tasks
 4. **Implement**: Use `/speckit-implement` to execute tasks
 5. **Design sessions**: Write decisions to `docs/design-session/` then run `/sync-graphdb`
+6. **Token log**: Record token usage per Spec Kit command in `docs/sdd-token-log.md`
+   after each Spec completes
 
 ### Graph DB Sync Checkpoints (MANDATORY)
 
@@ -134,4 +147,4 @@ This constitution supersedes all other conventions in the repository. Amendments
 Compliance is verified at every PR review. Complexity deviations from principles MUST be justified
 in the PR description and recorded as ADR nodes in Neo4j.
 
-**Version**: 1.1.0 | **Ratified**: 2026-08-12 | **Last Amended**: 2026-08-12
+**Version**: 1.2.0 | **Ratified**: 2026-08-12 | **Last Amended**: 2026-08-12
