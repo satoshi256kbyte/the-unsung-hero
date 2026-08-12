@@ -3,12 +3,13 @@
     "superpowers@claude-plugins-official": true
   },
   "hooks": {
-    "Stop": [
+    "PostToolUse": [
       {
+        "matcher": "Write|Edit|NotebookEdit",
         "hooks": [
           {
-            "type": "prompt",
-            "prompt": "このターンでdocs/またはソースコードに変更があったか確認してください。変更があった場合は /sync-graphdb を実行してください。変更がなければ何もせず終了してください。"
+            "type": "command",
+            "command": "if git diff --name-only HEAD 2>/dev/null | grep -qE '^docs/|^src/|^lib/'; then echo '/sync-graphdb を実行してください（docs/ またはソースコードに変更があります）'; exit 2; fi"
           }
         ]
       }

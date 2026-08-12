@@ -1,3 +1,6 @@
 *.code-workspace
 .DS_Store
 .envrc
+
+# Neo4j bind mount data (regeneratable from docs/ via /sync-graphdb)
+data/neo4j/

@@ -27,5 +27,5 @@ type の例: feat, fix, docs, refactor, chore, test, style
 
 ### データ更新
 
-docs/ やソースコードを変更した場合、ターン終了時に自動でグラフDBが更新される。
-手動で更新する場合は `/sync-graphdb` を実行する。
+docs/ やソースコードを変更した場合は `/sync-graphdb` を実行する。
+詳細な手順（2フェーズ構成・復元手順）は `README.md` の「DBデータの永続化と復元」を参照。
