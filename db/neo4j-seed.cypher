@@ -332,7 +332,7 @@ MATCH (a:Card), (b:Concept {name: 'カード自動解決'}) MERGE (a)-[:USES]->(
 MERGE (:Document {name: 'バランスパラメータ', path: 'docs/03-詳細設計/バランスパラメータ.md', description: '進捗ダイス計算式・経験値カーブ・心体変動・イベント確率・カードコストの仮値定数'});
 MERGE (:Document {name: 'SDDタスクリスト', path: 'docs/sdd-tasks.md', description: 'Spec Kit SDDで実装する10 Spec / 4フェーズのタスクリスト'});
 MERGE (:Document {name: 'SDD分割計画', path: 'docs/superpowers/plans/2026-08-12-sdd-task-breakdown.md', description: '各SpecのスコープとSpecKitコマンドの指示例', type: 'plan'});
-MERGE (:Document {name: '技術スタック', path: 'docs/02-基本設計/技術スタック.md', description: 'Phaser3/TypeScript/Vite/Biome/Vitest等の技術選定、SDDワークフロー'});
+MERGE (:Document {name: '技術スタック', path: 'docs/02-基本設計/技術スタック.md', description: 'Phaser 4/TypeScript/Vite/Biome/Vitest等の技術選定、SDDワークフロー'});
 MERGE (:Document {name: 'Spec-01 spec', path: 'specs/001-core-types-constants/spec.md', description: 'コアデータ型定義・定数・balance関数のフィーチャースペック', type: 'spec'});
 MERGE (:Document {name: 'プロジェクト憲章', path: '.specify/memory/constitution.md', description: 'アーキテクチャ境界・テストゲート・ゲームバランス不変条件等の開発原則（Spec Kit constitution）'});
 

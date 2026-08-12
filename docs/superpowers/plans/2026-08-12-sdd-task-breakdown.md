@@ -50,7 +50,7 @@ Phase 4（ゲームループ・画面）← Phase 3 完了後
 
 ```
 /speckit-specify
-Phaser3+TypeScriptのSRPGゲームのコアデータ型と定数ファイルを実装する。
+Phaser 4+TypeScriptのSRPGゲームのコアデータ型と定数ファイルを実装する。
 docs/03-詳細設計/バランスパラメータ.md の数値をすべて src/game/constants.ts に定義し、
 skill_factor・health_factor のルックアップ関数を src/game/balance.ts に実装する。
 型定義は src/game/types.ts にまとめる。Phaser非依存のpure TypeScript。
@@ -263,11 +263,11 @@ PoCステージ（1ヶ月/22ターン/2人/3工程）の完全なステージデ
 #### Spec-10: メイン画面UI
 
 **目的**: ゲームの主画面を実装する。
-Phaser3 Scene（背景・ガントチャート表示）+ DOM overlay（カード選択UI）。
+Phaser 4 Scene（背景・ガントチャート表示）+ DOM overlay（カード選択UI）。
 
 **スコープ**:
 
-- `src/scenes/GameScene.ts` — Phaser3 Scene（ガントチャート・パラメータ表示）
+- `src/scenes/GameScene.ts` — Phaser 4 Scene（ガントチャート・パラメータ表示）
 - `src/ui/CardSelectionPanel.ts` — DOM overlay カード選択UI
 - `src/ui/MemberStatusPanel.ts` — DOM overlay メンバーステータス表示
 - `src/ui/EventLogPanel.ts` — DOM overlay イベントログ

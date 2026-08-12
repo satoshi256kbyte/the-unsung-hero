@@ -21,7 +21,7 @@ Deferred TODOs:
 The codebase MUST be separated into three layers with strict dependency rules:
 
 - `src/game/` — game logic only; MUST NOT import Phaser or DOM APIs; all business logic lives here
-- `src/scenes/` — Phaser 3 Scene rendering and input handling; MAY import from `src/game/`; MUST NOT
+- `src/scenes/` — Phaser 4 Scene rendering and input handling; MAY import from `src/game/`; MUST NOT
   contain business logic
 - `src/ui/` — DOM overlay components (card selection UI, etc.); MAY import from `src/game/`; MUST be
   accessible to Playwright E2E tests as DOM elements
@@ -89,7 +89,7 @@ When design decisions are made in a session, they MUST be written to
 
 | Category | Tool | Notes |
 |---|---|---|
-| Game engine | Phaser 3 | Canvas rendering |
+| Game engine | Phaser 4 | Canvas rendering |
 | Language | TypeScript 5 | Strict mode |
 | Build | Vite | Dev server + production bundler |
 | Lint/Format | Biome | Replaces ESLint + Prettier |
