@@ -10,7 +10,7 @@
 
 **Purpose**: src/game/ ディレクトリの作成と tsconfig のパスエイリアス確認
 
-- [ ] T001 src/game/ ディレクトリを作成し、tsconfig.json の `@game` エイリアスが `src/game` を指していることを確認する
+- [x] T001 src/game/ ディレクトリを作成し、tsconfig.json の `@game` エイリアスが `src/game` を指していることを確認する
 
 ---
 
@@ -21,14 +21,14 @@
 
 **Independent Test**: `npm run typecheck` がエラーゼロで完了すること。
 
-- [ ] T002 [P] [US1] CardName union 型と CardApplicationMode / TargetType / EffectType / EventType / EventCategory 列挙型を
+- [x] T002 [P] [US1] CardName union 型と CardApplicationMode / TargetType / EffectType / EventType / EventCategory 列挙型を
   src/game/types.ts に定義する（data-model.md の CardName 全26枚を含む）
-- [ ] T003 [P] [US1] Member / CardEffect / ProgressUpdate / MemberUpdate 型を src/game/types.ts に定義する
+- [x] T003 [P] [US1] Member / CardEffect / ProgressUpdate / MemberUpdate 型を src/game/types.ts に定義する
   （data-model.md の Member・CardEffect 参照）
-- [ ] T004 [P] [US1] GanttTask / GanttChart 型を src/game/types.ts に定義する（data-model.md の GanttTask・GanttChart 参照）
-- [ ] T005 [US1] GameEvent / ConditionalEvent / TurnResult 型を src/game/types.ts に定義する（T002〜T004 完了後）
-- [ ] T006 [US1] GameState / StageData 型を src/game/types.ts に定義する（T002〜T005 完了後）
-- [ ] T007 [US1] `npm run typecheck` を実行してエラーゼロを確認する
+- [x] T004 [P] [US1] GanttTask / GanttChart 型を src/game/types.ts に定義する（data-model.md の GanttTask・GanttChart 参照）
+- [x] T005 [US1] GameEvent / ConditionalEvent / TurnResult 型を src/game/types.ts に定義する（T002〜T004 完了後）
+- [x] T006 [US1] GameState / StageData 型を src/game/types.ts に定義する（T002〜T005 完了後）
+- [x] T007 [US1] `npm run typecheck` を実行してエラーゼロを確認する
 
 **Checkpoint**: T007 通過で User Story 1 完了。型定義が後続 Spec の基盤として使える状態。
 
@@ -41,21 +41,21 @@
 **Independent Test**: `grep -r "0\.08\|0\.05\|0\.04\|0\.03" src/ --include="*.ts" | grep -v constants.ts`
 が 0 件であること（マジックナンバーなし）。
 
-- [ ] T008 [P] [US2] PoCステージ基本情報定数（稼働日数・工程期間・チェックポイント回数・
+- [x] T008 [P] [US2] PoCステージ基本情報定数（稼働日数・工程期間・チェックポイント回数・
   バッファ比率・目標利益率）を src/game/constants.ts に定義する
-- [ ] T009 [P] [US2] メンバーパラメータ範囲定数（心/体/技/経験値の min・max・初期値）と
+- [x] T009 [P] [US2] メンバーパラメータ範囲定数（心/体/技/経験値の min・max・初期値）と
   週末回復量・心体自然変動幅を src/game/constants.ts に定義する
-- [ ] T010 [P] [US2] ランダムイベント発生確率定数（タスクイベント7種・メンバーイベント5種の
+- [x] T010 [P] [US2] ランダムイベント発生確率定数（タスクイベント7種・メンバーイベント5種の
   基本確率とカード使用時の確率）を src/game/constants.ts に定義する
-- [ ] T011 [P] [US2] カードコスト定数 CARD_COSTS: Record\<CardName, number\> を
+- [x] T011 [P] [US2] カードコスト定数 CARD_COSTS: Record\<CardName, number\> を
   src/game/constants.ts に定義する（バランスパラメータ.md 「6. カードのコスト確定値」参照）
-- [ ] T012 [P] [US2] チェックポイント確率定数（キックオフ/週次/締め/クロージング）と
+- [x] T012 [P] [US2] チェックポイント確率定数（キックオフ/週次/締め/クロージング）と
   手戻り巻き戻し計算定数を src/game/constants.ts に定義する
-- [ ] T013 [P] [US2] レベルアップ必要経験値テーブル LEVEL_UP_EXP と
+- [x] T013 [P] [US2] レベルアップ必要経験値テーブル LEVEL_UP_EXP と
   経験値計算定数（base_exp・level_factor 係数）を src/game/constants.ts に定義する
-- [ ] T014 [US2] ネガティブイベント発生閾値定数（心/体/透明性/緊張感の低/高閾値）と
+- [x] T014 [US2] ネガティブイベント発生閾値定数（心/体/透明性/緊張感の低/高閾値）と
   各イベントによる心体変動量定数を src/game/constants.ts に定義する（T008〜T013 完了後）
-- [ ] T015 [US2] `npm run typecheck` を実行してエラーゼロを確認し、
+- [x] T015 [US2] `npm run typecheck` を実行してエラーゼロを確認し、
   quickstart.md のマジックナンバーチェックコマンドで 0 件であることを確認する
 
 **Checkpoint**: T015 通過で User Story 2 完了。数値変更が constants.ts 1 ファイルで完結する状態。
@@ -69,17 +69,17 @@
 
 **Independent Test**: `npm test` で balance.test.ts の全テストケースが PASS すること。
 
-- [ ] T016 [US3] skill_factor テーブル定数（技レベル帯ごとの [min, max] 配列）を
+- [x] T016 [US3] skill_factor テーブル定数（技レベル帯ごとの [min, max] 配列）を
   src/game/constants.ts に追加し、getSkillFactorRange(skill: number): [number, number]
   関数を src/game/balance.ts に実装する
-- [ ] T017 [US3] health_factor テーブル定数（体の値帯ごとの [min, max] 配列）を
+- [x] T017 [US3] health_factor テーブル定数（体の値帯ごとの [min, max] 配列）を
   src/game/constants.ts に追加し、getHealthFactor(health: number): [number, number]
   関数を src/game/balance.ts に実装する
-- [ ] T018 [US3] src/game/balance.test.ts を作成し、Vitest で境界値テストを実装する
+- [x] T018 [US3] src/game/balance.test.ts を作成し、Vitest で境界値テストを実装する
   （技レベル: 0/4/5/9/10/14/15/24/25/99 の各値で仕様通りの範囲を返すこと）
-- [ ] T019 [US3] fast-check プロパティテストを src/game/balance.test.ts に追加する
+- [x] T019 [US3] fast-check プロパティテストを src/game/balance.test.ts に追加する
   （任意の技レベル 0〜99・体 0〜100 で関数がパニックせず [min, max] 形式を返すこと）
-- [ ] T020 [US3] `npm test` を実行して全テスト PASS を確認する
+- [x] T020 [US3] `npm test` を実行して全テスト PASS を確認する
 
 **Checkpoint**: T020 通過で User Story 3 完了。balance 関数の正確さが自動検証された状態。
 
@@ -87,7 +87,7 @@
 
 ## Phase 5: Polish
 
-- [ ] T021 quickstart.md の全検証コマンド（typecheck / test / Phaser依存なし / DOM依存なし）を実行して全項目クリアを確認する
+- [x] T021 quickstart.md の全検証コマンド（typecheck / test / Phaser依存なし / DOM依存なし）を実行して全項目クリアを確認する
 
 ---
 

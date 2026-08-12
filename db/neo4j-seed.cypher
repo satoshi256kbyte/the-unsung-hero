@@ -424,3 +424,33 @@ MATCH (a:Document {name: 'Spec-01 tasks'}), (b:Concept {name: '定数ファイ�
 MATCH (a:Document {name: 'Spec-01 tasks'}), (b:Concept {name: 'balance関数'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-01 tasks'}), (b:Document {name: 'Spec-01 plan'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-01 tasks'}), (b:Document {name: 'Spec-01 data-model'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-01 実装ファイル
+// =============================================================================
+MERGE (:Document {name: 'Spec-01 types.ts', path: 'src/game/types.ts', description: 'ゲーム全体のコアデータ型定義。CardName(26枚)/Member/GanttTask/GanttChart/GameState/TurnResult/StageData等。Phaser/DOM非依存pure TS。', type: 'source'});
+MERGE (:Document {name: 'Spec-01 constants.ts', path: 'src/game/constants.ts', description: 'バランスパラメータ.mdの全数値定数を集約。POC_STAGE/MEMBER_PARAMS/EXP/LEVEL_UP_EXP/EVENT_PROB/CARD_COSTS/SKILL_FACTOR_TABLE/HEALTH_FACTOR_TABLE等。', type: 'source'});
+MERGE (:Document {name: 'Spec-01 balance.ts', path: 'src/game/balance.ts', description: 'getSkillFactorRange(skill)/getHealthFactor(health)の実装。テーブル参照で[min,max]を返す純粋関数。', type: 'source'});
+MERGE (:Document {name: 'Spec-01 balance.test.ts', path: 'tests/unit/balance.test.ts', description: 'Vitest+fast-checkによるbalance関数の境界値テスト(20件)・プロパティテスト。技0〜99・体0〜100の全域でパニックなし確認済み。', type: 'test'});
+
+MATCH (a:Document {name: 'Spec-01 types.ts'}), (b:Concept {name: 'コアデータ型'}) MERGE (a)-[:DEFINES]->(b);
+MATCH (a:Document {name: 'Spec-01 constants.ts'}), (b:Concept {name: '定数ファイル'}) MERGE (a)-[:DEFINES]->(b);
+MATCH (a:Document {name: 'Spec-01 balance.ts'}), (b:Concept {name: 'balance関数'}) MERGE (a)-[:DEFINES]->(b);
+MATCH (a:Document {name: 'Spec-01 constants.ts'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-01 balance.ts'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-01 balance.test.ts'}), (b:Document {name: 'Spec-01 balance.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ADR-004: CARD_COSTSのデイリー中止コストを0として定義
+// =============================================================================
+MERGE (:ADR {
+  id: 'ADR-004',
+  title: 'CARD_COSTSに存在しないカードへのコスト定義をゼロとして扱う',
+  date: '2026-08-12',
+  status: 'accepted',
+  context: 'バランスパラメータ.mdの個別コスト確定値リストに「デイリー中止」が含まれていなかったが、CardName union型には含まれる。Record<CardName,number>は全26枚を網羅しなければならない。',
+  decision: 'デイリー中止のコストを0として定義し、CARD_COSTSをRecord<CardName,number>として完全に型安全に保つ。',
+  rationale: 'TypeScriptのRecord<K,V>は全キーの存在を静的に保証する。未定義のまま残すとtscエラーになるため、論理的に「使用コストなし」を意味する0を採用した。',
+  consequences: 'コスト0のカードが存在する設計が明示される。将来コストを変更する場合はconstants.tsの1箇所を修正するだけで済む。'
+});
+MATCH (adr:ADR {id: 'ADR-004'}), (n:Concept {name: '定数ファイル'}) MERGE (adr)-[:AFFECTS]->(n);
