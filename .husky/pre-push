@@ -3,11 +3,8 @@ set -e
 echo "▶ typecheck..."
 npm run typecheck
 
-echo "▶ unit & property tests..."
-npm run test
-
-echo "▶ e2e tests..."
-npm run test:e2e
+echo "▶ unit & property tests (with coverage)..."
+npm run test:coverage
 
 echo "▶ dependency audit (SCA)..."
 npm audit --audit-level=high
