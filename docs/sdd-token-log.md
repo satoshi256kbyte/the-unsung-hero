@@ -47,6 +47,8 @@ Spec Kitコマンドごとのトークン消費を記録する。
 | Spec-10 | /speckit-tasks | 2026-08-13 | — | — | tasks.md 作成（T001〜T016、6フェーズ） |
 | Spec-10 | /speckit-implement | 2026-08-13 | — | — | engine.ts 新規・engine.test.ts 新規・273テスト全PASS・coverage lines/funcs 100% |
 | Spec-10 | /sync-graphdb | 2026-08-13 | — | — | ADR-014追加・240ノード |
+| Spec-11 | /speckit-specify | 2026-08-13 | — | — | PoCステージデータ仕様作成・チェックリスト16項目全PASS |
+| Spec-11 | /sync-graphdb | 2026-08-13 | — | — | pocStage Conceptノード追加・243ノード |
 
 ## 累計
 

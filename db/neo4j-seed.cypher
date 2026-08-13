@@ -1015,3 +1015,14 @@ MERGE (:ADR {id: 'ADR-014',
   rationale: '既存のgantt.ts実装（updateTaskProgress・setTaskStatus）を再利用することでロジックの重複を避ける。stallの検出はevent idプレフィックス規約で行い、型を新設せずに済む',
   consequences: 'stall event idが"stall"プレフィックスを持つ規約に依存する。規約変更時はengine.tsも修正が必要'});
 MATCH (adr:ADR {id: 'ADR-014'}), (ge:Concept {name: 'GameEngine'}) MERGE (adr)-[:AFFECTS]->(ge);
+
+// =============================================================================
+// Spec-11 /speckit-specify: PoCステージデータ仕様
+// =============================================================================
+MERGE (:Document {name: 'Spec-11 spec.md', path: 'specs/011-poc-stage-data/spec.md', type: 'spec', spec: 'Spec-11',
+  description: 'PoCステージデータ仕様。pocStage定数定義・3名メンバー・8〜10タスク・条件付きイベント3〜5件・初期手札2〜3枚',
+  status: 'draft', created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-11 checklists/requirements.md', path: 'specs/011-poc-stage-data/checklists/requirements.md', type: 'checklist', spec: 'Spec-11',
+  description: 'Spec-11仕様チェックリスト。16項目全PASS', status: 'completed', created: '2026-08-13'});
+MERGE (:Concept {name: 'pocStage', description: 'PoCステージのStageData定数。budget=500万・deadline=22ターン・メンバー3名・タスク8〜10件・条件付きイベント3〜5件', file: 'src/game/stages/poc.ts', spec: 'Spec-11'});
+MATCH (spec:Document {name: 'Spec-11 spec.md'}), (c:Concept {name: 'pocStage'}) MERGE (spec)-[:DEFINES]->(c);
