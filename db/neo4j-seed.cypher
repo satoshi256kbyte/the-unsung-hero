@@ -961,4 +961,18 @@ MERGE (:ADR {id: 'ADR-013',
   consequences: 'GameState の型は変更不要。GameEngine を経由しない processTurn 呼び出し（テスト等）では引き続き手動で conditionalEvents を渡す'});
 MATCH (adr:ADR {id: 'ADR-013'}), (c:Concept {name: 'GameEngine'}) MERGE (adr)-[:AFFECTS]->(c);
 MATCH (spec:Document {name: 'Spec-10 spec.md'}), (c:Concept {name: 'GameEngine'}) MERGE (spec)-[:DEFINES]->(c);
+
+// =============================================================================
+// Spec-10 /speckit-plan: plan.md / data-model.md / quickstart.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-10 plan.md', path: 'specs/010-game-engine/plan.md', type: 'plan', spec: 'Spec-10',
+  description: 'GameEngine実装計画。KD-1〜6: クラス設計・初期化・progress/member更新・ゲームオーバーガード',
+  created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-10 data-model.md', path: 'specs/010-game-engine/data-model.md', type: 'data-model', spec: 'Spec-10',
+  description: 'GameEngineクラス設計・初期化フロー・processTurnフロー・memberUpdates集計',
+  created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-10 quickstart.md', path: 'specs/010-game-engine/quickstart.md', type: 'quickstart', spec: 'Spec-10',
+  description: 'A〜Eシナリオ: 初期化・1ターン・複数ターン・ゲームオーバーガード・クランプ確認',
+  created: '2026-08-13'});
+MATCH (plan:Document {name: 'Spec-10 plan.md'}), (spec:Document {name: 'Spec-10 spec.md'}) MERGE (plan)-[:IMPLEMENTS]->(spec);
 MATCH (spec:Document {name: 'Spec-08 spec'}), (d:Document {name: 'Spec-08 event.ts'}) MERGE (spec)-[:IMPLEMENTS]->(d);
