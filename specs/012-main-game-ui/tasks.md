@@ -31,14 +31,14 @@
 
 **⚠️ CRITICAL**: Phase 1 完了後に実施。US1〜US3 はこの Phase 完了後に開始できる
 
-- [ ] T006 Implement `pmTerms.ts` — 15件の `{ name: string; description: string }` 配列を定義する
+- [X] T006 Implement `pmTerms.ts` — 15件の `{ name: string; description: string }` 配列を定義する
   in `src/ui/pmTerms.ts`
-- [ ] T007 Implement `LoadingScreen` class in `src/ui/LoadingScreen.ts`
+- [X] T007 Implement `LoadingScreen` class in `src/ui/LoadingScreen.ts`
   — `el`・`termEl` フィールド、`show()` / `hide()` メソッド、
   `show()` 時に pmTerms からランダム選択して表示
-- [ ] T008 Implement `MainScene.create()` in `src/scenes/MainScene.ts`
+- [X] T008 Implement `MainScene.create()` in `src/scenes/MainScene.ts`
   — `GameEngine(pocStage)` 生成・`#ui-overlay` div 取得・`MainGameUI` インスタンス生成・初期 `render()` 呼び出し
-- [ ] T009 Register `MainScene` in `src/main.ts` — scene 配列に `MainScene` を追加
+- [X] T009 Register `MainScene` in `src/main.ts` — scene 配列に `MainScene` を追加
 
 **Checkpoint**: `npm run dev` でブラウザ起動し、空の UI 骨格が表示される
 
@@ -52,17 +52,17 @@
 `[data-testid="member-alice-skill"]` に「12」、手札カードが表示される
 （`tests/e2e/dashboard.spec.ts` PASS）
 
-- [ ] T010 [US1] Implement header area in `src/ui/MainGameUI.ts`
+- [X] T010 [US1] Implement header area in `src/ui/MainGameUI.ts`
   — `data-testid="header-turn"` 要素にターン番号と残りターン数を表示
-- [ ] T011 [P] [US1] Implement KPI area in `src/ui/MainGameUI.ts`
+- [X] T011 [P] [US1] Implement KPI area in `src/ui/MainGameUI.ts`
   — `data-testid="kpi-profit"` / `kpi-profit-rate"` / `kpi-spi"` / `kpi-cpi"` /
   `kpi-transparency"` / `kpi-tension"` を render() で更新
-- [ ] T012 [P] [US1] Implement member status area in `src/ui/MainGameUI.ts`
+- [X] T012 [P] [US1] Implement member status area in `src/ui/MainGameUI.ts`
   — `data-testid="member-{id}"` / `member-{id}-skill"` / `member-{id}-morale"` /
   `member-{id}-health"` を render() で更新
-- [ ] T013 [P] [US1] Implement hand display in `src/ui/MainGameUI.ts`
+- [X] T013 [P] [US1] Implement hand display in `src/ui/MainGameUI.ts`
   — `data-testid="hand-card-{name}"` 要素を hand 配列から生成
-- [ ] T014 [US1] Write E2E test `tests/e2e/dashboard.spec.ts`
+- [X] T014 [US1] Write E2E test `tests/e2e/dashboard.spec.ts`
   — US1 Acceptance Scenarios を Playwright で実装（contracts/ui-contracts.md 参照）
 
 **Checkpoint**: `npx playwright test tests/e2e/dashboard.spec.ts` PASS
@@ -77,17 +77,17 @@
 `data-occupied="true"` になり合計コストが更新される
 （`tests/e2e/card-slot.spec.ts` PASS）
 
-- [ ] T015 [US2] Implement `CardSlot` class in `src/ui/CardSlot.ts`
+- [X] T015 [US2] Implement `CardSlot` class in `src/ui/CardSlot.ts`
   — `el`・`card`・`cost` フィールド、`data-occupied` / `data-card` / `data-blocked` 属性管理
-- [ ] T016 [US2] Implement card slot area in `src/ui/MainGameUI.ts`
+- [X] T016 [US2] Implement card slot area in `src/ui/MainGameUI.ts`
   — `card-slot-{n}` スロット 8 枠を生成・`total-cost` 表示・合計コスト計算と上限チェック
-- [ ] T017 [US2] Implement HTML5 drag events on hand cards and slots in `src/ui/MainGameUI.ts`
+- [X] T017 [US2] Implement HTML5 drag events on hand cards and slots in `src/ui/MainGameUI.ts`
   — `draggable="true"` + `dragstart` / `dragover` (preventDefault) / `drop` ハンドラ
-- [ ] T018 [US2] Implement confirm turn button in `src/ui/MainGameUI.ts`
+- [X] T018 [US2] Implement confirm turn button in `src/ui/MainGameUI.ts`
   — `data-testid="confirm-turn-btn"` ボタン、クリック時に `getPlacedCards()` を返すコールバック
-- [ ] T019 [US2] Connect confirm turn button to `MainScene.confirmTurn()` in `src/scenes/MainScene.ts`
+- [X] T019 [US2] Connect confirm turn button to `MainScene.confirmTurn()` in `src/scenes/MainScene.ts`
   — `Promise.all([Promise.resolve(engine.processTurn(cards)), sleep(1000)])` パターンで実装
-- [ ] T020 [US2] Write E2E test `tests/e2e/card-slot.spec.ts`
+- [X] T020 [US2] Write E2E test `tests/e2e/card-slot.spec.ts`
   — US2 Acceptance Scenarios を Playwright で実装（drag-and-drop・コスト制限）
 
 **Checkpoint**: `npx playwright test tests/e2e/card-slot.spec.ts` PASS
@@ -101,12 +101,12 @@
 **Independent Test**: ターン確定後に `loading-screen` が表示され、PM用語テキストが存在し、
 ターン番号が更新される（`tests/e2e/turn-cycle.spec.ts` PASS）
 
-- [ ] T021 [US3] Wire `LoadingScreen.show()/hide()` into `MainScene.confirmTurn()` in
+- [X] T021 [US3] Wire `LoadingScreen.show()/hide()` into `MainScene.confirmTurn()` in
   `src/scenes/MainScene.ts`
   — show → Promise.all → ui.render → hide の順で呼び出す
-- [ ] T022 [US3] Handle game over state in `src/ui/MainGameUI.ts`
+- [X] T022 [US3] Handle game over state in `src/ui/MainGameUI.ts`
   — `isGameOver === true` のとき `confirm-turn-btn` を `disabled` にする
-- [ ] T023 [US3] Write E2E test `tests/e2e/turn-cycle.spec.ts`
+- [X] T023 [US3] Write E2E test `tests/e2e/turn-cycle.spec.ts`
   — US3 Acceptance Scenarios を Playwright で実装（ローディング最低1秒・ターン番号更新）
 
 **Checkpoint**: `npx playwright test tests/e2e/turn-cycle.spec.ts` PASS
