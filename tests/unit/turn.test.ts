@@ -363,3 +363,97 @@ describe("processTurn - fast-check properties", () => {
     );
   });
 });
+
+// =============================================================================
+// US1: カード統合テスト（T009・T010）
+// =============================================================================
+
+describe("processTurn - US1 カード統合", () => {
+  it("cards=[] のとき activeEffectsAdded は空配列", () => {
+    const result = processTurn(makeState(), []);
+    expect(result.activeEffectsAdded).toHaveLength(0);
+  });
+
+  it("cards=[] のとき activeEffectsAfterTick は空配列", () => {
+    const result = processTurn(makeState(), []);
+    expect(result.activeEffectsAfterTick).toHaveLength(0);
+  });
+
+  it("デイリーカードありのとき activeEffectsAdded に task_event_prob_reduced が含まれる", () => {
+    const result = processTurn(makeState(), ["デイリー"]);
+    expect(result.activeEffectsAdded.some((e) => e.effectType === "task_event_prob_reduced")).toBe(
+      true,
+    );
+  });
+
+  it("レビューカードありのとき activeEffectsAdded に rework_prob_reduced が含まれる", () => {
+    const result = processTurn(makeState(), ["レビュー"]);
+    expect(result.activeEffectsAdded.some((e) => e.effectType === "rework_prob_reduced")).toBe(
+      true,
+    );
+  });
+
+  it("デイリーカードありのとき activeEffectsAfterTick にも task_event_prob_reduced が残る（永続効果）", () => {
+    const result = processTurn(makeState(), ["デイリー"]);
+    expect(
+      result.activeEffectsAfterTick.some((e) => e.effectType === "task_event_prob_reduced"),
+    ).toBe(true);
+  });
+
+  it("個別面談カードありのとき memberUpdates に moraleDelta > 0 が含まれる（カード由来）", () => {
+    const state = makeState();
+    const result = processTurn(state, ["個別面談"]);
+    const cardUpdate = result.memberUpdates.find((u) => u.memberId === "m1" && u.moraleDelta > 0);
+    expect(cardUpdate).toBeDefined();
+  });
+
+  it("前ターンのアクティブ効果が tick で引き継がれる（remainingTurns=null は永続）", () => {
+    const state = makeState({
+      activeEffects: [
+        {
+          cardName: "レビュー",
+          targetId: "project",
+          effectType: "rework_prob_reduced",
+          remainingTurns: null,
+        },
+      ],
+    });
+    const result = processTurn(state, []);
+    expect(result.activeEffectsAfterTick.some((e) => e.effectType === "rework_prob_reduced")).toBe(
+      true,
+    );
+  });
+
+  it("前ターンのアクティブ効果 remainingTurns=1 は tick で除去される", () => {
+    const state = makeState({
+      activeEffects: [
+        {
+          cardName: "デイリー",
+          targetId: "project",
+          effectType: "task_event_prob_reduced",
+          remainingTurns: 1,
+        },
+      ],
+    });
+    const result = processTurn(state, []);
+    expect(
+      result.activeEffectsAfterTick.some((e) => e.effectType === "task_event_prob_reduced"),
+    ).toBe(false);
+  });
+
+  it("state.activeEffects が変化しない（イミュータブル）", () => {
+    const state = makeState({
+      activeEffects: [
+        {
+          cardName: "デイリー",
+          targetId: "project",
+          effectType: "task_event_prob_reduced",
+          remainingTurns: null,
+        },
+      ],
+    });
+    const effectsBefore = JSON.stringify(state.activeEffects);
+    processTurn(state, ["レビュー"]);
+    expect(JSON.stringify(state.activeEffects)).toBe(effectsBefore);
+  });
+});

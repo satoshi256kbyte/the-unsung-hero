@@ -128,6 +128,7 @@ export const THRESHOLDS = {
 
 export const EVENT_PROB = {
   /** タスクイベント基本確率 */
+  STALL: 0.05,
   REWORK: 0.08,
   SPEC_UNCLEAR: 0.05,
   BLOCKER: 0.04,

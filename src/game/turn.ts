@@ -1,8 +1,11 @@
+import { applyCards } from "./card.js";
 import { EVENT_PROB, POC_STAGE } from "./constants.js";
 import { rollProgress } from "./dice.js";
+import { applyEffectTick, calcEventProbModifier } from "./effect.js";
 import { applyRework, getCompletionRate, updateTaskProgress } from "./gantt.js";
 import { applyTurnDecay, applyWeekendRecovery } from "./member.js";
 import type {
+  CardEffect,
   CardName,
   GameEvent,
   GameState,
@@ -12,13 +15,16 @@ import type {
 } from "./types.js";
 
 export function processTurn(state: GameState, cards: CardName[]): TurnResult {
-  void cards;
-
   const events: GameEvent[] = [];
   const progressMap = new Map<string, number>();
-  const memberUpdates: MemberUpdate[] = [];
 
-  // Progress dice: roll for each member's active tasks
+  // Step 1: applyCards → effectsToAdd + cardMemberUpdates
+  const { effectsToAdd, memberUpdates: cardMemberUpdates } = applyCards(state, cards);
+
+  // Step 2: currentEffects = 前ターン継続 + 今ターン追加
+  const currentEffects: CardEffect[] = [...state.activeEffects, ...effectsToAdd];
+
+  // Step 3: Progress dice per member's active tasks
   for (const member of state.members) {
     const activeTasks = state.gantt.tasks.filter(
       (t) => t.assignedMemberId === member.id && t.status === "active",
@@ -29,19 +35,25 @@ export function processTurn(state: GameState, cards: CardName[]): TurnResult {
     }
   }
 
-  // Parameter decay + weekend recovery
+  // Step 4: Parameter decay + weekend recovery
+  const decayMemberUpdates: MemberUpdate[] = [];
   for (const member of state.members) {
     const decayed = applyTurnDecay(member);
     const final = state.turn % 5 === 0 ? applyWeekendRecovery(decayed) : decayed;
-    memberUpdates.push({
+    decayMemberUpdates.push({
       memberId: member.id,
       moraleDelta: final.morale - member.morale,
       healthDelta: final.health - member.health,
     });
   }
 
-  // Rework event
-  if (Math.random() < EVENT_PROB.REWORK) {
+  // Step 5: Rework event with probability modifier
+  const reworkProb = calcEventProbModifier(
+    currentEffects,
+    EVENT_PROB.REWORK,
+    "rework_prob_reduced",
+  );
+  if (Math.random() < reworkProb) {
     const activeTasks = state.gantt.tasks.filter((t) => t.status === "active");
     if (activeTasks.length > 0) {
       const target = activeTasks[Math.floor(Math.random() * activeTasks.length)];
@@ -68,6 +80,9 @@ export function processTurn(state: GameState, cards: CardName[]): TurnResult {
     ([taskId, delta]) => ({ taskId, delta }),
   );
 
+  // Step 6: applyEffectTick
+  const activeEffectsAfterTick = applyEffectTick(currentEffects);
+
   // Game-over detection on virtual gantt
   const virtualTasks = state.gantt.tasks.map((task) => {
     const delta = progressMap.get(task.id);
@@ -82,5 +97,17 @@ export function processTurn(state: GameState, cards: CardName[]): TurnResult {
 
   const costDelta = POC_STAGE.DAILY_COST_CAP * state.members.length;
 
-  return { events, progressUpdates, memberUpdates, costDelta, isGameOver, gameOverReason };
+  // Step 7: memberUpdates = カード由来 + decay 由来を統合
+  const memberUpdates: MemberUpdate[] = [...cardMemberUpdates, ...decayMemberUpdates];
+
+  return {
+    events,
+    progressUpdates,
+    memberUpdates,
+    costDelta,
+    isGameOver,
+    gameOverReason,
+    activeEffectsAdded: effectsToAdd,
+    activeEffectsAfterTick,
+  };
 }

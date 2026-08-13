@@ -16,10 +16,10 @@
 
 **Purpose**: 型拡張・定数追加・ファイルスケルトンの作成
 
-- [ ] T001 `src/game/types.ts` の `TurnResult` インターフェースに
+- [x] T001 `src/game/types.ts` の `TurnResult` インターフェースに
   `activeEffectsAdded: CardEffect[]` と `activeEffectsAfterTick: CardEffect[]` を追加する
-- [ ] T002 `src/game/constants.ts` の `EVENT_PROB` に `STALL: 0.05` を追加する
-- [ ] T003 `src/game/effect.ts` を作成し、`applyEffectTick` と `calcEventProbModifier` の
+- [x] T002 `src/game/constants.ts` の `EVENT_PROB` に `STALL: 0.05` を追加する
+- [x] T003 `src/game/effect.ts` を作成し、`applyEffectTick` と `calcEventProbModifier` の
   エクスポート宣言スケルトンを記述する
 
 ---
@@ -30,7 +30,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 `npx tsc --noEmit` でスケルトンの型チェックが 0 エラーであることを確認する
+- [x] T004 `npx tsc --noEmit` でスケルトンの型チェックが 0 エラーであることを確認する
   （TurnResult 型拡張・constants.ts 追加・effect.ts スケルトンを含む）
 
 **Checkpoint**: 型チェック通過 → 各 User Story 実装可

@@ -757,3 +757,47 @@ MATCH (a:Document {name: 'Spec-07 plan'}), (b:Document {name: 'Spec-01 constants
 MERGE (:Document {name: 'Spec-07 tasks', path: 'specs/007-turn-integration-engine/tasks.md', type: 'tasks',
   description: 'Spec-07実装タスク一覧。T001〜T020、7フェーズ。Setup→Foundational→US2(applyEffectTick)→US3(calcEventProbModifier)→US1(processTurn統合)→US4(イミュータブル)→Polish。TDD方式。'});
 MATCH (a:Document {name: 'Spec-07 spec'}), (b:Document {name: 'Spec-07 tasks'}) MERGE (a)-[:HAS_TASKS]->(b);
+
+// =============================================================================
+// Spec-07 implement: effect.ts / effect.test.ts Documents + Concepts + ADR-010
+// =============================================================================
+MERGE (:Document {name: 'Spec-07 effect.ts', path: 'src/game/effect.ts', spec: 'Spec-07',
+  description: 'アクティブ効果管理の純粋関数: applyEffectTick / calcEventProbModifier',
+  status: 'implemented'});
+MERGE (:Document {name: 'Spec-07 effect.test.ts', path: 'tests/unit/effect.test.ts', spec: 'Spec-07',
+  description: 'effect.ts のユニットテスト (18テスト + fast-check 5テスト = 23テスト)',
+  status: 'implemented'});
+MERGE (:Concept {name: 'applyEffectTick', module: 'effect.ts', spec: 'Spec-07',
+  description: 'アクティブ効果のターンtick: null=永続保持, >1=デクリメント, <=1=除去',
+  signature: 'applyEffectTick(effects: CardEffect[]): CardEffect[]'});
+MERGE (:Concept {name: 'calcEventProbModifier', module: 'effect.ts', spec: 'Spec-07',
+  description: '指定effectTypeが含まれればbaseProb×0.5、なければbaseProb（重複スタックなし）',
+  signature: 'calcEventProbModifier(effects: CardEffect[], baseProb: number, effectType: EffectType): number'});
+MERGE (:Concept {name: 'activeEffectsAdded', module: 'types.ts', spec: 'Spec-07',
+  description: 'TurnResult拡張フィールド: 今ターンにカードで追加されたCardEffect[]'});
+MERGE (:Concept {name: 'activeEffectsAfterTick', module: 'types.ts', spec: 'Spec-07',
+  description: 'TurnResult拡張フィールド: tick後に残存するCardEffect[]（呼び出し側がGameState.activeEffectsを更新する）'});
+MERGE (:ADR {
+  id: 'ADR-010',
+  title: 'effect.ts を turn.ts から分離してアクティブ効果ライフサイクルを管理する',
+  date: '2026-08-13',
+  status: 'accepted',
+  context: 'processTurnはカード効果・イベント確率補正・ターンtickの3つの責務を持ち肥大化するリスクがあった。また applyEffectTick と calcEventProbModifier は純粋関数として単独テスト可能なため分離が有効だった。',
+  decision: 'src/game/effect.ts を新規作成し applyEffectTick と calcEventProbModifier を実装。turn.ts はこれをインポートして使用する構成とした。TurnResult型にactiveEffectsAdded/activeEffectsAfterTickを追加し、GameState更新責務を呼び出し側（ADR-008準拠）に委ねる。',
+  rationale: '単一責任原則に従い effect.ts を独立させることで、(1) fast-checkプロパティテストを含む独立テストが容易、(2) Phaser/DOM非依存を grep で機械的に保証可能、(3) 将来的なeffectType追加時の変更範囲を最小化できる。',
+  consequences: 'effect.tsというファイルが増える分ファイル数は増加するが、turn.tsの責務が明確化されコードの見通しが改善。覚えるべきAPIは2関数のみでシンプル。'
+});
+MATCH (d:Document {name: 'Spec-07 effect.ts'}), (c:Concept {name: 'applyEffectTick'}) MERGE (d)-[:CONTAINS]->(c);
+MATCH (d:Document {name: 'Spec-07 effect.ts'}), (c:Concept {name: 'calcEventProbModifier'}) MERGE (d)-[:CONTAINS]->(c);
+MATCH (d:Document {name: 'Spec-07 effect.test.ts'}), (c:Concept {name: 'applyEffectTick'}) MERGE (d)-[:TESTS]->(c);
+MATCH (d:Document {name: 'Spec-07 effect.test.ts'}), (c:Concept {name: 'calcEventProbModifier'}) MERGE (d)-[:TESTS]->(c);
+MATCH (d:Document {name: 'Spec-05 turn.ts'}), (c:Concept {name: 'applyEffectTick'}) MERGE (d)-[:USES]->(c);
+MATCH (d:Document {name: 'Spec-05 turn.ts'}), (c:Concept {name: 'calcEventProbModifier'}) MERGE (d)-[:USES]->(c);
+MATCH (d:Document {name: 'Spec-05 turn.ts'}), (c:Concept {name: 'activeEffectsAdded'}) MERGE (d)-[:RETURNS]->(c);
+MATCH (d:Document {name: 'Spec-05 turn.ts'}), (c:Concept {name: 'activeEffectsAfterTick'}) MERGE (d)-[:RETURNS]->(c);
+MATCH (adr:ADR {id: 'ADR-010'}), (c:Concept {name: 'applyEffectTick'}) MERGE (adr)-[:AFFECTS]->(c);
+MATCH (adr:ADR {id: 'ADR-010'}), (c:Concept {name: 'calcEventProbModifier'}) MERGE (adr)-[:AFFECTS]->(c);
+MATCH (adr:ADR {id: 'ADR-010'}), (d:Document {name: 'Spec-07 effect.ts'}) MERGE (adr)-[:AFFECTS]->(d);
+MATCH (adr:ADR {id: 'ADR-010'}), (prev:ADR {id: 'ADR-008'}) MERGE (adr)-[:EXTENDS]->(prev);
+MATCH (spec:Document {name: 'Spec-07 spec'}), (d:Document {name: 'Spec-07 effect.ts'}) MERGE (spec)-[:IMPLEMENTS]->(d);
+MATCH (spec:Document {name: 'Spec-07 spec'}), (d:Document {name: 'Spec-07 effect.test.ts'}) MERGE (spec)-[:IMPLEMENTS]->(d);

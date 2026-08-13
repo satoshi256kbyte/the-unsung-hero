@@ -33,6 +33,7 @@ Spec Kitコマンドごとのトークン消費を記録する。
 | Spec-07 | /speckit-specify | 2026-08-13 | — | — | ターン統合エンジン仕様作成・チェックリスト16項目全PASS |
 | Spec-07 | /speckit-plan | 2026-08-13 | — | — | plan.md / data-model.md / quickstart.md 作成 |
 | Spec-07 | /speckit-tasks | 2026-08-13 | — | — | tasks.md 作成（T001〜T020、7フェーズ） |
+| Spec-07 | /speckit-implement | 2026-08-13 | — | — | effect.ts + effect.test.ts 新規・turn.ts / turn.test.ts 更新・173テスト全PASS・coverage 100% |
 
 ## 累計
 

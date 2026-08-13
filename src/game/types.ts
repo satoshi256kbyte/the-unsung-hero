@@ -142,6 +142,8 @@ export interface TurnResult {
   costDelta: number;
   isGameOver: boolean;
   gameOverReason: string | null;
+  activeEffectsAdded: CardEffect[];
+  activeEffectsAfterTick: CardEffect[];
 }
 
 // ===== Game state & Stage data =====
