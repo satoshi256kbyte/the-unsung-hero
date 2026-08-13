@@ -839,3 +839,39 @@ MATCH (a:Document {name: 'Spec-08 plan'}), (b:Document {name: 'Spec-02 gantt.ts'
 MERGE (:Document {name: 'Spec-08 tasks', path: 'specs/008-random-event-engine/tasks.md', type: 'tasks', spec: 'Spec-08',
   description: 'Spec-08実装タスク一覧。T001〜T019、8フェーズ。Setup→Foundational→US2(applyEventToProgress)→US3(applyEventToMember)→US1(rollRandomEvents)→US4(processTurn統合)→US5(イミュータブル)→Polish。TDD方式。'});
 MATCH (a:Document {name: 'Spec-08 spec'}), (b:Document {name: 'Spec-08 tasks'}) MERGE (a)-[:HAS_TASKS]->(b);
+
+// =============================================================================
+// Spec-08 /speckit-implement: event.ts / event.test.ts + ADR-011
+// =============================================================================
+MERGE (:Document {name: 'Spec-08 event.ts', path: 'src/game/event.ts', spec: 'Spec-08',
+  description: 'ランダムイベントエンジン: rollRandomEvents / applyEventToProgress / applyEventToMember（5種イベント判定）',
+  status: 'implemented'});
+MERGE (:Document {name: 'Spec-08 event.test.ts', path: 'tests/unit/event.test.ts', spec: 'Spec-08',
+  description: 'event.ts のユニットテスト（28テスト + fast-check プロパティテスト）',
+  status: 'implemented'});
+MERGE (:Concept {name: 'rollRandomEvents', module: 'event.ts', spec: 'Spec-08',
+  description: '5種ランダムイベント判定（stall/rework/sick/low_motivation/fatigue）。確率補正はcalcEventProbModifier使用。',
+  signature: 'rollRandomEvents(state: GameState, activeEffects: CardEffect[]): GameEvent[]'});
+MERGE (:Concept {name: 'applyEventToProgress', module: 'event.ts', spec: 'Spec-08',
+  description: 'rework: デルタ加算、stall: 0リセット、その他: そのままコピー。イミュータブル。',
+  signature: 'applyEventToProgress(event: GameEvent, progressMap: Map<string, number>): Map<string, number>'});
+MERGE (:Concept {name: 'applyEventToMember', module: 'event.ts', spec: 'Spec-08',
+  description: 'sick/low_motivation/fatigueをメンバーに適用。MEMBER_PARAMSでクランプ。イミュータブル。',
+  signature: 'applyEventToMember(event: GameEvent, member: Member): Member'});
+MERGE (:ADR {id: 'ADR-011',
+  title: 'event.ts を turn.ts から分離しランダムイベント5種を管理する',
+  date: '2026-08-13', status: 'accepted',
+  context: 'turn.ts の Step5 は rework のみ簡易実装だった。stall/sick/low_motivation/fatigueの4種を追加するにあたり、イベント判定ロジックを独立モジュールとして切り出す設計を採用した。',
+  decision: 'src/game/event.ts を新規作成し rollRandomEvents/applyEventToProgress/applyEventToMember を実装。turn.ts Step5 を完全に削除して rollRandomEvents に統合。eventMemberUpdates を Step7 の memberUpdates 統合に追加。',
+  rationale: 'effect.ts（ADR-010）と同様の分離原則。独立テスト・Phaser非依存grep検証・将来イベント追加時の変更範囲最小化のため。applyEventToMemberが差分でなく状態を返すことで、クランプ後の実際の変化量が自動的に正確になる。',
+  consequences: 'ファイル数が増えるが責務が明確化。memberUpdatesが最大3種類（card/decay/event）のエントリを持つため呼び出し側での合算が必要。'});
+MATCH (d:Document {name: 'Spec-08 event.ts'}), (c:Concept {name: 'rollRandomEvents'}) MERGE (d)-[:CONTAINS]->(c);
+MATCH (d:Document {name: 'Spec-08 event.ts'}), (c:Concept {name: 'applyEventToProgress'}) MERGE (d)-[:CONTAINS]->(c);
+MATCH (d:Document {name: 'Spec-08 event.ts'}), (c:Concept {name: 'applyEventToMember'}) MERGE (d)-[:CONTAINS]->(c);
+MATCH (d:Document {name: 'Spec-08 event.test.ts'}), (c:Concept {name: 'rollRandomEvents'}) MERGE (d)-[:TESTS]->(c);
+MATCH (d:Document {name: 'Spec-08 event.test.ts'}), (c:Concept {name: 'applyEventToProgress'}) MERGE (d)-[:TESTS]->(c);
+MATCH (d:Document {name: 'Spec-08 event.test.ts'}), (c:Concept {name: 'applyEventToMember'}) MERGE (d)-[:TESTS]->(c);
+MATCH (d:Document {name: 'Spec-05 turn.ts'}), (c:Concept {name: 'rollRandomEvents'}) MERGE (d)-[:USES]->(c);
+MATCH (adr:ADR {id: 'ADR-011'}), (d:Document {name: 'Spec-08 event.ts'}) MERGE (adr)-[:AFFECTS]->(d);
+MATCH (adr:ADR {id: 'ADR-011'}), (prev:ADR {id: 'ADR-010'}) MERGE (adr)-[:EXTENDS]->(prev);
+MATCH (spec:Document {name: 'Spec-08 spec'}), (d:Document {name: 'Spec-08 event.ts'}) MERGE (spec)-[:IMPLEMENTS]->(d);

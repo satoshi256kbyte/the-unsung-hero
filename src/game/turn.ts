@@ -1,8 +1,9 @@
 import { applyCards } from "./card.js";
-import { EVENT_PROB, POC_STAGE } from "./constants.js";
+import { POC_STAGE } from "./constants.js";
 import { rollProgress } from "./dice.js";
-import { applyEffectTick, calcEventProbModifier } from "./effect.js";
-import { applyRework, getCompletionRate, updateTaskProgress } from "./gantt.js";
+import { applyEffectTick } from "./effect.js";
+import { applyEventToMember, applyEventToProgress, rollRandomEvents } from "./event.js";
+import { getCompletionRate, updateTaskProgress } from "./gantt.js";
 import { applyTurnDecay, applyWeekendRecovery } from "./member.js";
 import type {
   CardEffect,
@@ -47,36 +48,32 @@ export function processTurn(state: GameState, cards: CardName[]): TurnResult {
     });
   }
 
-  // Step 5: Rework event with probability modifier
-  const reworkProb = calcEventProbModifier(
-    currentEffects,
-    EVENT_PROB.REWORK,
-    "rework_prob_reduced",
-  );
-  if (Math.random() < reworkProb) {
-    const activeTasks = state.gantt.tasks.filter((t) => t.status === "active");
-    if (activeTasks.length > 0) {
-      const target = activeTasks[Math.floor(Math.random() * activeTasks.length)];
-      if (target !== undefined) {
-        const avgSkill =
-          state.members.length > 0
-            ? state.members.reduce((sum, m) => sum + m.skill, 0) / state.members.length
-            : 0;
-        const reworked = applyRework(target, avgSkill);
-        const reworkDelta = reworked.progress - target.progress;
-        progressMap.set(target.id, (progressMap.get(target.id) ?? 0) + reworkDelta);
-        events.push({
-          id: `rework-${state.turn}-${target.id}`,
-          type: "ネガティブ",
-          category: "進捗ダウン",
-          targetId: target.id,
-          params: { reworkDelta },
-        });
+  // Step 5: rollRandomEvents → progressMap 更新 + メンバーイベントデルタ収集
+  const randomEvents = rollRandomEvents(state, currentEffects);
+  events.push(...randomEvents);
+
+  let updatedProgressMap = progressMap;
+  for (const event of randomEvents) {
+    updatedProgressMap = applyEventToProgress(event, updatedProgressMap);
+  }
+
+  const eventMemberUpdates: MemberUpdate[] = [];
+  for (const member of state.members) {
+    const memberEvents = randomEvents.filter((e) => e.targetId === member.id);
+    if (memberEvents.length > 0) {
+      let updated = member;
+      for (const event of memberEvents) {
+        updated = applyEventToMember(event, updated);
       }
+      eventMemberUpdates.push({
+        memberId: member.id,
+        moraleDelta: updated.morale - member.morale,
+        healthDelta: updated.health - member.health,
+      });
     }
   }
 
-  const progressUpdates: ProgressUpdate[] = Array.from(progressMap.entries()).map(
+  const progressUpdates: ProgressUpdate[] = Array.from(updatedProgressMap.entries()).map(
     ([taskId, delta]) => ({ taskId, delta }),
   );
 
@@ -85,7 +82,7 @@ export function processTurn(state: GameState, cards: CardName[]): TurnResult {
 
   // Game-over detection on virtual gantt
   const virtualTasks = state.gantt.tasks.map((task) => {
-    const delta = progressMap.get(task.id);
+    const delta = updatedProgressMap.get(task.id);
     return delta !== undefined ? updateTaskProgress(task, delta) : task;
   });
   const virtualGantt = { ...state.gantt, tasks: virtualTasks };
@@ -97,8 +94,12 @@ export function processTurn(state: GameState, cards: CardName[]): TurnResult {
 
   const costDelta = POC_STAGE.DAILY_COST_CAP * state.members.length;
 
-  // Step 7: memberUpdates = カード由来 + decay 由来を統合
-  const memberUpdates: MemberUpdate[] = [...cardMemberUpdates, ...decayMemberUpdates];
+  // Step 7: memberUpdates = カード由来 + decay 由来 + イベント由来を統合
+  const memberUpdates: MemberUpdate[] = [
+    ...cardMemberUpdates,
+    ...decayMemberUpdates,
+    ...eventMemberUpdates,
+  ];
 
   return {
     events,

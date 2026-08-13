@@ -14,7 +14,7 @@
 
 **Purpose**: event.ts スケルトン作成
 
-- [ ] T001 `src/game/event.ts` を新規作成し、`rollRandomEvents` / `applyEventToProgress` /
+- [x] T001 `src/game/event.ts` を新規作成し、`rollRandomEvents` / `applyEventToProgress` /
   `applyEventToMember` のエクスポート宣言スケルトンを記述する
 
 ---
@@ -25,7 +25,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 `npx tsc --noEmit` でスケルトンの型チェックが 0 エラーであることを確認する
+- [x] T002 `npx tsc --noEmit` でスケルトンの型チェックが 0 エラーであることを確認する
 
 **Checkpoint**: 型チェック通過 → 各 User Story 実装可
 
@@ -40,7 +40,7 @@ applyEventToProgress の全テストが PASS すること
 
 ### Tests for User Story 2 (TDD: 実装前に作成し FAIL を確認)
 
-- [ ] T003 [P] [US2] `tests/unit/event.test.ts` に applyEventToProgress のテストを記述する
+- [x] T003 [P] [US2] `tests/unit/event.test.ts` に applyEventToProgress のテストを記述する
   - rework イベントで progressMap のデルタが reworkDelta 分変化すること
   - stall イベントで progressMap のデルタが 0 にリセットされること
   - メンバーイベント（sick 等）では progressMap が変化しないこと
@@ -48,7 +48,7 @@ applyEventToProgress の全テストが PASS すること
 
 ### Implementation for User Story 2
 
-- [ ] T004 [US2] `src/game/event.ts` に
+- [x] T004 [US2] `src/game/event.ts` に
   `applyEventToProgress(event, progressMap): Map<string, number>` を実装する
   （rework: デルタ加算、stall: 0リセット、その他: そのままコピーして返す）
 
@@ -65,7 +65,7 @@ applyEventToMember の全テストが PASS すること
 
 ### Tests for User Story 3 (TDD: 実装前に作成し FAIL を確認)
 
-- [ ] T005 [P] [US3] `tests/unit/event.test.ts` に applyEventToMember のテストを記述する
+- [x] T005 [P] [US3] `tests/unit/event.test.ts` に applyEventToMember のテストを記述する
   - sick イベントで morale -8、health -10 になること
   - low_motivation イベントで morale -10 になること（health 変化なし）
   - fatigue イベントで health -8 になること（morale 変化なし）
@@ -75,7 +75,7 @@ applyEventToMember の全テストが PASS すること
 
 ### Implementation for User Story 3
 
-- [ ] T006 [US3] `src/game/event.ts` に
+- [x] T006 [US3] `src/game/event.ts` に
   `applyEventToMember(event, member): Member` を実装する
   （sick/low_motivation/fatigue に対応、MEMBER_PARAMS でクランプ、その他はそのまま返す）
 
@@ -92,7 +92,7 @@ rollRandomEvents の全テストが PASS すること
 
 ### Tests for User Story 1 (TDD: 実装前に作成し FAIL を確認)
 
-- [ ] T007 [P] [US1] `tests/unit/event.test.ts` に rollRandomEvents のテストを記述する
+- [x] T007 [P] [US1] `tests/unit/event.test.ts` に rollRandomEvents のテストを記述する
   - アクティブタスク0件のとき stall・rework イベントが発生しないこと
   - メンバー0人のとき sick・low_motivation・fatigue イベントが発生しないこと
   - Math.random mock で stall イベントが発生し params.stallTurns が 1 または 2 であること
@@ -103,7 +103,7 @@ rollRandomEvents の全テストが PASS すること
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] `src/game/event.ts` に
+- [x] T008 [US1] `src/game/event.ts` に
   `rollRandomEvents(state, activeEffects): GameEvent[]` を実装する
   - stall / rework: calcEventProbModifier で確率補正→ランダム選択→イベント生成
   - rework: applyRework で reworkDelta を計算して params に格納
@@ -124,7 +124,7 @@ rollRandomEvents の全テストが PASS すること
 
 ### Tests for User Story 4 (TDD: 実装前に作成し FAIL を確認)
 
-- [ ] T009 [P] [US4] `tests/unit/turn.test.ts` にイベント統合テストを追加する
+- [x] T009 [P] [US4] `tests/unit/turn.test.ts` にイベント統合テストを追加する
   - Math.random mock で rework イベントが発生し TurnResult.events に含まれること
   - Math.random mock で sick イベントが発生し TurnResult.memberUpdates に
     sick 相当のデルタが含まれること
@@ -132,13 +132,13 @@ rollRandomEvents の全テストが PASS すること
 
 ### Implementation for User Story 4
 
-- [ ] T010 [US4] `src/game/turn.ts` の Step 5（簡易 rework 判定）を完全に削除し、
+- [x] T010 [US4] `src/game/turn.ts` の Step 5（簡易 rework 判定）を完全に削除し、
   `rollRandomEvents(state, currentEffects)` の呼び出しに置き換える
   （`src/game/turn.ts`）
-- [ ] T011 [US4] `src/game/turn.ts` に `applyEventToProgress` を組み込み、
+- [x] T011 [US4] `src/game/turn.ts` に `applyEventToProgress` を組み込み、
   rollRandomEvents の結果で progressMap を更新する
   （`src/game/turn.ts`）
-- [ ] T012 [US4] `src/game/turn.ts` に `applyEventToMember` を組み込み、
+- [x] T012 [US4] `src/game/turn.ts` に `applyEventToMember` を組み込み、
   イベント由来の MemberUpdate を生成して eventMemberUpdates に追加する。
   Step 7 で `memberUpdates = [...cardMemberUpdates, ...decayMemberUpdates, ...eventMemberUpdates]`
   として統合する（`src/game/turn.ts`）
@@ -156,7 +156,7 @@ rollRandomEvents の全テストが PASS すること
 
 ### Tests for User Story 5 (TDD: 実装前に作成し FAIL を確認)
 
-- [ ] T013 [P] [US5] `tests/unit/event.test.ts` にイミュータブルテストを追加する
+- [x] T013 [P] [US5] `tests/unit/event.test.ts` にイミュータブルテストを追加する
   - rollRandomEvents 後に引数 state・activeEffects が変化しないこと
   - applyEventToProgress 後に引数 progressMap が変化しないこと
   - applyEventToMember 後に引数 member が変化しないこと
@@ -174,16 +174,16 @@ rollRandomEvents の全テストが PASS すること
 
 **Purpose**: プロパティテスト・Lint・最終バリデーション
 
-- [ ] T014 [P] `tests/unit/event.test.ts` に fast-check プロパティテストを追加する
+- [x] T014 [P] `tests/unit/event.test.ts` に fast-check プロパティテストを追加する
   （任意の GameState・CardEffect[] で rollRandomEvents が例外なし・GameEvent[] を返す）
-- [ ] T015 [P] `tests/unit/event.test.ts` に fast-check で applyEventToProgress /
+- [x] T015 [P] `tests/unit/event.test.ts` に fast-check で applyEventToProgress /
   applyEventToMember のプロパティテストを追加する
   （任意の入力で例外なし・イミュータブル）
-- [ ] T016 [P] `npx biome check --write src/game/event.ts src/game/turn.ts
+- [x] T016 [P] `npx biome check --write src/game/event.ts src/game/turn.ts
   tests/unit/event.test.ts tests/unit/turn.test.ts` でフォーマット適用
-- [ ] T017 `npx tsc --noEmit` で型チェックが 0 エラーであることを確認する
-- [ ] T018 `npx vitest run --coverage` で coverage ≥ 80%（lines・functions）を確認する
-- [ ] T019 [P] `grep -r "phaser\|document\|window" src/game/event.ts` が 0 件であることを確認する
+- [x] T017 `npx tsc --noEmit` で型チェックが 0 エラーであることを確認する
+- [x] T018 `npx vitest run --coverage` で coverage ≥ 80%（lines・functions）を確認する
+- [x] T019 [P] `grep -r "phaser\|document\|window" src/game/event.ts` が 0 件であることを確認する
 
 ---
 

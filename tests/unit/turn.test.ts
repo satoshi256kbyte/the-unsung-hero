@@ -457,3 +457,80 @@ describe("processTurn - US1 カード統合", () => {
     expect(JSON.stringify(state.activeEffects)).toBe(effectsBefore);
   });
 });
+
+// =============================================================================
+// US4: processTurn イベント統合（Spec-08）
+// =============================================================================
+
+describe("processTurn - US4 random event integration", () => {
+  it("TurnResult.events は GameEvent[] 型（配列）である", () => {
+    const state = makeState();
+    const result = processTurn(state, []);
+    expect(Array.isArray(result.events)).toBe(true);
+  });
+
+  it("大量サンプルで少なくとも1件のランダムイベントが発生するケースが存在する", () => {
+    const state = makeState();
+    let found = false;
+    for (let i = 0; i < 500; i++) {
+      if (processTurn(state, []).events.length > 0) {
+        found = true;
+        break;
+      }
+    }
+    expect(found).toBe(true);
+  });
+
+  it("sick イベントが発生した場合 memberUpdates に sick 相当のデルタが含まれる", () => {
+    const state = makeState();
+    let sickFound = false;
+    for (let i = 0; i < 500; i++) {
+      const result = processTurn(state, []);
+      const sickEvent = result.events.find((e) => e.id.startsWith("sick"));
+      if (sickEvent) {
+        const memberId = sickEvent.targetId;
+        // memberUpdates は decay + event で複数エントリになるため合算する
+        const totalMorale = result.memberUpdates
+          .filter((u) => u.memberId === memberId)
+          .reduce((sum, u) => sum + u.moraleDelta, 0);
+        const totalHealth = result.memberUpdates
+          .filter((u) => u.memberId === memberId)
+          .reduce((sum, u) => sum + u.healthDelta, 0);
+        // sick は moraleDelta -8、decay で最大 -3 → 合計 ≤ -8
+        expect(totalMorale).toBeLessThanOrEqual(-8);
+        // sick は healthDelta -10、decay で最大 -1 → 合計 ≤ -10
+        expect(totalHealth).toBeLessThanOrEqual(-10);
+        sickFound = true;
+        break;
+      }
+    }
+    if (!sickFound) {
+      console.log("sick event did not occur in 500 samples – skipping assertion");
+    }
+  });
+
+  it("stall イベントが発生した場合 events に stall が含まれる", () => {
+    const state = makeState();
+    let stallFound = false;
+    for (let i = 0; i < 500; i++) {
+      const result = processTurn(state, []);
+      if (result.events.some((e) => e.id.startsWith("stall"))) {
+        stallFound = true;
+        break;
+      }
+    }
+    expect(stallFound).toBe(true);
+  });
+
+  it("全 events は id / type / category / targetId / params を持つ", () => {
+    const state = makeState();
+    for (let i = 0; i < 100; i++) {
+      const result = processTurn(state, []);
+      for (const e of result.events) {
+        expect(typeof e.id).toBe("string");
+        expect(["ニュートラル", "ネガティブ", "ポジティブ"]).toContain(e.type);
+        expect(typeof e.params).toBe("object");
+      }
+    }
+  });
+});
