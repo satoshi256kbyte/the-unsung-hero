@@ -30,7 +30,7 @@
 
 ## Phase 6: 画面
 
-- [ ] Spec-12: メイン画面UI（DOM overlay + Phaser Scene）
+- [ ] Spec-12: メイン画面UI（DOM overlay + Phaser Scene）<!-- specify完了 → plan待ち -->
 
 ---
 
