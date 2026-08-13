@@ -683,3 +683,10 @@ MERGE (:Document {name: 'Spec-06 quickstart', path: 'specs/006-card-engine/quick
 MATCH (a:Document {name: 'Spec-06 spec'}), (b:Document {name: 'Spec-06 plan'}) MERGE (a)-[:HAS_PLAN]->(b);
 MATCH (a:Document {name: 'Spec-06 plan'}), (b:Document {name: 'Spec-06 data-model'}) MERGE (a)-[:HAS_DATA_MODEL]->(b);
 MATCH (a:Document {name: 'Spec-06 plan'}), (b:Document {name: 'Spec-06 quickstart'}) MERGE (a)-[:HAS_QUICKSTART]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-06 tasks
+// =============================================================================
+MERGE (:Document {name: 'Spec-06 tasks', path: 'specs/006-card-engine/tasks.md', type: 'tasks',
+  description: 'Spec-06実装タスク一覧。T001〜T017、6フェーズ。Setup→Foundational→US1(確率低減3種)→US2(即時メンバー3種)→US3(イミュータブル)→Polish。TDD方式。'});
+MATCH (a:Document {name: 'Spec-06 spec'}), (b:Document {name: 'Spec-06 tasks'}) MERGE (a)-[:HAS_TASKS]->(b);
