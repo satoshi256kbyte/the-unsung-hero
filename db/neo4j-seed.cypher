@@ -1194,3 +1194,7 @@ MATCH (mgu:Concept {name: 'MainGameUI'}), (ls:Concept {name: 'LoadingScreen'}) M
 MATCH (mgu:Concept {name: 'MainGameUI'}), (cs:Concept {name: 'CardSlot'}) MERGE (mgu)-[:CONTAINS]->(cs);
 MATCH (ms:Concept {name: 'MainScene'}), (mgu:Concept {name: 'MainGameUI'}) MERGE (ms)-[:USES]->(mgu);
 MATCH (ms:Concept {name: 'MainScene'}), (ge:Concept {name: 'GameEngine'}) MERGE (ms)-[:USES]->(ge);
+
+// Spec-12 implement 完了
+MATCH (n:Document {name: 'Spec-12 tasks.md'}) SET n.status = 'completed';
+MATCH (n:Document {name: 'Spec-12 spec.md'}) SET n.status = 'completed';
