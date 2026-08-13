@@ -534,3 +534,56 @@ describe("processTurn - US4 random event integration", () => {
     }
   });
 });
+
+// =============================================================================
+// US5: 条件付きイベント統合
+// =============================================================================
+
+describe("processTurn - US5 conditional event integration", () => {
+  it("条件成立の ConditionalEvent が TurnResult.events に含まれる", () => {
+    const state = makeState({ turn: 5 });
+    const conditionalEvents = [
+      {
+        id: "evt-deadline",
+        turn: 5,
+        condition: "turn == 5",
+        eventType: "ネガティブ" as const,
+        params: {},
+      },
+    ];
+    const result = processTurn(state, [], conditionalEvents);
+    const conditionalFound = result.events.some((e) => e.id === "conditional-5-evt-deadline");
+    expect(conditionalFound).toBe(true);
+  });
+
+  it("第3引数なし呼び出しで既存テストが壊れない（後方互換）", () => {
+    const state = makeState({ turn: 1 });
+    expect(() => processTurn(state, [])).not.toThrow();
+    const result = processTurn(state, []);
+    expect(typeof result.isGameOver).toBe("boolean");
+    expect(Array.isArray(result.events)).toBe(true);
+  });
+
+  it("空の conditionalEvents ではランダムイベントのみ events に含まれる", () => {
+    const state = makeState({ turn: 1 });
+    const result = processTurn(state, [], []);
+    const hasConditional = result.events.some((e) => e.id.startsWith("conditional-"));
+    expect(hasConditional).toBe(false);
+  });
+
+  it("条件不成立の ConditionalEvent は events に含まれない", () => {
+    const state = makeState({ turn: 3 });
+    const conditionalEvents = [
+      {
+        id: "evt-future",
+        turn: 10,
+        condition: "turn >= 10",
+        eventType: "ネガティブ" as const,
+        params: {},
+      },
+    ];
+    const result = processTurn(state, [], conditionalEvents);
+    const conditionalFound = result.events.some((e) => e.id.startsWith("conditional-"));
+    expect(conditionalFound).toBe(false);
+  });
+});

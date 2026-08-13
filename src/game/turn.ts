@@ -1,4 +1,5 @@
 import { applyCards } from "./card.js";
+import { rollConditionalEvents } from "./conditional.js";
 import { POC_STAGE } from "./constants.js";
 import { rollProgress } from "./dice.js";
 import { applyEffectTick } from "./effect.js";
@@ -8,6 +9,7 @@ import { applyTurnDecay, applyWeekendRecovery } from "./member.js";
 import type {
   CardEffect,
   CardName,
+  ConditionalEvent,
   GameEvent,
   GameState,
   MemberUpdate,
@@ -15,7 +17,11 @@ import type {
   TurnResult,
 } from "./types.js";
 
-export function processTurn(state: GameState, cards: CardName[]): TurnResult {
+export function processTurn(
+  state: GameState,
+  cards: CardName[],
+  conditionalEvents?: ConditionalEvent[],
+): TurnResult {
   const events: GameEvent[] = [];
   const progressMap = new Map<string, number>();
 
@@ -76,6 +82,10 @@ export function processTurn(state: GameState, cards: CardName[]): TurnResult {
   const progressUpdates: ProgressUpdate[] = Array.from(updatedProgressMap.entries()).map(
     ([taskId, delta]) => ({ taskId, delta }),
   );
+
+  // Step 5.5: rollConditionalEvents → events 統合
+  const conditionalEventsResult = rollConditionalEvents(state, conditionalEvents ?? []);
+  events.push(...conditionalEventsResult);
 
   // Step 6: applyEffectTick
   const activeEffectsAfterTick = applyEffectTick(currentEffects);

@@ -925,4 +925,19 @@ MERGE (:Document {name: 'Spec-09 tasks', path: 'specs/009-conditional-event-engi
   description: 'Spec-09実装タスク一覧。T001〜T015、7フェーズ。Setup→テスト先行（US1/US2/US4/fast-check）→evaluateCondition実装→rollConditionalEvents実装→processTurn統合→イミュータブル検証→Polish。TDD方式。',
   created: '2026-08-13'});
 MATCH (a:Document {name: 'Spec-09 spec.md'}), (b:Document {name: 'Spec-09 tasks'}) MERGE (a)-[:HAS_TASKS]->(b);
+
+// =============================================================================
+// Spec-09 /speckit-implement: conditional.ts / conditional.test.ts
+// =============================================================================
+MERGE (:Document {name: 'Spec-09 conditional.ts', path: 'src/game/conditional.ts', spec: 'Spec-09',
+  description: '条件付きイベントエンジン: evaluateCondition（9条件パターン）/ rollConditionalEvents（turnフィルタ+条件評価+GameEvent生成）',
+  status: 'implemented'});
+MERGE (:Document {name: 'Spec-09 conditional.test.ts', path: 'tests/unit/conditional.test.ts', spec: 'Spec-09',
+  description: 'conditional.ts のユニットテスト（39テスト + fast-check プロパティテスト）',
+  status: 'implemented'});
+MATCH (d:Document {name: 'Spec-09 conditional.ts'}), (c:Concept {name: 'evaluateCondition'}) MERGE (d)-[:CONTAINS]->(c);
+MATCH (d:Document {name: 'Spec-09 conditional.ts'}), (c:Concept {name: 'rollConditionalEvents'}) MERGE (d)-[:CONTAINS]->(c);
+MATCH (d:Document {name: 'Spec-09 conditional.test.ts'}), (c:Concept {name: 'evaluateCondition'}) MERGE (d)-[:TESTS]->(c);
+MATCH (d:Document {name: 'Spec-09 conditional.test.ts'}), (c:Concept {name: 'rollConditionalEvents'}) MERGE (d)-[:TESTS]->(c);
+MATCH (turn:Document {name: 'Spec-05 turn.ts'}), (c:Concept {name: 'rollConditionalEvents'}) MERGE (turn)-[:USES]->(c);
 MATCH (spec:Document {name: 'Spec-08 spec'}), (d:Document {name: 'Spec-08 event.ts'}) MERGE (spec)-[:IMPLEMENTS]->(d);

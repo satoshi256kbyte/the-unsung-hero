@@ -13,8 +13,8 @@
 
 **Purpose**: 既存ファイルの確認・実装開始の準備
 
-- [ ] T001 types.ts の ConditionalEvent 型定義を確認する（src/game/types.ts）
-- [ ] T002 gantt.ts の getCompletionRate シグネチャを確認する（src/game/gantt.ts）
+- [x] T001 types.ts の ConditionalEvent 型定義を確認する（src/game/types.ts）
+- [x] T002 gantt.ts の getCompletionRate シグネチャを確認する（src/game/gantt.ts）
 
 ---
 
@@ -26,7 +26,7 @@
 
 > **NOTE: 実装前にテストを書き、FAIL を確認してから実装に進む**
 
-- [ ] T003 [P] [US1] evaluateCondition のテストファイルを作成する（tests/unit/conditional.test.ts）
+- [x] T003 [P] [US1] evaluateCondition のテストファイルを作成する（tests/unit/conditional.test.ts）
   - turn 条件 3パターン（>=, <=, ==）
   - completion_rate 条件 2パターン（>=, <）
   - budget_remaining 条件（<=）
@@ -34,16 +34,16 @@
   - all_members_morale（<）
   - 未知条件（false を返す）
   - 空文字列（false を返す）
-- [ ] T004 [P] [US2] rollConditionalEvents のテストを conditional.test.ts に追加する
+- [x] T004 [P] [US2] rollConditionalEvents のテストを conditional.test.ts に追加する
   - 条件成立: 1件返る
   - 条件不成立: 空配列
   - turn フィルタ（future turn → スキップ）
   - 複数イベントで2件成立
   - 空配列入力 → 空配列
-- [ ] T005 [P] [US4] イミュータブルテストを conditional.test.ts に追加する
+- [x] T005 [P] [US4] イミュータブルテストを conditional.test.ts に追加する
   - evaluateCondition 後 GameState が変化しない
   - rollConditionalEvents 後 ConditionalEvent[] が変化しない
-- [ ] T006 [P] [US1] fast-check プロパティテストを conditional.test.ts に追加する
+- [x] T006 [P] [US1] fast-check プロパティテストを conditional.test.ts に追加する
   - 任意の条件文字列で例外がスローされない
   - 任意の state で evaluateCondition が boolean を返す
 
@@ -57,7 +57,7 @@
 
 **Independent Test**: evaluateCondition の全テストが PASS すること
 
-- [ ] T007 [US1] src/game/conditional.ts を新規作成し evaluateCondition を実装する
+- [x] T007 [US1] src/game/conditional.ts を新規作成し evaluateCondition を実装する
   - imports: getCompletionRate from "./gantt.js", GameState from "./types.js"
   - completion_rate パターン（>=, <）を正規表現でマッチング
   - turn パターン（>=, <=, ==）を正規表現でマッチング
@@ -77,7 +77,7 @@
 
 **Independent Test**: rollConditionalEvents の全テストが PASS すること
 
-- [ ] T008 [US2] rollConditionalEvents を conditional.ts に追加する
+- [x] T008 [US2] rollConditionalEvents を conditional.ts に追加する
   - imports: ConditionalEvent, GameEvent, EventCategory from "./types.js"
   - turn フィルタ: conditionalEvent.turn > state.turn → スキップ
   - evaluateCondition で条件評価
@@ -95,11 +95,11 @@
 
 **Independent Test**: `npm test tests/unit/turn.test.ts` の全テストが PASS すること
 
-- [ ] T009 [US3] turn.test.ts に条件付きイベント統合テストを追加する（tests/unit/turn.test.ts）
+- [x] T009 [US3] turn.test.ts に条件付きイベント統合テストを追加する（tests/unit/turn.test.ts）
   - 条件成立イベントが TurnResult.events に含まれる
   - 第3引数なし呼び出しで既存テストが全 PASS（後方互換）
   - 空配列渡しでランダムイベントのみが events に含まれる
-- [ ] T010 [US3] turn.ts の processTurn シグネチャを更新する（src/game/turn.ts）
+- [x] T010 [US3] turn.ts の processTurn シグネチャを更新する（src/game/turn.ts）
   - `conditionalEvents?: ConditionalEvent[]` を第3引数として追加
   - imports に rollConditionalEvents from "./conditional.js" を追加
   - imports に ConditionalEvent from "./types.js" を追加
@@ -115,7 +115,7 @@
 
 **Independent Test**: イミュータブルテストが全 PASS すること
 
-- [ ] T011 [US4] `npm test tests/unit/conditional.test.ts` でイミュータブルテストが全 PASS することを確認する
+- [x] T011 [US4] `npm test tests/unit/conditional.test.ts` でイミュータブルテストが全 PASS することを確認する
 
 **Checkpoint**: 副作用がないことが自動テストで保証されている
 
@@ -125,11 +125,11 @@
 
 **Purpose**: カバレッジ・型チェック・アーキテクチャ境界チェック
 
-- [ ] T012 `npm run typecheck` でエラー0を確認する
-- [ ] T013 `npm run test:coverage` でカバレッジ lines/functions ≥ 80% を確認する
-- [ ] T014 Phaser/DOM import がないことを確認する
+- [x] T012 `npm run typecheck` でエラー0を確認する
+- [x] T013 `npm run test:coverage` でカバレッジ lines/functions ≥ 80% を確認する
+- [x] T014 Phaser/DOM import がないことを確認する
   - `grep -r "phaser\|document\.\|window\." src/game/conditional.ts && echo VIOLATION || echo OK`
-- [ ] T015 `npm run lint` (Biome) でエラー0を確認する
+- [x] T015 `npm run lint` (Biome) でエラー0を確認する
 
 ---
 
