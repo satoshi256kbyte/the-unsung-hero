@@ -940,4 +940,25 @@ MATCH (d:Document {name: 'Spec-09 conditional.ts'}), (c:Concept {name: 'rollCond
 MATCH (d:Document {name: 'Spec-09 conditional.test.ts'}), (c:Concept {name: 'evaluateCondition'}) MERGE (d)-[:TESTS]->(c);
 MATCH (d:Document {name: 'Spec-09 conditional.test.ts'}), (c:Concept {name: 'rollConditionalEvents'}) MERGE (d)-[:TESTS]->(c);
 MATCH (turn:Document {name: 'Spec-05 turn.ts'}), (c:Concept {name: 'rollConditionalEvents'}) MERGE (turn)-[:USES]->(c);
+
+// =============================================================================
+// Spec-10 /speckit-specify: GameEngine（フルターンループ）
+// =============================================================================
+MERGE (:Document {name: 'Spec-10 spec.md', path: 'specs/010-game-engine/spec.md', type: 'spec', spec: 'Spec-10',
+  description: 'GameEngine（フルターンループ）仕様。初期化・ターン処理・ゲーム終了・memberUpdates集計の4ユーザーストーリー',
+  created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-10 checklists/requirements.md', path: 'specs/010-game-engine/checklists/requirements.md', type: 'checklist', spec: 'Spec-10',
+  description: '仕様品質チェックリスト 16/16 PASS', created: '2026-08-13'});
+MERGE (:Concept {name: 'GameEngine', spec: 'Spec-10',
+  description: 'ゲーム全体の状態を管理するクラス。初期化・processTurn・getState・isGameOver を提供',
+  file: 'src/game/engine.ts'});
+MERGE (:ADR {id: 'ADR-013',
+  title: 'GameEngine は conditionalEvents を内部保持しターン処理に渡す',
+  date: '2026-08-13', status: 'accepted',
+  context: 'GameState に stageConditionalEvents を追加するか、GameEngine が内部保持するかを選択する必要があった',
+  decision: 'GameEngine コンストラクタで stageData.conditionalEvents を内部保持し、processTurn 呼び出し時に毎回渡す',
+  rationale: 'GameState は1ターンの処理状態を表す値オブジェクトであり、ステージ設定データ（conditionalEvents）を混在させるより、GameEngine層で管理する方が責務が明確になる',
+  consequences: 'GameState の型は変更不要。GameEngine を経由しない processTurn 呼び出し（テスト等）では引き続き手動で conditionalEvents を渡す'});
+MATCH (adr:ADR {id: 'ADR-013'}), (c:Concept {name: 'GameEngine'}) MERGE (adr)-[:AFFECTS]->(c);
+MATCH (spec:Document {name: 'Spec-10 spec.md'}), (c:Concept {name: 'GameEngine'}) MERGE (spec)-[:DEFINES]->(c);
 MATCH (spec:Document {name: 'Spec-08 spec'}), (d:Document {name: 'Spec-08 event.ts'}) MERGE (spec)-[:IMPLEMENTS]->(d);
