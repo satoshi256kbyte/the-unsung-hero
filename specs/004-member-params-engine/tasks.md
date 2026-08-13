@@ -16,7 +16,7 @@
 
 **Purpose**: ファイルスケルトンの作成
 
-- [ ] T001 `src/game/member.ts` を作成し、imports（constants.ts・types.ts）と export 宣言のスケルトンを記述する
+- [x] T001 `src/game/member.ts` を作成し、imports（constants.ts・types.ts）と export 宣言のスケルトンを記述する
 
 ---
 
@@ -26,9 +26,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 `src/game/constants.ts` から PARAM_DELTA・MEMBER_PARAMS・EXP・LEVEL_UP_EXP を import できることを
+- [x] T002 `src/game/constants.ts` から PARAM_DELTA・MEMBER_PARAMS・EXP・LEVEL_UP_EXP を import できることを
   `npx tsc --noEmit` で確認する
-- [ ] T003 `src/game/types.ts` の Member 型を import できることを確認する
+- [x] T003 `src/game/types.ts` の Member 型を import できることを確認する
 
 **Checkpoint**: スケルトンが型チェック通過 → 各 User Story 実装可
 
@@ -43,14 +43,14 @@ applyTurnDecay の境界値テストが全 PASS すること
 
 ### Tests for User Story 1 (TDD: 実装前に作成し FAIL を確認)
 
-- [ ] T004 [P] [US1] `tests/unit/member.test.ts` に applyTurnDecay の境界値テストを記述する
+- [x] T004 [P] [US1] `tests/unit/member.test.ts` に applyTurnDecay の境界値テストを記述する
   （心=0のクランプ、心=150のクランプ、体=0のクランプ、体=100のクランプ）
-- [ ] T005 [P] [US1] `tests/unit/member.test.ts` に applyTurnDecay のイミュータブル確認テストを記述する
+- [x] T005 [P] [US1] `tests/unit/member.test.ts` に applyTurnDecay のイミュータブル確認テストを記述する
   （引数 member のフィールドが変化しないこと）
 
 ### Implementation for User Story 1
 
-- [ ] T006 [US1] `src/game/member.ts` に `applyTurnDecay` を実装する
+- [x] T006 [US1] `src/game/member.ts` に `applyTurnDecay` を実装する
   （`Math.floor(min + (max - min + 1) * Math.random())` で整数乱数、clamp で範囲保証）
 
 **Checkpoint**: applyTurnDecay の全テスト PASS → US2 実装可
@@ -66,13 +66,13 @@ applyWeekendRecovery の境界値テストが全 PASS すること
 
 ### Tests for User Story 2 (TDD: 実装前に作成し FAIL を確認)
 
-- [ ] T007 [P] [US2] `tests/unit/member.test.ts` に applyWeekendRecovery の境界値テストを記述する
+- [x] T007 [P] [US2] `tests/unit/member.test.ts` に applyWeekendRecovery の境界値テストを記述する
   （心145+8→150クランプ、体95+12→100クランプ、通常回復値の正確性）
-- [ ] T008 [P] [US2] `tests/unit/member.test.ts` に applyWeekendRecovery のイミュータブル確認テストを記述する
+- [x] T008 [P] [US2] `tests/unit/member.test.ts` に applyWeekendRecovery のイミュータブル確認テストを記述する
 
 ### Implementation for User Story 2
 
-- [ ] T009 [US2] `src/game/member.ts` に `applyWeekendRecovery` を実装する
+- [x] T009 [US2] `src/game/member.ts` に `applyWeekendRecovery` を実装する
   （WEEKEND_MORALE_RECOVERY・WEEKEND_HEALTH_RECOVERY を加算し clamp）
 
 **Checkpoint**: applyWeekendRecovery の全テスト PASS → US3 実装可
@@ -89,15 +89,15 @@ applyExperience の境界値テストが全 PASS すること
 
 ### Tests for User Story 3 (TDD: 実装前に作成し FAIL を確認)
 
-- [ ] T010 [P] [US3] `tests/unit/member.test.ts` に applyExperience のレベルアップ境界値テストを記述する
+- [x] T010 [P] [US3] `tests/unit/member.test.ts` に applyExperience のレベルアップ境界値テストを記述する
   （技8・経験値40+15でレベルアップ確認、技99の上限確認、閾値未満の場合の確認）
-- [ ] T011 [P] [US3] `tests/unit/member.test.ts` に applyExperience のイミュータブル確認テストを記述する
+- [x] T011 [P] [US3] `tests/unit/member.test.ts` に applyExperience のイミュータブル確認テストを記述する
 
 ### Implementation for User Story 3
 
-- [ ] T012 [US3] `src/game/member.ts` に LEVEL_UP_EXP ルックアップヘルパーを実装する
+- [x] T012 [US3] `src/game/member.ts` に LEVEL_UP_EXP ルックアップヘルパーを実装する
   （skill 以下で最大の下限行を返す関数、balance.ts の getSkillFactorRange と同パターン）
-- [ ] T013 [US3] `src/game/member.ts` に `applyExperience` を実装する
+- [x] T013 [US3] `src/game/member.ts` に `applyExperience` を実装する
   （expGain 加算 → テーブルルックアップ → 閾値判定 → レベルアップ or 経験値累積）
 
 **Checkpoint**: applyExperience の全テスト PASS → 全 US 実装完了
@@ -108,12 +108,12 @@ applyExperience の境界値テストが全 PASS すること
 
 **Purpose**: プロパティテスト・Lint・最終バリデーション
 
-- [ ] T014 [P] `tests/unit/member.test.ts` に fast-check プロパティテストを追加する
+- [x] T014 [P] `tests/unit/member.test.ts` に fast-check プロパティテストを追加する
   （任意の心0〜150×体0〜100×技0〜99×経験値0〜500で全パラメータが範囲内に収まること）
-- [ ] T015 [P] `npx biome check --write src/game/member.ts tests/unit/member.test.ts` でフォーマット適用
-- [ ] T016 `npx tsc --noEmit` で型チェックが 0 エラーであることを確認する
-- [ ] T017 `npx vitest run --coverage` で coverage ≥ 80%（lines・functions）であることを確認する
-- [ ] T018 `grep -r "phaser\|document\|window" src/game/member.ts` が 0 件であることを確認する
+- [x] T015 [P] `npx biome check --write src/game/member.ts tests/unit/member.test.ts` でフォーマット適用
+- [x] T016 `npx tsc --noEmit` で型チェックが 0 エラーであることを確認する
+- [x] T017 `npx vitest run --coverage` で coverage ≥ 80%（lines・functions）であることを確認する
+- [x] T018 `grep -r "phaser\|document\|window" src/game/member.ts` が 0 件であることを確認する
 
 ---
 
