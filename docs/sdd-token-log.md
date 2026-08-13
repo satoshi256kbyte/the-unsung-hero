@@ -18,6 +18,7 @@ Spec Kitコマンドごとのトークン消費を記録する。
 | Spec-03 | /speckit-plan | 2026-08-13 | — | — | plan.md / data-model.md / quickstart.md 作成 |
 | Spec-03 | /speckit-tasks | 2026-08-13 | — | — | tasks.md 作成（T001〜T008） |
 | Spec-03 | /speckit-implement | 2026-08-13 | — | — | dice.ts + dice.test.ts 実装・21テスト全PASS |
+| Spec-04 | /speckit-specify | 2026-08-13 | — | — | メンバーパラメータ変動エンジン仕様作成 |
 
 ## 累計
 

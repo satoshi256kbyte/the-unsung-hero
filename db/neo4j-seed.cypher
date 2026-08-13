@@ -551,3 +551,10 @@ MATCH (a:Document {name: 'Spec-03 dice.test.ts'}), (b:Document {name: 'Spec-03 d
 // =============================================================================
 MERGE (:ADR {id: 'ADR-006', title: 'Spec-03進捗ダイスエンジンでbalance.tsの既存関数を再利用', date: '2026-08-13', status: 'accepted', context: '進捗ダイス計算のためskill_factor/health_factorのテーブルルックアップが必要。Spec-01でbalance.tsに同機能が実装済みだった。', decision: 'dice.tsはbalance.tsのgetSkillFactorRange/getHealthFactorをimportして呼び出す。テーブルロジックを再実装しない。', rationale: 'DRY原則。Spec-01でテスト済みの関数を再利用することでdice.tsの実装を最小化し、テスト対象をrollProgressの乗算ロジックのみに絞れる。', consequences: 'dice.tsはbalance.tsに依存する。balance.tsの変更がdice.tsの挙動に影響する。依存関係は単方向で明確。'});
 MATCH (adr:ADR {id: 'ADR-006'}), (n:Concept {name: 'アーキテクチャ境界'}) MERGE (adr)-[:AFFECTS]->(n);
+
+// =============================================================================
+// ノード: Document — Spec-04 spec
+// =============================================================================
+MERGE (:Document {name: 'Spec-04 spec', path: 'specs/004-member-params-engine/spec.md', description: 'メンバーパラメータ変動エンジンのフィーチャースペック。applyTurnDecay/applyWeekendRecovery/applyExperienceの3関数。心・体・経験値・技の変動。3ユーザーストーリー。', type: 'spec'});
+MATCH (a:Document {name: 'Spec-04 spec'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-04 spec'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
