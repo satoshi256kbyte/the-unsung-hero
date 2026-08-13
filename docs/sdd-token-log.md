@@ -9,12 +9,18 @@ Spec Kitコマンドごとのトークン消費を記録する。
 |------|---------|------|------------|------------|------|
 | Spec-01 | /speckit-specify | 2026-08-12 | — | — | constitution作成含む |
 | Spec-01 | /sync-graphdb | 2026-08-12 | — | — | ADR-001〜003追加 |
+| Spec-02 | /speckit-specify | 2026-08-12 | — | — | ガントチャート・タスクモデル仕様作成 |
+| Spec-02 | /speckit-plan | 2026-08-12 | — | — | plan.md / data-model.md / quickstart.md 作成 |
+| Spec-02 | /speckit-tasks | 2026-08-12 | — | — | tasks.md 作成（T001〜T017） |
+| Spec-02 | /speckit-implement | 2026-08-13 | — | — | gantt.ts + gantt.test.ts 実装・25テスト全PASS |
+| Spec-02 | /sync-graphdb | 2026-08-13 | — | — | gantt.ts/test.ts追加・ADR-005追加 |
 
 ## 累計
 
 | Spec | 合計トークン（概算） |
 |------|------------------|
-| Spec-01（進行中） | — |
+| Spec-01 | — |
+| Spec-02（完了） | — |
 
 ## 備考
 

@@ -109,8 +109,10 @@ When design decisions are made in a session, they MUST be written to
 3. **Tasks**: Use `/speckit-tasks` to break the plan into trackable tasks
 4. **Implement**: Use `/speckit-implement` to execute tasks
 5. **Design sessions**: Write decisions to `docs/design-session/` then run `/sync-graphdb`
-6. **Token log**: Record token usage per Spec Kit command in `docs/sdd-token-log.md`
-   after each Spec completes
+6. **Token log** (MANDATORY): After EVERY Spec Kit command invocation, append a row to
+   `docs/sdd-token-log.md` immediately — do not batch or defer. Record: Spec number,
+   command name, date, input tokens, output tokens, and a brief note. Token counts can be
+   read from the Claude Code session UI; use `—` if unavailable.
 
 ### Graph DB Sync Checkpoints (MANDATORY)
 

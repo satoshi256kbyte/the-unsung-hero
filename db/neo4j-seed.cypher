@@ -454,3 +454,60 @@ MERGE (:ADR {
   consequences: 'コスト0のカードが存在する設計が明示される。将来コストを変更する場合はconstants.tsの1箇所を修正するだけで済む。'
 });
 MATCH (adr:ADR {id: 'ADR-004'}), (n:Concept {name: '定数ファイル'}) MERGE (adr)-[:AFFECTS]->(n);
+
+// =============================================================================
+// ノード: Document — Spec-02 spec
+// =============================================================================
+MERGE (:Document {name: 'Spec-02 spec', path: 'specs/002-gantt-task-model/spec.md', description: 'ガントチャート・タスクモデルのフィーチャースペック。進捗更新・状態遷移・バリアント切り替えの3ユーザーストーリー。', type: 'spec'});
+MATCH (a:Document {name: 'Spec-02 spec'}), (b:Concept {name: 'ガントチャート'}) MERGE (a)-[:DEFINES]->(b);
+MATCH (a:Document {name: 'Spec-02 spec'}), (b:Concept {name: 'ガントチャートバリエーション'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-02 spec'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-02 spec'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-02 plan artifacts
+// =============================================================================
+MERGE (:Document {name: 'Spec-02 plan', path: 'specs/002-gantt-task-model/plan.md', description: 'ガントチャート・タスクモデルの実装計画。gantt.ts 1ファイル・関数5本。Spec-01依存。', type: 'plan'});
+MERGE (:Document {name: 'Spec-02 data-model', path: 'specs/002-gantt-task-model/data-model.md', description: 'gantt.ts の関数インターフェース定義（updateTaskProgress/setTaskStatus/applyRework/getCompletionRate/applyVariant）', type: 'data-model'});
+MERGE (:Document {name: 'Spec-02 quickstart', path: 'specs/002-gantt-task-model/quickstart.md', description: 'Spec-02検証手順（typecheck/test/Phaser依存なし）', type: 'quickstart'});
+MATCH (a:Document {name: 'Spec-02 plan'}), (b:Concept {name: 'ガントチャート'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-02 plan'}), (b:Concept {name: 'アーキテクチャ境界'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-02 data-model'}), (b:Concept {name: 'ガントチャート'}) MERGE (a)-[:DEFINES]->(b);
+MATCH (a:Document {name: 'Spec-02 data-model'}), (b:Concept {name: 'ガントチャートバリエーション'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-02 tasks
+// =============================================================================
+MERGE (:Document {name: 'Spec-02 tasks', path: 'specs/002-gantt-task-model/tasks.md', description: 'Spec-02実装タスク一覧。T001〜T017、5フェーズ。updateTaskProgress/setTaskStatus/applyRework/getCompletionRate/applyVariant の各関数とVitest+fast-checkテスト。', type: 'tasks'});
+MATCH (a:Document {name: 'Spec-02 tasks'}), (b:Document {name: 'Spec-02 spec'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-02 tasks'}), (b:Document {name: 'Spec-02 plan'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-02 tasks'}), (b:Document {name: 'Spec-02 data-model'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-02 tasks'}), (b:Concept {name: 'ガントチャート'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-02 実装ファイル
+// =============================================================================
+MERGE (:Document {name: 'Spec-02 gantt.ts', path: 'src/game/gantt.ts', description: 'ガントチャートモデルの純粋関数群。updateTaskProgress/setTaskStatus/applyRework/getCompletionRate/applyVariantの5関数。Phaser/DOM非依存pure TS。全関数イミュータブル操作。', type: 'source'});
+MERGE (:Document {name: 'Spec-02 gantt.test.ts', path: 'tests/unit/gantt.test.ts', description: 'Vitest+fast-checkによるgantt.ts全関数のテスト。境界値テスト＋プロパティテスト計25件。全PASS確認済み。', type: 'test'});
+
+MATCH (a:Document {name: 'Spec-02 gantt.ts'}), (b:Concept {name: 'ガントチャート'}) MERGE (a)-[:DEFINES]->(b);
+MATCH (a:Document {name: 'Spec-02 gantt.ts'}), (b:Concept {name: 'ガントチャートバリエーション'}) MERGE (a)-[:IMPLEMENTS]->(b);
+MATCH (a:Document {name: 'Spec-02 gantt.ts'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-02 gantt.ts'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-02 gantt.test.ts'}), (b:Document {name: 'Spec-02 gantt.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ADR-005: Spec-02ガントチャートモデルをpure TSイミュータブル関数で実装
+// =============================================================================
+MERGE (:ADR {
+  id: 'ADR-005',
+  title: 'Spec-02ガントチャートモデルをpure TSイミュータブル関数で実装',
+  date: '2026-08-13',
+  status: 'accepted',
+  context: 'ガントチャートのタスク進捗更新・状態遷移・バリアント切り替えをゲームエンジンから呼び出せる形で実装する必要があった。Phaserとの結合を避け、Vitestでテスト可能な設計が必要。',
+  decision: 'src/game/gantt.tsに5つの純粋関数（updateTaskProgress/setTaskStatus/applyRework/getCompletionRate/applyVariant）を実装。全関数はイミュータブル操作（引数を変更せず新オブジェクトを返す）とした。',
+  rationale: 'Phaser非依存・イミュータブル操作により副作用がなく、Vitestによる高速ユニットテストが実現できる。fast-checkプロパティテストで任意入力でもパニックなし・値域保証を確認。',
+  consequences: 'Spec-05ターン処理エンジンはこれらの関数を直接呼び出せる。全25テストがPASSし境界値安全性を確認済み。依存タスク未完了時の進捗付与はSpec-05側で制御する方針のため、このSpecでは無視する。'
+});
+MATCH (adr:ADR {id: 'ADR-005'}), (n:Concept {name: 'ガントチャート'}) MERGE (adr)-[:AFFECTS]->(n);
+MATCH (adr:ADR {id: 'ADR-005'}), (n:Concept {name: 'アーキテクチャ境界'}) MERGE (adr)-[:AFFECTS]->(n);
