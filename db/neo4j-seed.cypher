@@ -624,3 +624,9 @@ MERGE (:Document {name: 'Spec-05 quickstart', path: 'specs/005-turn-engine/quick
 MATCH (a:Document {name: 'Spec-05 spec'}), (b:Document {name: 'Spec-05 plan'}) MERGE (a)-[:HAS_PLAN]->(b);
 MATCH (a:Document {name: 'Spec-05 plan'}), (b:Document {name: 'Spec-05 data-model'}) MERGE (a)-[:HAS_DATA_MODEL]->(b);
 MATCH (a:Document {name: 'Spec-05 plan'}), (b:Document {name: 'Spec-05 quickstart'}) MERGE (a)-[:HAS_QUICKSTART]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-05 tasks
+// =============================================================================
+MERGE (:Document {name: 'Spec-05 tasks', path: 'specs/005-turn-engine/tasks.md', type: 'tasks', description: 'Spec-05実装タスク一覧。T001〜T021、6フェーズ。Setup→Foundational→US1(進捗ダイス/パラメータ変動/手戻り)→US2(週末回復)→US3(ゲームオーバー判定)→Polish。TDD方式。'});
+MATCH (a:Document {name: 'Spec-05 spec'}), (b:Document {name: 'Spec-05 tasks'}) MERGE (a)-[:HAS_TASKS]->(b);
