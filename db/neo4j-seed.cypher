@@ -518,3 +518,14 @@ MATCH (adr:ADR {id: 'ADR-005'}), (n:Concept {name: 'アーキテクチャ境界'
 MERGE (:Document {name: 'Spec-03 spec', path: 'specs/003-dice-engine/spec.md', description: '進捗ダイスエンジンのフィーチャースペック。rollProgress(member)→number。技・体パラメータによる確率的進捗計算。2ユーザーストーリー。', type: 'spec'});
 MATCH (a:Document {name: 'Spec-03 spec'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-03 spec'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-03 plan artifacts
+// =============================================================================
+MERGE (:Document {name: 'Spec-03 plan', path: 'specs/003-dice-engine/plan.md', description: '進捗ダイスエンジンの実装計画。dice.ts 1ファイル・rollProgress 1関数。balance.ts の既存関数を再利用。Spec-01依存。', type: 'plan'});
+MERGE (:Document {name: 'Spec-03 data-model', path: 'specs/003-dice-engine/data-model.md', description: 'rollProgress(member)→number の関数インターフェース定義。内部計算フロー・依存定数・戻り値理論範囲。', type: 'data-model'});
+MERGE (:Document {name: 'Spec-03 quickstart', path: 'specs/003-dice-engine/quickstart.md', description: 'Spec-03検証手順（typecheck/test/Phaser依存なし）', type: 'quickstart'});
+MATCH (a:Document {name: 'Spec-03 plan'}), (b:Document {name: 'Spec-03 spec'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-03 plan'}), (b:Document {name: 'Spec-01 balance.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-03 data-model'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-03 data-model'}), (b:Document {name: 'Spec-01 balance.ts'}) MERGE (a)-[:REFERENCES]->(b);
