@@ -801,3 +801,41 @@ MATCH (adr:ADR {id: 'ADR-010'}), (d:Document {name: 'Spec-07 effect.ts'}) MERGE 
 MATCH (adr:ADR {id: 'ADR-010'}), (prev:ADR {id: 'ADR-008'}) MERGE (adr)-[:EXTENDS]->(prev);
 MATCH (spec:Document {name: 'Spec-07 spec'}), (d:Document {name: 'Spec-07 effect.ts'}) MERGE (spec)-[:IMPLEMENTS]->(d);
 MATCH (spec:Document {name: 'Spec-07 spec'}), (d:Document {name: 'Spec-07 effect.test.ts'}) MERGE (spec)-[:IMPLEMENTS]->(d);
+
+// =============================================================================
+// Spec-08 /speckit-specify: ランダムイベントエンジン仕様
+// =============================================================================
+MERGE (:Document {name: 'Spec-08 spec', path: 'specs/008-random-event-engine/spec.md', type: 'spec', spec: 'Spec-08',
+  description: 'ランダムイベントエンジン仕様。停滞・手戻り・病気・低モチベーション・疲弊の5種。rollRandomEvents/applyEventToProgress/applyEventToMemberの3関数。US1〜US5。',
+  status: 'draft'});
+MERGE (:Document {name: 'Spec-08 checklist', path: 'specs/008-random-event-engine/checklists/requirements.md', type: 'checklist', spec: 'Spec-08',
+  description: 'Spec-08仕様品質チェックリスト。全16項目PASS。スコープ外（条件付きイベント・ポジティブイベント・過大報告・チェックポイント）明記済み。'});
+MATCH (a:Document {name: 'Spec-08 spec'}), (b:Document {name: 'Spec-08 checklist'}) MERGE (a)-[:HAS_CHECKLIST]->(b);
+MATCH (a:Document {name: 'Spec-08 spec'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-08 spec'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-08 spec'}), (b:Document {name: 'Spec-07 effect.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-08 spec'}), (b:Document {name: 'Spec-05 turn.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-08 spec'}), (b:Document {name: 'Spec-02 gantt.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// Spec-08 /speckit-plan: plan / data-model / quickstart
+// =============================================================================
+MERGE (:Document {name: 'Spec-08 plan', path: 'specs/008-random-event-engine/plan.md', type: 'plan', spec: 'Spec-08',
+  description: 'ランダムイベントエンジン実装計画。event.ts新規（rollRandomEvents/applyEventToProgress/applyEventToMember）。turn.ts Step5をrollRandomEventsに置き換え。処理順序KD-1〜KD-5定義。'});
+MERGE (:Document {name: 'Spec-08 data-model', path: 'specs/008-random-event-engine/data-model.md', type: 'data-model', spec: 'Spec-08',
+  description: '3関数シグネチャ・GameEvent paramsスキーマ（stall/rework/sick/low_motivation/fatigue）・処理フロー・依存関係グラフ。'});
+MERGE (:Document {name: 'Spec-08 quickstart', path: 'specs/008-random-event-engine/quickstart.md', type: 'quickstart', spec: 'Spec-08',
+  description: '検証シナリオA〜F（stall progressMapリセット・reworkデルタ反映・sickメンバー変化・クランプ・確率補正・processTurn統合）。'});
+MATCH (a:Document {name: 'Spec-08 spec'}), (b:Document {name: 'Spec-08 plan'}) MERGE (a)-[:HAS_PLAN]->(b);
+MATCH (a:Document {name: 'Spec-08 plan'}), (b:Document {name: 'Spec-08 data-model'}) MERGE (a)-[:HAS_DATA_MODEL]->(b);
+MATCH (a:Document {name: 'Spec-08 plan'}), (b:Document {name: 'Spec-08 quickstart'}) MERGE (a)-[:HAS_QUICKSTART]->(b);
+MATCH (a:Document {name: 'Spec-08 plan'}), (b:Document {name: 'Spec-05 turn.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-08 plan'}), (b:Document {name: 'Spec-07 effect.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-08 plan'}), (b:Document {name: 'Spec-02 gantt.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// Spec-08 /speckit-tasks: tasks
+// =============================================================================
+MERGE (:Document {name: 'Spec-08 tasks', path: 'specs/008-random-event-engine/tasks.md', type: 'tasks', spec: 'Spec-08',
+  description: 'Spec-08実装タスク一覧。T001〜T019、8フェーズ。Setup→Foundational→US2(applyEventToProgress)→US3(applyEventToMember)→US1(rollRandomEvents)→US4(processTurn統合)→US5(イミュータブル)→Polish。TDD方式。'});
+MATCH (a:Document {name: 'Spec-08 spec'}), (b:Document {name: 'Spec-08 tasks'}) MERGE (a)-[:HAS_TASKS]->(b);
