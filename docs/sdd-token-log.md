@@ -52,6 +52,11 @@ Spec Kitコマンドごとのトークン消費を記録する。
 | Spec-11 | /speckit-plan | 2026-08-13 | — | — | plan.md / research.md / data-model.md / quickstart.md 作成・ADR-015追加 |
 | Spec-11 | /speckit-tasks | 2026-08-13 | — | — | tasks.md 作成（T001〜T011、5フェーズ） |
 | Spec-11 | /speckit-implement | 2026-08-13 | — | — | pocStage.ts 新規・pocStage.test.ts 新規・291テスト全PASS・coverage lines/funcs 100% |
+| Spec-12 | /speckit-specify | 2026-08-13 | — | — | メイン画面UI仕様作成・チェックリスト16項目全PASS |
+| Spec-12 | /sync-graphdb | 2026-08-13 | — | — | MainGameUI/CardSlot/LoadingScreen/MainScene Conceptノード追加 |
+| Spec-12 | /speckit-plan | 2026-08-13 | — | — | plan.md / research.md / data-model.md / contracts/ / quickstart.md 作成・ADR-016追加 |
+| Spec-12 | /speckit-tasks | 2026-08-13 | — | — | tasks.md 作成（T001〜T028、6フェーズ） |
+| Spec-12 | /speckit-implement | 2026-08-13 | — | — | src/ui/ 4ファイル・MainScene・BootScene遷移・E2E 3ファイル・291ユニットテスト全PASS・型エラーゼロ・Phaser境界OK |
 
 ## 累計
 
