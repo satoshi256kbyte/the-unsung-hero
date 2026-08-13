@@ -16,7 +16,7 @@
 
 **Purpose**: ファイルスケルトンの作成
 
-- [ ] T001 `src/game/card.ts` を作成し、`CardApplicationResult` インターフェースと
+- [x] T001 `src/game/card.ts` を作成し、`CardApplicationResult` インターフェースと
   `applyCards` のエクスポート宣言スケルトンを記述する
 
 ---
@@ -27,7 +27,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 `npx tsc --noEmit` でスケルトンの型チェックが 0 エラーであることを確認する
+- [x] T002 `npx tsc --noEmit` でスケルトンの型チェックが 0 エラーであることを確認する
 
 **Checkpoint**: スケルトンが型チェック通過 → 各 User Story 実装可
 
@@ -43,17 +43,17 @@ effectsToAdd として返すことを保証する
 
 ### Tests for User Story 1 (TDD: 実装前に作成し FAIL を確認)
 
-- [ ] T003 [P] [US1] `tests/unit/card.test.ts` に確率低減カードのテストを記述する
+- [x] T003 [P] [US1] `tests/unit/card.test.ts` に確率低減カードのテストを記述する
   （デイリー→`task_event_prob_reduced` / レビュー→`rework_prob_reduced` /
   モニタリング→`overreport_prob_reduced` が effectsToAdd に含まれること）
-- [ ] T004 [P] [US1] `tests/unit/card.test.ts` に effectsToAdd のフィールド値テストを記述する
+- [x] T004 [P] [US1] `tests/unit/card.test.ts` に effectsToAdd のフィールド値テストを記述する
   （targetId='project'・remainingTurns=null であること）
-- [ ] T005 [P] [US1] `tests/unit/card.test.ts` に空配列テストを記述する
+- [x] T005 [P] [US1] `tests/unit/card.test.ts` に空配列テストを記述する
   （空の cards 配列のとき effectsToAdd と memberUpdates がどちらも空配列であること）
 
 ### Implementation for User Story 1
 
-- [ ] T006 [US1] `src/game/card.ts` にデイリー・レビュー・モニタリングの
+- [x] T006 [US1] `src/game/card.ts` にデイリー・レビュー・モニタリングの
   確率低減処理を実装する（switch-case で effectsToAdd にプッシュ）
 
 **Checkpoint**: 確率低減カードの全テスト PASS → US2 実装可
@@ -70,16 +70,16 @@ memberUpdates として返すことを保証する
 
 ### Tests for User Story 2 (TDD: 実装前に作成し FAIL を確認)
 
-- [ ] T007 [P] [US2] `tests/unit/card.test.ts` に個別面談・表彰・計画休のテストを記述する
+- [x] T007 [P] [US2] `tests/unit/card.test.ts` に個別面談・表彰・計画休のテストを記述する
   （moraleDelta / healthDelta が PARAM_DELTA の定数値と一致すること）
-- [ ] T008 [P] [US2] `tests/unit/card.test.ts` にメンバー 0 人テストを記述する
+- [x] T008 [P] [US2] `tests/unit/card.test.ts` にメンバー 0 人テストを記述する
   （members が空のとき memberUpdates が空配列でパニックしないこと）
-- [ ] T009 [P] [US2] `tests/unit/card.test.ts` にスコープ外カードの無視テストを記述する
+- [x] T009 [P] [US2] `tests/unit/card.test.ts` にスコープ外カードの無視テストを記述する
   （納期交渉・スコープ交渉などを渡しても effectsToAdd / memberUpdates が空であること）
 
 ### Implementation for User Story 2
 
-- [ ] T010 [US2] `src/game/card.ts` に個別面談・表彰・計画休の即時メンバー処理を実装する
+- [x] T010 [US2] `src/game/card.ts` に個別面談・表彰・計画休の即時メンバー処理を実装する
   （state.members[0] を対象、0 人のときはスキップ）
 
 **Checkpoint**: 即時メンバー系テスト全 PASS → US3 実装可
@@ -96,9 +96,9 @@ memberUpdates として返すことを保証する
 
 ### Tests for User Story 3 (TDD: 実装前に作成し FAIL を確認)
 
-- [ ] T011 [P] [US3] `tests/unit/card.test.ts` に state.members 不変テストを記述する
+- [x] T011 [P] [US3] `tests/unit/card.test.ts` に state.members 不変テストを記述する
   （applyCards 呼び出し後に state.members の参照・値が変化しないこと）
-- [ ] T012 [P] [US3] `tests/unit/card.test.ts` に state.activeEffects 不変テストを記述する
+- [x] T012 [P] [US3] `tests/unit/card.test.ts` に state.activeEffects 不変テストを記述する
   （applyCards 呼び出し後に state.activeEffects の参照・値が変化しないこと）
 
 ### Implementation for User Story 3
@@ -114,14 +114,14 @@ memberUpdates として返すことを保証する
 
 **Purpose**: プロパティテスト・Lint・最終バリデーション
 
-- [ ] T013 [P] `tests/unit/card.test.ts` に fast-check プロパティテストを追加する
+- [x] T013 [P] `tests/unit/card.test.ts` に fast-check プロパティテストを追加する
   （任意の合法 GameState・CardName[] で applyCards を呼んでも例外なし・
   moraleDelta/healthDelta が有限数・GameState が変化しない）
-- [ ] T014 [P] `npx biome check --write src/game/card.ts tests/unit/card.test.ts`
+- [x] T014 [P] `npx biome check --write src/game/card.ts tests/unit/card.test.ts`
   でフォーマット適用
-- [ ] T015 `npx tsc --noEmit` で型チェックが 0 エラーであることを確認する
-- [ ] T016 `npx vitest run --coverage` で coverage ≥ 80%（lines・functions）であることを確認する
-- [ ] T017 `grep -r "phaser\|document\|window" src/game/card.ts` が 0 件であることを確認する
+- [x] T015 `npx tsc --noEmit` で型チェックが 0 エラーであることを確認する
+- [x] T016 `npx vitest run --coverage` で coverage ≥ 80%（lines・functions）であることを確認する
+- [x] T017 `grep -r "phaser\|document\|window" src/game/card.ts` が 0 件であることを確認する
 
 ---
 

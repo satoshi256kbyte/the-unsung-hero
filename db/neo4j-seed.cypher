@@ -690,3 +690,33 @@ MATCH (a:Document {name: 'Spec-06 plan'}), (b:Document {name: 'Spec-06 quickstar
 MERGE (:Document {name: 'Spec-06 tasks', path: 'specs/006-card-engine/tasks.md', type: 'tasks',
   description: 'Spec-06実装タスク一覧。T001〜T017、6フェーズ。Setup→Foundational→US1(確率低減3種)→US2(即時メンバー3種)→US3(イミュータブル)→Polish。TDD方式。'});
 MATCH (a:Document {name: 'Spec-06 spec'}), (b:Document {name: 'Spec-06 tasks'}) MERGE (a)-[:HAS_TASKS]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-06 実装成果物（card.ts / card.test.ts）
+// =============================================================================
+MERGE (:Document {name: 'Spec-06 card.ts', path: 'src/game/card.ts', type: 'source', spec: 'Spec-06', status: 'implemented',
+  description: 'applyCards(state, cards): CardApplicationResult — カード効果適用純粋関数。グループA(デイリー/レビュー/モニタリング)→CardEffect追加、グループB(個別面談/表彰/計画休)→MemberUpdate返却。Phaser/DOM非依存pure TS。'});
+MERGE (:Document {name: 'Spec-06 card.test.ts', path: 'tests/unit/card.test.ts', type: 'test', spec: 'Spec-06', status: 'all-pass',
+  testCount: 24, coverageLines: 100, coverageFunctions: 100,
+  description: '24テスト全PASS。US1確率低減3種 / US2即時メンバー3種 / US3イミュータブル / fast-checkプロパティ4件。coverage 100%。'});
+MATCH (a:Document {name: 'Spec-06 spec'}), (b:Document {name: 'Spec-06 card.ts'}) MERGE (a)-[:IMPLEMENTED_BY]->(b);
+MATCH (a:Document {name: 'Spec-06 card.ts'}), (b:Document {name: 'Spec-06 card.test.ts'}) MERGE (a)-[:TESTED_BY]->(b);
+MATCH (a:Document {name: 'Spec-06 card.ts'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-06 card.ts'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ADR-009: CardApplicationResult は card.ts のローカル export 型とし types.ts に追加しない
+// =============================================================================
+MERGE (:ADR {
+  id: 'ADR-009',
+  title: 'CardApplicationResult は card.ts のローカル export 型とし types.ts に追加しない',
+  date: '2026-08-13',
+  status: 'accepted',
+  context: 'applyCards の戻り値型 CardApplicationResult をどこに定義するか検討した。types.ts に追加する案と card.ts ローカル export 案があった。',
+  decision: 'CardApplicationResult を card.ts のローカル export インターフェースとして定義する。types.ts には追加しない。',
+  rationale: 'types.ts は Phaser Scene を含むプロジェクト全体が参照するコアデータ型のみを置く原則。CardApplicationResult は card.ts ↔ 呼び出し側（turn.ts / Phaser Scene）のインターフェースに留まり、ゲーム全域で共有する型ではない。局所化することで types.ts の肥大化を防ぐ。',
+  consequences: 'card.ts を import しない限り CardApplicationResult 型にアクセスできない。呼び出し側は card.ts から直接 import する設計になる。将来より多くのモジュールが利用する場合は types.ts への移行を検討する。'
+});
+MATCH (adr:ADR {id: 'ADR-009'}), (src:Document {name: 'Spec-06 card.ts'}) MERGE (adr)-[:AFFECTS]->(src);
+MATCH (adr:ADR {id: 'ADR-009'}), (n:Document {name: 'Spec-01 types.ts'}) MERGE (adr)-[:AFFECTS]->(n);
+MATCH (adr:ADR {id: 'ADR-009'}), (n:Concept {name: 'アーキテクチャ境界'}) MERGE (adr)-[:AFFECTS]->(n);
