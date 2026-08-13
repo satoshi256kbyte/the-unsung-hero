@@ -720,3 +720,16 @@ MERGE (:ADR {
 MATCH (adr:ADR {id: 'ADR-009'}), (src:Document {name: 'Spec-06 card.ts'}) MERGE (adr)-[:AFFECTS]->(src);
 MATCH (adr:ADR {id: 'ADR-009'}), (n:Document {name: 'Spec-01 types.ts'}) MERGE (adr)-[:AFFECTS]->(n);
 MATCH (adr:ADR {id: 'ADR-009'}), (n:Concept {name: 'アーキテクチャ境界'}) MERGE (adr)-[:AFFECTS]->(n);
+
+// =============================================================================
+// ノード: Document — Spec-07 spec / checklist
+// =============================================================================
+MERGE (:Document {name: 'Spec-07 spec', path: 'specs/007-turn-integration-engine/spec.md', type: 'spec',
+  description: 'ターン統合エンジンのフィーチャースペック。applyCards→effectsToAdd統合・即時メンバー更新・確率補正・effectTick の4ユーザーストーリー。turn.ts 更新 + effect.ts 新規。'});
+MERGE (:Document {name: 'Spec-07 checklist', path: 'specs/007-turn-integration-engine/checklists/requirements.md', type: 'checklist',
+  description: 'Spec-07仕様品質チェックリスト。全16項目PASS。スコープ外（停滞ロジック・過大報告・カード枠UI）明記済み。'});
+MATCH (a:Document {name: 'Spec-07 spec'}), (b:Document {name: 'Spec-07 checklist'}) MERGE (a)-[:HAS_CHECKLIST]->(b);
+MATCH (a:Document {name: 'Spec-07 spec'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-07 spec'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-07 spec'}), (b:Document {name: 'Spec-05 turn.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-07 spec'}), (b:Document {name: 'Spec-06 card.ts'}) MERGE (a)-[:REFERENCES]->(b);
