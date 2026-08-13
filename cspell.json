@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  "version": "0.2",
+  "language": "en,ja",
+  "words": [
+    "speckit",
+    "graphdb",
+    "gantt",
+    "vitest",
+    "biome",
+    "cypher",
+    "neo4j",
+    "phaser",
+    "fastcheck",
+    "noEmit",
+    "PARAM",
+    "MORALE",
+    "HEALTH",
+    "LEVEL"
+  ],
+  "ignorePaths": [
+    "node_modules",
+    "dist",
+    ".specify",
+    "db/neo4j-seed.cypher"
+  ]
+}
