@@ -1109,3 +1109,33 @@ MATCH (spec:Document {name: 'Spec-12 spec.md'}), (c:Concept {name: 'LoadingScree
 MATCH (spec:Document {name: 'Spec-12 spec.md'}), (c:Concept {name: 'MainScene'}) MERGE (spec)-[:DEFINES]->(c);
 MATCH (spec:Document {name: 'Spec-12 spec.md'}), (poc:Concept {name: 'pocStage'}) MERGE (spec)-[:DEPENDS_ON]->(poc);
 MATCH (spec:Document {name: 'Spec-12 spec.md'}), (ge:Concept {name: 'GameEngine'}) MERGE (spec)-[:DEPENDS_ON]->(ge);
+
+// =============================================================================
+// Spec-12 /speckit-plan: メイン画面UI計画フェーズ
+// =============================================================================
+MERGE (:Document {name: 'Spec-12 plan.md', path: 'specs/012-main-game-ui/plan.md', type: 'plan', spec: 'Spec-12',
+  description: 'Spec-12実装計画。src/ui/MainGameUI・CardSlot・LoadingScreen + src/scenes/MainScene。Playwright E2E 3ファイル',
+  status: 'completed', created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-12 research.md', path: 'specs/012-main-game-ui/research.md', type: 'research', spec: 'Spec-12',
+  description: 'DOM overlay協調・ドラッグ＆ドロップ・Scene通知パターン・ローディング最低1秒の設計決定',
+  status: 'completed', created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-12 data-model.md', path: 'specs/012-main-game-ui/data-model.md', type: 'data-model', spec: 'Spec-12',
+  description: 'MainGameUI・CardSlot・LoadingScreen・pmTerms・MainSceneのフィールド/メソッド/状態遷移定義',
+  status: 'completed', created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-12 contracts/ui-contracts.md', path: 'specs/012-main-game-ui/contracts/ui-contracts.md', type: 'contract', spec: 'Spec-12',
+  description: 'data-testid一覧・DOM状態コントラクト・E2Eシナリオ概要',
+  status: 'completed', created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-12 quickstart.md', path: 'specs/012-main-game-ui/quickstart.md', type: 'quickstart', spec: 'Spec-12',
+  description: 'Playwright E2E実行手順と3検証シナリオ',
+  status: 'completed', created: '2026-08-13'});
+
+MERGE (:ADR {id: 'ADR-016',
+  title: 'メイン画面UIのアーキテクチャ設計（DOM overlay + Phaser Scene 協調）',
+  date: '2026-08-13', status: 'accepted',
+  context: 'Phaser 4のCanvas上にDOM UIを重ねる必要がある。既存のindex.htmlに#ui-overlayが定義済み。Constitution原則IによりPhaser importはsrc/scenes/のみ許可。',
+  decision: 'src/ui/は純粋DOM操作のみ（Phaser import禁止）。MainSceneがengineとuiの両方を持ちoverlay.render(state)で通知。ドラッグ＆ドロップはHTML5 drag events。ローディング最低1秒はPromise.all([processTurn(), sleep(1000)])。',
+  rationale: '既存のDOM構造を活かし複雑さを最小化。EventEmitter不要でScene→UIの直接メソッド呼び出しがシンプル。Playwright E2EテストがDOM要素として操作できる構造を維持。',
+  consequences: 'src/ui/はフレームワーク非依存の純粋TypeScriptクラス。将来Reactへの移行も可能だが現状では不要。'});
+MATCH (adr:ADR {id: 'ADR-016'}), (spec:Document {name: 'Spec-12 spec.md'}) MERGE (adr)-[:AFFECTS]->(spec);
+MATCH (adr:ADR {id: 'ADR-016'}), (ui:Concept {name: 'MainGameUI'}) MERGE (adr)-[:AFFECTS]->(ui);
+MATCH (adr:ADR {id: 'ADR-016'}), (scene:Concept {name: 'MainScene'}) MERGE (adr)-[:AFFECTS]->(scene);
