@@ -16,7 +16,7 @@
 
 **Purpose**: ファイルスケルトンの作成
 
-- [ ] T001 `src/game/turn.ts` を作成し、imports（constants.ts・types.ts・gantt.ts・dice.ts・member.ts）と
+- [x] T001 `src/game/turn.ts` を作成し、imports（constants.ts・types.ts・gantt.ts・dice.ts・member.ts）と
   export 宣言のスケルトンを記述する
 
 ---
@@ -27,7 +27,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 `npx tsc --noEmit` でスケルトンの型チェックが 0 エラーであることを確認する
+- [x] T002 `npx tsc --noEmit` でスケルトンの型チェックが 0 エラーであることを確認する
 
 **Checkpoint**: スケルトンが型チェック通過 → 各 User Story 実装可
 
@@ -43,22 +43,22 @@
 
 ### Tests for User Story 1 (TDD: 実装前に作成し FAIL を確認)
 
-- [ ] T003 [P] [US1] `tests/unit/turn.test.ts` に基本ターン処理のテストを記述する
+- [x] T003 [P] [US1] `tests/unit/turn.test.ts` に基本ターン処理のテストを記述する
   （progressUpdates に担当タスクの delta が含まれること、memberUpdates に全メンバーが含まれること）
-- [ ] T004 [P] [US1] `tests/unit/turn.test.ts` にイミュータブル確認テストを記述する
+- [x] T004 [P] [US1] `tests/unit/turn.test.ts` にイミュータブル確認テストを記述する
   （呼び出し後に state.turn / state.members / state.gantt.tasks が変化しないこと）
-- [ ] T005 [P] [US1] `tests/unit/turn.test.ts` に手戻りイベント関連テストを記述する
+- [x] T005 [P] [US1] `tests/unit/turn.test.ts` に手戻りイベント関連テストを記述する
   （active タスクが 0 件のとき手戻りが発生しないこと）
 
 ### Implementation for User Story 1
 
-- [ ] T006 [US1] `src/game/turn.ts` に進捗ダイス処理を実装する
+- [x] T006 [US1] `src/game/turn.ts` に進捗ダイス処理を実装する
   （各メンバーの active 担当タスクに rollProgress の結果を ProgressUpdate として記録）
-- [ ] T007 [US1] `src/game/turn.ts` にパラメータ変動処理を実装する
+- [x] T007 [US1] `src/game/turn.ts` にパラメータ変動処理を実装する
   （applyTurnDecay を全メンバーに適用し MemberUpdate を記録）
-- [ ] T008 [US1] `src/game/turn.ts` に手戻りイベント判定を実装する
+- [x] T008 [US1] `src/game/turn.ts` に手戻りイベント判定を実装する
   （EVENT_PROB.REWORK の確率で active タスクにランダム applyRework を適用）
-- [ ] T009 [US1] `src/game/turn.ts` にコスト計算を実装する
+- [x] T009 [US1] `src/game/turn.ts` にコスト計算を実装する
   （costDelta = POC_STAGE.DAILY_COST_CAP × members.length）
 
 **Checkpoint**: 基本ターン処理の全テスト PASS → US2 実装可
@@ -75,14 +75,14 @@ turn=5 のとき週末回復テストが PASS すること
 
 ### Tests for User Story 2 (TDD: 実装前に作成し FAIL を確認)
 
-- [ ] T010 [P] [US2] `tests/unit/turn.test.ts` に週末回復テストを記述する
+- [x] T010 [P] [US2] `tests/unit/turn.test.ts` に週末回復テストを記述する
   （turn=5 のとき healthDelta が通常の自然低下より大きいこと）
-- [ ] T011 [P] [US2] `tests/unit/turn.test.ts` に週末非発動テストを記述する
+- [x] T011 [P] [US2] `tests/unit/turn.test.ts` に週末非発動テストを記述する
   （turn=4 のとき週末回復が適用されないこと）
 
 ### Implementation for User Story 2
 
-- [ ] T012 [US2] `src/game/turn.ts` にパラメータ変動処理へ週末判定を追加する
+- [x] T012 [US2] `src/game/turn.ts` にパラメータ変動処理へ週末判定を追加する
   （turn % 5 === 0 のとき applyWeekendRecovery も適用し MemberUpdate に加算）
 
 **Checkpoint**: 週末回復テスト全 PASS → US3 実装可
@@ -98,16 +98,16 @@ turn=5 のとき週末回復テストが PASS すること
 
 ### Tests for User Story 3 (TDD: 実装前に作成し FAIL を確認)
 
-- [ ] T013 [P] [US3] `tests/unit/turn.test.ts` に全タスク完了ゲームオーバーテストを記述する
+- [x] T013 [P] [US3] `tests/unit/turn.test.ts` に全タスク完了ゲームオーバーテストを記述する
   （全タスク status='done' の状態で processTurn を呼ぶと isGameOver=true になること）
-- [ ] T014 [P] [US3] `tests/unit/turn.test.ts` に納期超過ゲームオーバーテストを記述する
+- [x] T014 [P] [US3] `tests/unit/turn.test.ts` に納期超過ゲームオーバーテストを記述する
   （turn > deadline の状態で isGameOver=true になること）
-- [ ] T015 [P] [US3] `tests/unit/turn.test.ts` に継続中テストを記述する
+- [x] T015 [P] [US3] `tests/unit/turn.test.ts` に継続中テストを記述する
   （タスク未完了かつ turn <= deadline のとき isGameOver=false になること）
 
 ### Implementation for User Story 3
 
-- [ ] T016 [US3] `src/game/turn.ts` にゲームオーバー判定を実装する
+- [x] T016 [US3] `src/game/turn.ts` にゲームオーバー判定を実装する
   （progressUpdates 適用後の仮想ガントで getCompletionRate >= 1.0、または turn > deadline を評価）
 
 **Checkpoint**: ゲームオーバー判定テスト全 PASS → 全 US 実装完了
@@ -118,12 +118,12 @@ turn=5 のとき週末回復テストが PASS すること
 
 **Purpose**: プロパティテスト・Lint・最終バリデーション
 
-- [ ] T017 [P] `tests/unit/turn.test.ts` に fast-check プロパティテストを追加する
+- [x] T017 [P] `tests/unit/turn.test.ts` に fast-check プロパティテストを追加する
   （任意の合法 GameState で processTurn を呼んでも例外なし・isGameOver が boolean・delta が有限数）
-- [ ] T018 [P] `npx biome check --write src/game/turn.ts tests/unit/turn.test.ts` でフォーマット適用
-- [ ] T019 `npx tsc --noEmit` で型チェックが 0 エラーであることを確認する
-- [ ] T020 `npx vitest run --coverage` で coverage ≥ 80%（lines・functions）であることを確認する
-- [ ] T021 `grep -r "phaser\|document\|window" src/game/turn.ts` が 0 件であることを確認する
+- [x] T018 [P] `npx biome check --write src/game/turn.ts tests/unit/turn.test.ts` でフォーマット適用
+- [x] T019 `npx tsc --noEmit` で型チェックが 0 エラーであることを確認する
+- [x] T020 `npx vitest run --coverage` で coverage ≥ 80%（lines・functions）であることを確認する
+- [x] T021 `grep -r "phaser\|document\|window" src/game/turn.ts` が 0 件であることを確認する
 
 ---
 

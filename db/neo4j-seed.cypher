@@ -630,3 +630,32 @@ MATCH (a:Document {name: 'Spec-05 plan'}), (b:Document {name: 'Spec-05 quickstar
 // =============================================================================
 MERGE (:Document {name: 'Spec-05 tasks', path: 'specs/005-turn-engine/tasks.md', type: 'tasks', description: 'Spec-05実装タスク一覧。T001〜T021、6フェーズ。Setup→Foundational→US1(進捗ダイス/パラメータ変動/手戻り)→US2(週末回復)→US3(ゲームオーバー判定)→Polish。TDD方式。'});
 MATCH (a:Document {name: 'Spec-05 spec'}), (b:Document {name: 'Spec-05 tasks'}) MERGE (a)-[:HAS_TASKS]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-05 実装成果物（turn.ts / turn.test.ts）
+// =============================================================================
+MERGE (:Document {name: 'Spec-05 turn.ts', path: 'src/game/turn.ts', type: 'source', spec: 'Spec-05', status: 'implemented',
+  description: 'processTurn(state, cards): TurnResult — 1ターン処理のオーケストレーション純粋関数。進捗ダイス・パラメータ変動・週末回復・手戻りイベント・ゲームオーバー判定。'});
+MERGE (:Document {name: 'Spec-05 turn.test.ts', path: 'tests/unit/turn.test.ts', type: 'test', spec: 'Spec-05', status: 'all-pass',
+  testCount: 24, coverageLines: 100, coverageFunctions: 100,
+  description: '24テスト全PASS。US1基本ターン処理・イミュータブル・手戻り / US2週末回復 / US3ゲームオーバー / fast-checkプロパティ4件。'});
+MATCH (a:Document {name: 'Spec-05 spec'}), (b:Document {name: 'Spec-05 turn.ts'}) MERGE (a)-[:IMPLEMENTED_BY]->(b);
+MATCH (a:Document {name: 'Spec-05 turn.ts'}), (b:Document {name: 'Spec-05 turn.test.ts'}) MERGE (a)-[:TESTED_BY]->(b);
+MATCH (a:Document {name: 'Spec-05 turn.ts'}), (b:Document {name: 'Spec-04 member.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-05 turn.ts'}), (b:Document {name: 'Spec-03 dice.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-05 turn.ts'}), (b:Document {name: 'Spec-02 gantt.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ADR-008: processTurn は TurnResult（差分）を返し GameState 更新は呼び出し側が担う
+// =============================================================================
+MERGE (:ADR {
+  id: 'ADR-008',
+  title: 'processTurn は TurnResult（差分）を返し GameState 更新は呼び出し側が担う',
+  date: '2026-08-13',
+  status: 'accepted',
+  context: 'ターン処理エンジン(turn.ts)の戻り値設計。新しいGameStateを返すか、差分(TurnResult)を返すか検討した。',
+  decision: 'processTurn(state, cards): TurnResult として差分のみを返す。Phaser Scene が TurnResult を受け取り自分の GameState を更新する。',
+  rationale: '差分パターンにより turn.ts が GameState 更新ロジックを持たず純粋な差分計算関数に留まる。テストが容易で、Phaser 側の state 管理と game logic の責務分離が明確になる。',
+  consequences: 'Phaser Scene が TurnResult を適用して GameState を更新する責務を持つ。将来の拡張（undo/redo等）も差分ベースなら追いやすい。'
+});
+MATCH (adr:ADR {id: 'ADR-008'}), (src:Document {name: 'Spec-05 turn.ts'}) MERGE (adr)-[:AFFECTS]->(src);
