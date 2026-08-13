@@ -659,3 +659,14 @@ MERGE (:ADR {
   consequences: 'Phaser Scene が TurnResult を適用して GameState を更新する責務を持つ。将来の拡張（undo/redo等）も差分ベースなら追いやすい。'
 });
 MATCH (adr:ADR {id: 'ADR-008'}), (src:Document {name: 'Spec-05 turn.ts'}) MERGE (adr)-[:AFFECTS]->(src);
+
+// =============================================================================
+// ノード: Document — Spec-06 spec / checklist
+// =============================================================================
+MERGE (:Document {name: 'Spec-06 spec', path: 'specs/006-card-engine/spec.md', type: 'spec',
+  description: 'カード効果エンジンのフィーチャースペック。applyCards(state, cards): CardApplicationResult。グループA確率低減3種(デイリー/レビュー/モニタリング)+グループB即時メンバー3種(個別面談/表彰/計画休)。3ユーザーストーリー。'});
+MERGE (:Document {name: 'Spec-06 checklist', path: 'specs/006-card-engine/checklists/requirements.md', type: 'checklist',
+  description: 'Spec-06仕様品質チェックリスト。全16項目PASS。スコープ6種カード明確化、カード削除・自動解除は別Spec分割済み。'});
+MATCH (a:Document {name: 'Spec-06 spec'}), (b:Document {name: 'Spec-06 checklist'}) MERGE (a)-[:HAS_CHECKLIST]->(b);
+MATCH (a:Document {name: 'Spec-06 spec'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-06 spec'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
