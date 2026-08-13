@@ -874,4 +874,55 @@ MATCH (d:Document {name: 'Spec-08 event.test.ts'}), (c:Concept {name: 'applyEven
 MATCH (d:Document {name: 'Spec-05 turn.ts'}), (c:Concept {name: 'rollRandomEvents'}) MERGE (d)-[:USES]->(c);
 MATCH (adr:ADR {id: 'ADR-011'}), (d:Document {name: 'Spec-08 event.ts'}) MERGE (adr)-[:AFFECTS]->(d);
 MATCH (adr:ADR {id: 'ADR-011'}), (prev:ADR {id: 'ADR-010'}) MERGE (adr)-[:EXTENDS]->(prev);
+
+// =============================================================================
+// Spec-09 /speckit-specify: 条件付きイベントエンジン
+// =============================================================================
+MERGE (:Document {name: 'Spec-09 spec.md', path: 'specs/009-conditional-event-engine/spec.md', type: 'spec', spec: 'Spec-09',
+  description: '条件付きイベントエンジン仕様。evaluateCondition/rollConditionalEventsの4ユーザーストーリー定義',
+  created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-09 checklists/requirements.md', path: 'specs/009-conditional-event-engine/checklists/requirements.md', type: 'checklist', spec: 'Spec-09',
+  description: '仕様品質チェックリスト 16/16 PASS', created: '2026-08-13'});
+MERGE (:Concept {name: 'evaluateCondition', spec: 'Spec-09',
+  description: 'GameStateと条件式文字列を受け取りbooleanを返す純粋関数。9種の条件パターンをサポート。未知条件はfalseを返す',
+  file: 'src/game/conditional.ts'});
+MERGE (:Concept {name: 'rollConditionalEvents', spec: 'Spec-09',
+  description: 'ConditionalEvent[]を受け取り条件成立のものだけGameEvent[]に変換して返す純粋関数。turnフィルタあり',
+  file: 'src/game/conditional.ts'});
+MERGE (:Concept {name: 'ConditionalEvent', spec: 'Spec-09',
+  description: 'id/condition/turn/eventフィールドを持つ条件付きイベント定義型。types.tsに追加予定',
+  file: 'src/game/types.ts'});
+MERGE (:ADR {id: 'ADR-012',
+  title: '条件式評価は文字列マッチング方式で実装する',
+  date: '2026-08-13', status: 'accepted',
+  context: '条件付きイベントエンジンで条件式を評価する手段として、パーサーライブラリ導入か文字列マッチングかの選択が必要だった',
+  decision: 'evaluateConditionは文字列マッチング（startsWith/includes）でパターンを判定し、パーサーは使用しない',
+  rationale: 'POC段階では9種の固定条件パターンのみ対応すれば十分であり、パーサーは過剰設計になる。文字列マッチングの方がテスタビリティが高く、依存ライブラリも増えない',
+  consequences: '将来的に複雑な条件式（AND/OR、ネスト）が必要になった場合は評価戦略の変更が必要。そのタイミングでADRを更新し新実装へ移行する'});
+MATCH (adr:ADR {id: 'ADR-012'}), (c:Concept {name: 'evaluateCondition'}) MERGE (adr)-[:AFFECTS]->(c);
+MATCH (adr:ADR {id: 'ADR-012'}), (c:Concept {name: 'rollConditionalEvents'}) MERGE (adr)-[:AFFECTS]->(c);
+MATCH (spec:Document {name: 'Spec-09 spec.md'}), (c:Concept {name: 'evaluateCondition'}) MERGE (spec)-[:DEFINES]->(c);
+MATCH (spec:Document {name: 'Spec-09 spec.md'}), (c:Concept {name: 'rollConditionalEvents'}) MERGE (spec)-[:DEFINES]->(c);
+MATCH (spec:Document {name: 'Spec-09 spec.md'}), (c:Concept {name: 'ConditionalEvent'}) MERGE (spec)-[:DEFINES]->(c);
+
+// =============================================================================
+// Spec-09 /speckit-plan: plan.md / data-model.md / quickstart.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-09 plan.md', path: 'specs/009-conditional-event-engine/plan.md', type: 'plan', spec: 'Spec-09',
+  description: '条件付きイベントエンジン実装計画。KD-1〜5の設計決定。conditional.ts新規、turn.ts更新',
+  created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-09 data-model.md', path: 'specs/009-conditional-event-engine/data-model.md', type: 'data-model', spec: 'Spec-09',
+  description: '関数シグネチャ・条件式パターン・GameEvent生成スキーマ・processTurnフロー',
+  created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-09 quickstart.md', path: 'specs/009-conditional-event-engine/quickstart.md', type: 'quickstart', spec: 'Spec-09',
+  description: 'A〜Gシナリオの検証ガイド', created: '2026-08-13'});
+MATCH (plan:Document {name: 'Spec-09 plan.md'}), (spec:Document {name: 'Spec-09 spec.md'}) MERGE (plan)-[:IMPLEMENTS]->(spec);
+
+// =============================================================================
+// Spec-09 /speckit-tasks: tasks.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-09 tasks', path: 'specs/009-conditional-event-engine/tasks.md', type: 'tasks', spec: 'Spec-09',
+  description: 'Spec-09実装タスク一覧。T001〜T015、7フェーズ。Setup→テスト先行（US1/US2/US4/fast-check）→evaluateCondition実装→rollConditionalEvents実装→processTurn統合→イミュータブル検証→Polish。TDD方式。',
+  created: '2026-08-13'});
+MATCH (a:Document {name: 'Spec-09 spec.md'}), (b:Document {name: 'Spec-09 tasks'}) MERGE (a)-[:HAS_TASKS]->(b);
 MATCH (spec:Document {name: 'Spec-08 spec'}), (d:Document {name: 'Spec-08 event.ts'}) MERGE (spec)-[:IMPLEMENTS]->(d);
