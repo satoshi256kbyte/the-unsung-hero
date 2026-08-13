@@ -558,3 +558,38 @@ MATCH (adr:ADR {id: 'ADR-006'}), (n:Concept {name: 'アーキテクチャ境界'
 MERGE (:Document {name: 'Spec-04 spec', path: 'specs/004-member-params-engine/spec.md', description: 'メンバーパラメータ変動エンジンのフィーチャースペック。applyTurnDecay/applyWeekendRecovery/applyExperienceの3関数。心・体・経験値・技の変動。3ユーザーストーリー。', type: 'spec'});
 MATCH (a:Document {name: 'Spec-04 spec'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-04 spec'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-04 plan artifacts
+// =============================================================================
+MERGE (:Document {name: 'Spec-04 plan', path: 'specs/004-member-params-engine/plan.md', description: 'メンバーパラメータ変動エンジンの実装計画。member.ts 1ファイル・関数3本。constants.ts直接参照。Spec-01依存。', type: 'plan'});
+MERGE (:Document {name: 'Spec-04 data-model', path: 'specs/004-member-params-engine/data-model.md', description: 'Member型・PARAM_DELTA/EXP/LEVEL_UP_EXP定数テーブル・applyTurnDecay/applyWeekendRecovery/applyExperienceの3関数シグネチャと状態遷移。', type: 'data-model'});
+MERGE (:Document {name: 'Spec-04 quickstart', path: 'specs/004-member-params-engine/quickstart.md', description: 'Spec-04検証シナリオA〜E（applyTurnDecay境界・下限クランプ・週末上限クランプ・レベルアップ・技上限）', type: 'quickstart'});
+MATCH (a:Document {name: 'Spec-04 plan'}), (b:Document {name: 'Spec-04 spec'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-04 plan'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-04 data-model'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-04 data-model'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-04 tasks
+// =============================================================================
+MERGE (:Document {name: 'Spec-04 tasks', path: 'specs/004-member-params-engine/tasks.md', description: 'Spec-04実装タスク一覧。T001〜T018、6フェーズ。Setup→Foundational→US1(applyTurnDecay)→US2(applyWeekendRecovery)→US3(applyExperience)→Polish。TDD方式。', type: 'tasks'});
+MATCH (a:Document {name: 'Spec-04 tasks'}), (b:Document {name: 'Spec-04 spec'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-04 tasks'}), (b:Document {name: 'Spec-04 plan'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-04 tasks'}), (b:Document {name: 'Spec-04 data-model'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ADR-007: member.ts は constants.ts の定数を直接参照する
+// =============================================================================
+MERGE (:ADR {
+  id: 'ADR-007',
+  title: 'member.ts は constants.ts の PARAM_DELTA/MEMBER_PARAMS/EXP/LEVEL_UP_EXP を直接参照する',
+  date: '2026-08-13',
+  status: 'accepted',
+  context: 'Spec-04 のメンバーパラメータ変動関数が数値定数を必要とする。Spec-01で constants.ts に全定数が定義済み。dice.ts は balance.ts の中間ヘルパー（ADR-006）を使うが、member.ts の LEVEL_UP_EXP ルックアップは dice.ts と重複しない独自ロジックである。',
+  decision: 'member.ts は constants.ts から定数を直接 import して使用する。balance.ts のような中間ヘルパー関数は作成しない。LEVEL_UP_EXP ルックアップは member.ts 内のモジュールスコープ関数として実装する。',
+  rationale: 'DRY原則の観点では balance.ts への集約も考えられるが、LEVEL_UP_EXP ルックアップは整数テーブル参照という独自パターンで dice.ts と共通化するメリットがない。中間ヘルパーを作ると不要な抽象化になる。',
+  consequences: 'member.ts が constants.ts に直接依存する。将来 LEVEL_UP_EXP ルックアップを他モジュールが使う場合は balance.ts への移行を検討する。'
+});
+MATCH (adr:ADR {id: 'ADR-007'}), (n:Document {name: 'Spec-04 spec'}) MERGE (adr)-[:AFFECTS]->(n);
+MATCH (adr:ADR {id: 'ADR-007'}), (n:Concept {name: 'アーキテクチャ境界'}) MERGE (adr)-[:AFFECTS]->(n);
