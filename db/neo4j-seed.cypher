@@ -511,3 +511,10 @@ MERGE (:ADR {
 });
 MATCH (adr:ADR {id: 'ADR-005'}), (n:Concept {name: 'ガントチャート'}) MERGE (adr)-[:AFFECTS]->(n);
 MATCH (adr:ADR {id: 'ADR-005'}), (n:Concept {name: 'アーキテクチャ境界'}) MERGE (adr)-[:AFFECTS]->(n);
+
+// =============================================================================
+// ノード: Document — Spec-03 spec
+// =============================================================================
+MERGE (:Document {name: 'Spec-03 spec', path: 'specs/003-dice-engine/spec.md', description: '進捗ダイスエンジンのフィーチャースペック。rollProgress(member)→number。技・体パラメータによる確率的進捗計算。2ユーザーストーリー。', type: 'spec'});
+MATCH (a:Document {name: 'Spec-03 spec'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-03 spec'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
