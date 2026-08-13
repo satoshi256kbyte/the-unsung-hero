@@ -529,3 +529,10 @@ MATCH (a:Document {name: 'Spec-03 plan'}), (b:Document {name: 'Spec-03 spec'}) M
 MATCH (a:Document {name: 'Spec-03 plan'}), (b:Document {name: 'Spec-01 balance.ts'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-03 data-model'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-03 data-model'}), (b:Document {name: 'Spec-01 balance.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-03 tasks
+// =============================================================================
+MERGE (:Document {name: 'Spec-03 tasks', path: 'specs/003-dice-engine/tasks.md', description: 'Spec-03実装タスク一覧。T001〜T008、4フェーズ。rollProgress実装・技/体境界値テスト・fast-checkプロパティテスト。', type: 'tasks'});
+MATCH (a:Document {name: 'Spec-03 tasks'}), (b:Document {name: 'Spec-03 spec'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-03 tasks'}), (b:Document {name: 'Spec-03 plan'}) MERGE (a)-[:REFERENCES]->(b);

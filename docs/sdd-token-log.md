@@ -16,6 +16,7 @@ Spec Kitコマンドごとのトークン消費を記録する。
 | Spec-02 | /sync-graphdb | 2026-08-13 | — | — | gantt.ts/test.ts追加・ADR-005追加 |
 | Spec-03 | /speckit-specify | 2026-08-13 | — | — | 進捗ダイスエンジン仕様作成 |
 | Spec-03 | /speckit-plan | 2026-08-13 | — | — | plan.md / data-model.md / quickstart.md 作成 |
+| Spec-03 | /speckit-tasks | 2026-08-13 | — | — | tasks.md 作成（T001〜T008） |
 
 ## 累計
 
