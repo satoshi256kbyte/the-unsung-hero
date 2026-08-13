@@ -17,11 +17,11 @@
 
 **Purpose**: ディレクトリ作成と空ファイルの骨格を用意する
 
-- [ ] T001 Create `src/ui/pmTerms.ts` with PM terminology array (15 entries)
-- [ ] T002 [P] Create `src/ui/MainGameUI.ts` with class skeleton and `render(state: GameState)` stub
-- [ ] T003 [P] Create `src/ui/CardSlot.ts` with class skeleton
-- [ ] T004 [P] Create `src/ui/LoadingScreen.ts` with class skeleton
-- [ ] T005 [P] Create `src/scenes/MainScene.ts` as Phaser.Scene subclass skeleton
+- [X] T001 Create `src/ui/pmTerms.ts` with PM terminology array (15 entries)
+- [X] T002 [P] Create `src/ui/MainGameUI.ts` with class skeleton and `render(state: GameState)` stub
+- [X] T003 [P] Create `src/ui/CardSlot.ts` with class skeleton
+- [X] T004 [P] Create `src/ui/LoadingScreen.ts` with class skeleton
+- [X] T005 [P] Create `src/scenes/MainScene.ts` as Phaser.Scene subclass skeleton
 
 ---
 

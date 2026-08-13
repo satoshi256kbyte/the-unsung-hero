@@ -1147,3 +1147,50 @@ MERGE (:Document {name: 'Spec-12 tasks.md', path: 'specs/012-main-game-ui/tasks.
   description: 'Spec-12タスク一覧。T001〜T028、6フェーズ。Setup→基盤→US1ダッシュボード→US2カード枠→US3ローディング→Polish。E2E 3ファイル。',
   status: 'pending', created: '2026-08-13'});
 MATCH (a:Document {name: 'Spec-12 spec.md'}), (b:Document {name: 'Spec-12 tasks.md'}) MERGE (a)-[:HAS_TASKS]->(b);
+
+// =============================================================================
+// Spec-12 /speckit-implement: Phase 1 セットアップ（T001-T005）
+// =============================================================================
+MATCH (n:Document {name: 'Spec-12 tasks.md'}) SET n.status = 'in_progress';
+
+MERGE (pm:Concept {name: 'pmTerms'})
+SET pm.type = 'module', pm.file = 'src/ui/pmTerms.ts',
+    pm.description = 'PM用語15件の定数配列（EVM, SPI, CPI等）。LoadingScreenが参照する。',
+    pm.status = 'implemented', pm.spec = 'Spec-12';
+
+MATCH (ls:Concept {name: 'LoadingScreen'})
+SET ls.file = 'src/ui/LoadingScreen.ts',
+    ls.description = 'ターン処理中のオーバーレイ。show()でランダムなPM用語を表示、hide()で非表示。data-testid=loading-screen。',
+    ls.status = 'implemented';
+
+MATCH (cs:Concept {name: 'CardSlot'})
+SET cs.file = 'src/ui/CardSlot.ts',
+    cs.description = 'カードスロット1枠。place/remove/markBlocked/clearBlocked。data-testid=card-slot-{index}。',
+    cs.status = 'implemented';
+
+MATCH (mgu:Concept {name: 'MainGameUI'})
+SET mgu.file = 'src/ui/MainGameUI.ts',
+    mgu.description = 'DOM overlay UI全体。header/KPI/メンバー/カードスロット/フッター構成。render(GameState)で更新。src/ui/配下でPhaserをimportしない。',
+    mgu.status = 'implemented';
+
+MATCH (ms:Concept {name: 'MainScene'})
+SET ms.file = 'src/scenes/MainScene.ts',
+    ms.description = 'Phaser.Scene。create()でGameEngine(pocStage)生成・#ui-overlay取得・MainGameUI初期化。confirmTurn()でPromise.all+sleep(1000)のローディング制御。',
+    ms.status = 'implemented';
+
+MERGE (:ADR {
+  id: 'ADR-017',
+  title: 'MainScene を src/scenes/ に置きPhaserをimportする唯一の協調層とする',
+  date: '2026-08-13', status: 'accepted',
+  context: 'src/ui/ 配下はPhaser非依存が条件（Constitution Principle I）。一方でゲームループはPhaserのシーンライフサイクルに乗る必要がある。',
+  decision: 'src/scenes/MainScene.ts がGameEngine + MainGameUIを生成・協調する。src/ui/ はDOMのみ操作し、PhaserをimportしないDOM overlay層とする。',
+  rationale: 'UIをPhaser非依存に保つことで単体テストが容易になり、将来的なフレームワーク移行コストも下がる。',
+  consequences: 'MainSceneはPhaser依存を集約する。UIの変更はsrc/ui/のみで完結し、src/scenes/への影響を最小化できる。'});
+
+MATCH (adr:ADR {id: 'ADR-017'}), (ms:Concept {name: 'MainScene'}) MERGE (adr)-[:AFFECTS]->(ms);
+MATCH (adr:ADR {id: 'ADR-017'}), (mgu:Concept {name: 'MainGameUI'}) MERGE (adr)-[:AFFECTS]->(mgu);
+MATCH (ls:Concept {name: 'LoadingScreen'}), (pm:Concept {name: 'pmTerms'}) MERGE (ls)-[:USES]->(pm);
+MATCH (mgu:Concept {name: 'MainGameUI'}), (ls:Concept {name: 'LoadingScreen'}) MERGE (mgu)-[:CONTAINS]->(ls);
+MATCH (mgu:Concept {name: 'MainGameUI'}), (cs:Concept {name: 'CardSlot'}) MERGE (mgu)-[:CONTAINS]->(cs);
+MATCH (ms:Concept {name: 'MainScene'}), (mgu:Concept {name: 'MainGameUI'}) MERGE (ms)-[:USES]->(mgu);
+MATCH (ms:Concept {name: 'MainScene'}), (ge:Concept {name: 'GameEngine'}) MERGE (ms)-[:USES]->(ge);
