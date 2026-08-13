@@ -1089,3 +1089,23 @@ MERGE (:Document {name: 'Spec-11 tasks.md', path: 'specs/011-poc-stage-data/task
 MATCH (poc:Concept {name: 'pocStage'}), (impl:Document {name: 'src/game/stages/pocStage.ts'}) MERGE (poc)-[:IMPLEMENTED_IN]->(impl);
 MATCH (poc:Concept {name: 'pocStage'}), (test:Document {name: 'tests/unit/stages/pocStage.test.ts'}) MERGE (poc)-[:TESTED_IN]->(test);
 MATCH (spec:Document {name: 'Spec-11 spec.md'}), (impl:Document {name: 'src/game/stages/pocStage.ts'}) MERGE (spec)-[:IMPLEMENTS]->(impl);
+
+// =============================================================================
+// Spec-12 /speckit-specify: メイン画面UI仕様
+// =============================================================================
+MERGE (:Document {name: 'Spec-12 spec.md', path: 'specs/012-main-game-ui/spec.md', type: 'spec', spec: 'Spec-12',
+  description: 'メイン画面UI仕様。DOM overlay + Phaser Scene。ダッシュボード・カード枠・ターン移行ロード画面の3ユーザーストーリー',
+  status: 'draft', created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-12 checklists/requirements.md', path: 'specs/012-main-game-ui/checklists/requirements.md', type: 'checklist', spec: 'Spec-12',
+  description: 'Spec-12仕様チェックリスト。16項目全PASS', status: 'completed', created: '2026-08-13'});
+MERGE (:Concept {name: 'MainGameUI', description: 'DOM overlay ルートコンポーネント。GameStateを受け取り表示を更新する', layer: 'src/ui/', spec: 'Spec-12'});
+MERGE (:Concept {name: 'CardSlot', description: 'カードスロット1枠コンポーネント。カードの配置・除去を管理する', layer: 'src/ui/', spec: 'Spec-12'});
+MERGE (:Concept {name: 'LoadingScreen', description: 'ターン移行ロード画面コンポーネント。PM用語テキストを表示する。最低1秒表示', layer: 'src/ui/', spec: 'Spec-12'});
+MERGE (:Concept {name: 'MainScene', description: 'Phaser Scene。キャンバス背景とDOM overlayの協調制御を担当', layer: 'src/scenes/', spec: 'Spec-12'});
+
+MATCH (spec:Document {name: 'Spec-12 spec.md'}), (c:Concept {name: 'MainGameUI'}) MERGE (spec)-[:DEFINES]->(c);
+MATCH (spec:Document {name: 'Spec-12 spec.md'}), (c:Concept {name: 'CardSlot'}) MERGE (spec)-[:DEFINES]->(c);
+MATCH (spec:Document {name: 'Spec-12 spec.md'}), (c:Concept {name: 'LoadingScreen'}) MERGE (spec)-[:DEFINES]->(c);
+MATCH (spec:Document {name: 'Spec-12 spec.md'}), (c:Concept {name: 'MainScene'}) MERGE (spec)-[:DEFINES]->(c);
+MATCH (spec:Document {name: 'Spec-12 spec.md'}), (poc:Concept {name: 'pocStage'}) MERGE (spec)-[:DEPENDS_ON]->(poc);
+MATCH (spec:Document {name: 'Spec-12 spec.md'}), (ge:Concept {name: 'GameEngine'}) MERGE (spec)-[:DEPENDS_ON]->(ge);
