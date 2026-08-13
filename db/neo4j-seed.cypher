@@ -984,3 +984,34 @@ MERGE (:Document {name: 'Spec-10 tasks', path: 'specs/010-game-engine/tasks.md',
   created: '2026-08-13'});
 MATCH (a:Document {name: 'Spec-10 spec.md'}), (b:Document {name: 'Spec-10 tasks'}) MERGE (a)-[:HAS_TASKS]->(b);
 MATCH (spec:Document {name: 'Spec-08 spec'}), (d:Document {name: 'Spec-08 event.ts'}) MERGE (spec)-[:IMPLEMENTS]->(d);
+
+// =============================================================================
+// Spec-10 /speckit-implement: engine.ts + engine.test.ts
+// =============================================================================
+MERGE (:Document {name: 'src/game/engine.ts', path: 'src/game/engine.ts', type: 'implementation', spec: 'Spec-10',
+  description: 'GameEngineクラス実装。buildInitialState・applyMemberUpdates・processTurn・getState・isGameOverを提供',
+  status: 'completed', tests: 24, coverage_lines: 100, coverage_funcs: 100,
+  created: '2026-08-13'});
+MERGE (:Document {name: 'tests/unit/engine.test.ts', path: 'tests/unit/engine.test.ts', type: 'test', spec: 'Spec-10',
+  description: 'GameEngineテスト。US1初期化(8)・US2ターン処理(7)・US3ゲーム終了(5)・US4メンバー集計(4) = 24件全PASS',
+  status: 'completed', test_count: 24,
+  created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-10 tasks', path: 'specs/010-game-engine/tasks.md', type: 'tasks', spec: 'Spec-10',
+  description: 'Spec-10実装タスク一覧。T001〜T016、6フェーズ。Setup→テスト先行（US1/US2/US3/US4）→初期化→processTurn→memberUpdates集計→Polish。TDD方式。',
+  status: 'completed',
+  created: '2026-08-13'});
+MERGE (:Concept {name: 'buildInitialState', description: 'StageDataから初期GameStateを構築するヘルパー関数（engine.ts内部）', file: 'src/game/engine.ts', spec: 'Spec-10'});
+MERGE (:Concept {name: 'applyMemberUpdates', description: '同一メンバーのmemberUpdateエントリを合算しclampして適用するヘルパー関数（engine.ts内部）', file: 'src/game/engine.ts', spec: 'Spec-10'});
+
+MATCH (ge:Concept {name: 'GameEngine'}), (d:Document {name: 'src/game/engine.ts'}) MERGE (ge)-[:IMPLEMENTED_IN]->(d);
+MATCH (ge:Concept {name: 'GameEngine'}), (t:Document {name: 'tests/unit/engine.test.ts'}) MERGE (ge)-[:TESTED_IN]->(t);
+MATCH (spec:Document {name: 'Spec-10 spec.md'}), (d:Document {name: 'src/game/engine.ts'}) MERGE (spec)-[:IMPLEMENTS]->(d);
+
+MERGE (:ADR {id: 'ADR-014',
+  title: 'GameEngineのprocessTurnはprogressUpdatesをupdateTaskProgressで適用しstallイベントでsetTaskStatusを呼ぶ',
+  date: '2026-08-13', status: 'accepted',
+  context: 'GameEngineはprocessTurnCoreの結果（TurnResult）からganttタスクの状態を更新する必要がある。progressUpdatesとstallイベントの両方を処理しなければならない。',
+  decision: 'progressUpdates: updateTaskProgress(task, delta)で進捗更新。stallイベント: events配列でe.id.startsWith("stall") && e.targetId===task.idでマッチしsetTaskStatus(task, "stalled")を呼ぶ',
+  rationale: '既存のgantt.ts実装（updateTaskProgress・setTaskStatus）を再利用することでロジックの重複を避ける。stallの検出はevent idプレフィックス規約で行い、型を新設せずに済む',
+  consequences: 'stall event idが"stall"プレフィックスを持つ規約に依存する。規約変更時はengine.tsも修正が必要'});
+MATCH (adr:ADR {id: 'ADR-014'}), (ge:Concept {name: 'GameEngine'}) MERGE (adr)-[:AFFECTS]->(ge);

@@ -25,7 +25,7 @@
 
 ## Phase 5: ゲームループ・ステージ
 
-- [ ] Spec-10: GameEngine（フルターンループ）
+- [x] Spec-10: GameEngine（フルターンループ）
 - [ ] Spec-11: PoCステージデータ
 
 ## Phase 6: 画面
