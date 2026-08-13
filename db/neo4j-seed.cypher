@@ -604,3 +604,13 @@ MATCH (a:Document {name: 'Spec-04 member.ts'}), (b:Document {name: 'Spec-01 type
 MATCH (a:Document {name: 'Spec-04 member.ts'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-04 member.test.ts'}), (b:Document {name: 'Spec-04 member.ts'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-04 spec'}), (b:Document {name: 'Spec-04 member.ts'}) MERGE (a)-[:IMPLEMENTED_BY]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-05 spec
+// =============================================================================
+MERGE (:Document {name: 'Spec-05 spec', path: 'specs/005-turn-engine/spec.md', type: 'spec', description: 'ターン処理エンジンのフィーチャースペック。processTurn(state, cards)→TurnResult。カード適用・進捗ダイス・パラメータ変動・手戻りイベント・ゲームオーバー判定の5グループ処理。3ユーザーストーリー。'});
+MATCH (a:Document {name: 'Spec-05 spec'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-05 spec'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-05 spec'}), (b:Document {name: 'Spec-02 gantt.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-05 spec'}), (b:Document {name: 'Spec-03 dice.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-05 spec'}), (b:Document {name: 'Spec-04 member.ts'}) MERGE (a)-[:REFERENCES]->(b);

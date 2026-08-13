@@ -22,6 +22,7 @@ Spec Kitコマンドごとのトークン消費を記録する。
 | Spec-04 | /speckit-plan | 2026-08-13 | — | — | plan.md / data-model.md / quickstart.md 作成 |
 | Spec-04 | /speckit-tasks | 2026-08-13 | — | — | tasks.md 作成（T001〜T018） |
 | Spec-04 | /speckit-implement | 2026-08-13 | — | — | member.ts + member.test.ts 実装・32テスト全PASS・coverage 100% |
+| Spec-05 | /speckit-specify | 2026-08-13 | — | — | ターン処理エンジン仕様作成 |
 
 ## 累計
 
