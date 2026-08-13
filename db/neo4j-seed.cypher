@@ -593,3 +593,14 @@ MERGE (:ADR {
 });
 MATCH (adr:ADR {id: 'ADR-007'}), (n:Document {name: 'Spec-04 spec'}) MERGE (adr)-[:AFFECTS]->(n);
 MATCH (adr:ADR {id: 'ADR-007'}), (n:Concept {name: 'アーキテクチャ境界'}) MERGE (adr)-[:AFFECTS]->(n);
+
+// =============================================================================
+// ノード: Document — Spec-04 実装ファイル
+// =============================================================================
+MERGE (:Document {name: 'Spec-04 member.ts', path: 'src/game/member.ts', type: 'source', description: 'メンバーパラメータ変動エンジン。applyTurnDecay/applyWeekendRecovery/applyExperienceの3純粋関数。整数乱数・クランプ・LEVEL_UP_EXPルックアップ。Phaser/DOM非依存pure TS。全関数イミュータブル操作。'});
+MERGE (:Document {name: 'Spec-04 member.test.ts', path: 'tests/unit/member.test.ts', type: 'test', description: 'Vitest+fast-checkによるmember.ts全関数のテスト。境界値テスト＋プロパティテスト計32件。全PASS・coverage 100%確認済み。'});
+
+MATCH (a:Document {name: 'Spec-04 member.ts'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-04 member.ts'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-04 member.test.ts'}), (b:Document {name: 'Spec-04 member.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-04 spec'}), (b:Document {name: 'Spec-04 member.ts'}) MERGE (a)-[:IMPLEMENTED_BY]->(b);
