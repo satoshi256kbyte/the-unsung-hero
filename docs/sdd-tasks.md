@@ -9,27 +9,33 @@
 
 ## Phase 2: ゲームロジック
 
-- [ ] Spec-03: 進捗ダイスエンジン
-- [ ] Spec-04: メンバーパラメータ変動エンジン
-- [ ] Spec-05: ターン処理エンジン（コア）
+- [x] Spec-03: 進捗ダイスエンジン
+- [x] Spec-04: メンバーパラメータ変動エンジン
+- [x] Spec-05: ターン処理エンジン（コア）
 
-## Phase 3: イベント・カードロジック
+## Phase 3: カード・アクティブ効果ロジック
 
-- [ ] Spec-06: ランダムイベントエンジン
-- [ ] Spec-07: カードエフェクトエンジン
+- [x] Spec-06: カード効果エンジン（applyCards）
+- [ ] Spec-07: ターン統合エンジン（カード効果 × アクティブ効果管理）
 
-## Phase 4: ゲームループ・画面
+## Phase 4: イベント・停滞ロジック
 
-- [ ] Spec-08: GameEngine（フルターンループ）
-- [ ] Spec-09: PoCステージデータ
-- [ ] Spec-10: メイン画面UI（DOM overlay + Phaser Scene）
+- [ ] Spec-08: ランダムイベントエンジン（停滞・手戻り本体）
+- [ ] Spec-09: 条件付きイベントエンジン
+
+## Phase 5: ゲームループ・ステージ
+
+- [ ] Spec-10: GameEngine（フルターンループ）
+- [ ] Spec-11: PoCステージデータ
+
+## Phase 6: 画面
+
+- [ ] Spec-12: メイン画面UI（DOM overlay + Phaser Scene）
 
 ---
 
 ## 実行ルール
 
 - 各Specは `/speckit-specify` → `/speckit-plan` → `/speckit-tasks` → `/speckit-implement` の順で実行
-- Phase 1・Phase 2（03/04）・Phase 3（06/07）・Phase 4（08/09）は同フェーズ内で並列実行可
-- Spec-05 は Spec-03・04 完了後に開始
-- Spec-10 は Spec-08・09 完了後に開始
+- 各Spec完了後 `/sync-graphdb` を実行してグラフDBへ反映
 - 各Spec完了後、pre-push（typecheck + coverage + audit）を通過させてからpush

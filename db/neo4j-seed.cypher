@@ -733,3 +733,20 @@ MATCH (a:Document {name: 'Spec-07 spec'}), (b:Document {name: 'Spec-01 types.ts'
 MATCH (a:Document {name: 'Spec-07 spec'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-07 spec'}), (b:Document {name: 'Spec-05 turn.ts'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-07 spec'}), (b:Document {name: 'Spec-06 card.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-07 plan artifacts
+// =============================================================================
+MERGE (:Document {name: 'Spec-07 plan', path: 'specs/007-turn-integration-engine/plan.md', type: 'plan',
+  description: 'ターン統合エンジンの実装計画。TurnResult型拡張・EVENT_PROB.STALL追加・effect.ts新規・turn.ts更新。processTurn処理順序(applyCards→currentEffects合成→dice→decay→rework補正→tick)を定義。'});
+MERGE (:Document {name: 'Spec-07 data-model', path: 'specs/007-turn-integration-engine/data-model.md', type: 'data-model',
+  description: 'TurnResult型拡張定義・applyEffectTick/calcEventProbModifierシグネチャ・処理フロー・依存関係グラフ。'});
+MERGE (:Document {name: 'Spec-07 quickstart', path: 'specs/007-turn-integration-engine/quickstart.md', type: 'quickstart',
+  description: '検証シナリオA〜E（デイリー効果追加・確率補正・即時メンバー回復・effectTick除去・calcEventProbModifier）。'});
+MATCH (a:Document {name: 'Spec-07 spec'}), (b:Document {name: 'Spec-07 plan'}) MERGE (a)-[:HAS_PLAN]->(b);
+MATCH (a:Document {name: 'Spec-07 plan'}), (b:Document {name: 'Spec-07 data-model'}) MERGE (a)-[:HAS_DATA_MODEL]->(b);
+MATCH (a:Document {name: 'Spec-07 plan'}), (b:Document {name: 'Spec-07 quickstart'}) MERGE (a)-[:HAS_QUICKSTART]->(b);
+MATCH (a:Document {name: 'Spec-07 plan'}), (b:Document {name: 'Spec-05 turn.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-07 plan'}), (b:Document {name: 'Spec-06 card.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-07 plan'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-07 plan'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
