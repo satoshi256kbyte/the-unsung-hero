@@ -45,8 +45,8 @@ export class MainScene extends Phaser.Scene {
     this.ui.render(this.engine.getState());
 
     if (result.events.length > 0) {
-      const eventNames = result.events.map((e) => e.name).join(", ");
-      console.info("Events:", eventNames);
+      const eventIds = result.events.map((e) => e.id).join(", ");
+      console.info("Events:", eventIds);
     }
   }
 }
