@@ -1139,3 +1139,11 @@ MERGE (:ADR {id: 'ADR-016',
 MATCH (adr:ADR {id: 'ADR-016'}), (spec:Document {name: 'Spec-12 spec.md'}) MERGE (adr)-[:AFFECTS]->(spec);
 MATCH (adr:ADR {id: 'ADR-016'}), (ui:Concept {name: 'MainGameUI'}) MERGE (adr)-[:AFFECTS]->(ui);
 MATCH (adr:ADR {id: 'ADR-016'}), (scene:Concept {name: 'MainScene'}) MERGE (adr)-[:AFFECTS]->(scene);
+
+// =============================================================================
+// Spec-12 /speckit-tasks: tasks.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-12 tasks.md', path: 'specs/012-main-game-ui/tasks.md', type: 'tasks', spec: 'Spec-12',
+  description: 'Spec-12タスク一覧。T001〜T028、6フェーズ。Setup→基盤→US1ダッシュボード→US2カード枠→US3ローディング→Polish。E2E 3ファイル。',
+  status: 'pending', created: '2026-08-13'});
+MATCH (a:Document {name: 'Spec-12 spec.md'}), (b:Document {name: 'Spec-12 tasks.md'}) MERGE (a)-[:HAS_TASKS]->(b);
