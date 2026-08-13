@@ -614,3 +614,13 @@ MATCH (a:Document {name: 'Spec-05 spec'}), (b:Document {name: 'Spec-01 constants
 MATCH (a:Document {name: 'Spec-05 spec'}), (b:Document {name: 'Spec-02 gantt.ts'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-05 spec'}), (b:Document {name: 'Spec-03 dice.ts'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-05 spec'}), (b:Document {name: 'Spec-04 member.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-05 plan artifacts
+// =============================================================================
+MERGE (:Document {name: 'Spec-05 plan', path: 'specs/005-turn-engine/plan.md', type: 'plan', description: 'ターン処理エンジンの実装計画。turn.ts 1ファイル・processTurn 1関数。Spec-02〜04の関数を全て呼び出す統合レイヤー。TurnResult返却・GameState更新は呼び出し側担当。'});
+MERGE (:Document {name: 'Spec-05 data-model', path: 'specs/005-turn-engine/data-model.md', type: 'data-model', description: 'GameState/TurnResult/ProgressUpdate/MemberUpdateの入出力エンティティ定義・processTurnの処理フロー・依存モジュール一覧。'});
+MERGE (:Document {name: 'Spec-05 quickstart', path: 'specs/005-turn-engine/quickstart.md', type: 'quickstart', description: '検証シナリオA〜D（基本処理・週末回復・全タスク完了・納期超過）・fast-checkプロパティテスト観点。'});
+MATCH (a:Document {name: 'Spec-05 spec'}), (b:Document {name: 'Spec-05 plan'}) MERGE (a)-[:HAS_PLAN]->(b);
+MATCH (a:Document {name: 'Spec-05 plan'}), (b:Document {name: 'Spec-05 data-model'}) MERGE (a)-[:HAS_DATA_MODEL]->(b);
+MATCH (a:Document {name: 'Spec-05 plan'}), (b:Document {name: 'Spec-05 quickstart'}) MERGE (a)-[:HAS_QUICKSTART]->(b);
