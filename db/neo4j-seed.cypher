@@ -750,3 +750,10 @@ MATCH (a:Document {name: 'Spec-07 plan'}), (b:Document {name: 'Spec-05 turn.ts'}
 MATCH (a:Document {name: 'Spec-07 plan'}), (b:Document {name: 'Spec-06 card.ts'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-07 plan'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-07 plan'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-07 tasks
+// =============================================================================
+MERGE (:Document {name: 'Spec-07 tasks', path: 'specs/007-turn-integration-engine/tasks.md', type: 'tasks',
+  description: 'Spec-07実装タスク一覧。T001〜T020、7フェーズ。Setup→Foundational→US2(applyEffectTick)→US3(calcEventProbModifier)→US1(processTurn統合)→US4(イミュータブル)→Polish。TDD方式。'});
+MATCH (a:Document {name: 'Spec-07 spec'}), (b:Document {name: 'Spec-07 tasks'}) MERGE (a)-[:HAS_TASKS]->(b);
