@@ -975,4 +975,12 @@ MERGE (:Document {name: 'Spec-10 quickstart.md', path: 'specs/010-game-engine/qu
   description: 'A〜Eシナリオ: 初期化・1ターン・複数ターン・ゲームオーバーガード・クランプ確認',
   created: '2026-08-13'});
 MATCH (plan:Document {name: 'Spec-10 plan.md'}), (spec:Document {name: 'Spec-10 spec.md'}) MERGE (plan)-[:IMPLEMENTS]->(spec);
+
+// =============================================================================
+// Spec-10 /speckit-tasks: tasks.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-10 tasks', path: 'specs/010-game-engine/tasks.md', type: 'tasks', spec: 'Spec-10',
+  description: 'Spec-10実装タスク一覧。T001〜T016、6フェーズ。Setup→テスト先行（US1/US2/US3/US4）→初期化→processTurn→memberUpdates集計→Polish。TDD方式。',
+  created: '2026-08-13'});
+MATCH (a:Document {name: 'Spec-10 spec.md'}), (b:Document {name: 'Spec-10 tasks'}) MERGE (a)-[:HAS_TASKS]->(b);
 MATCH (spec:Document {name: 'Spec-08 spec'}), (d:Document {name: 'Spec-08 event.ts'}) MERGE (spec)-[:IMPLEMENTS]->(d);
