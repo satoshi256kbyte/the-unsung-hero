@@ -536,3 +536,18 @@ MATCH (a:Document {name: 'Spec-03 data-model'}), (b:Document {name: 'Spec-01 bal
 MERGE (:Document {name: 'Spec-03 tasks', path: 'specs/003-dice-engine/tasks.md', description: 'Spec-03実装タスク一覧。T001〜T008、4フェーズ。rollProgress実装・技/体境界値テスト・fast-checkプロパティテスト。', type: 'tasks'});
 MATCH (a:Document {name: 'Spec-03 tasks'}), (b:Document {name: 'Spec-03 spec'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-03 tasks'}), (b:Document {name: 'Spec-03 plan'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-03 実装ファイル
+// =============================================================================
+MERGE (:Document {name: 'Spec-03 dice.ts', path: 'src/game/dice.ts', description: '進捗ダイスエンジン。rollProgress(member)→number。base×skill_factor×health_factor の乗算。Phaser/DOM非依存pure TS。イミュータブル操作。', type: 'source'});
+MERGE (:Document {name: 'Spec-03 dice.test.ts', path: 'tests/unit/dice.test.ts', description: 'Vitest+fast-checkによるrollProgress全テスト。技/体境界値テスト＋プロパティテスト計21件。全PASS確認済み。', type: 'test'});
+MATCH (a:Document {name: 'Spec-03 dice.ts'}), (b:Document {name: 'Spec-01 balance.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-03 dice.ts'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+MATCH (a:Document {name: 'Spec-03 dice.test.ts'}), (b:Document {name: 'Spec-03 dice.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ADR-006: Spec-03進捗ダイスエンジンでbalance.tsの既存関数を再利用
+// =============================================================================
+MERGE (:ADR {id: 'ADR-006', title: 'Spec-03進捗ダイスエンジンでbalance.tsの既存関数を再利用', date: '2026-08-13', status: 'accepted', context: '進捗ダイス計算のためskill_factor/health_factorのテーブルルックアップが必要。Spec-01でbalance.tsに同機能が実装済みだった。', decision: 'dice.tsはbalance.tsのgetSkillFactorRange/getHealthFactorをimportして呼び出す。テーブルロジックを再実装しない。', rationale: 'DRY原則。Spec-01でテスト済みの関数を再利用することでdice.tsの実装を最小化し、テスト対象をrollProgressの乗算ロジックのみに絞れる。', consequences: 'dice.tsはbalance.tsに依存する。balance.tsの変更がdice.tsの挙動に影響する。依存関係は単方向で明確。'});
+MATCH (adr:ADR {id: 'ADR-006'}), (n:Concept {name: 'アーキテクチャ境界'}) MERGE (adr)-[:AFFECTS]->(n);
