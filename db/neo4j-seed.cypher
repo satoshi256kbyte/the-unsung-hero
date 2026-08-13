@@ -670,3 +670,16 @@ MERGE (:Document {name: 'Spec-06 checklist', path: 'specs/006-card-engine/checkl
 MATCH (a:Document {name: 'Spec-06 spec'}), (b:Document {name: 'Spec-06 checklist'}) MERGE (a)-[:HAS_CHECKLIST]->(b);
 MATCH (a:Document {name: 'Spec-06 spec'}), (b:Document {name: 'Spec-01 types.ts'}) MERGE (a)-[:REFERENCES]->(b);
 MATCH (a:Document {name: 'Spec-06 spec'}), (b:Document {name: 'Spec-01 constants.ts'}) MERGE (a)-[:REFERENCES]->(b);
+
+// =============================================================================
+// ノード: Document — Spec-06 plan artifacts
+// =============================================================================
+MERGE (:Document {name: 'Spec-06 plan', path: 'specs/006-card-engine/plan.md', type: 'plan',
+  description: 'カード効果エンジンの実装計画。card.ts 1ファイル・applyCards 1関数。グループA確率低減(CardEffect追加)・グループB即時メンバー系(MemberUpdate)。CardApplicationResultはcard.tsローカル型。'});
+MERGE (:Document {name: 'Spec-06 data-model', path: 'specs/006-card-engine/data-model.md', type: 'data-model',
+  description: 'CardApplicationResult定義・カードマッピングテーブル(6種)・applyCards処理フロー・依存関係。'});
+MERGE (:Document {name: 'Spec-06 quickstart', path: 'specs/006-card-engine/quickstart.md', type: 'quickstart',
+  description: '検証シナリオA〜E（グループA確率低減・グループB即時・0人panic安全・空配列・イミュータブル）・fast-checkプロパティテスト観点。'});
+MATCH (a:Document {name: 'Spec-06 spec'}), (b:Document {name: 'Spec-06 plan'}) MERGE (a)-[:HAS_PLAN]->(b);
+MATCH (a:Document {name: 'Spec-06 plan'}), (b:Document {name: 'Spec-06 data-model'}) MERGE (a)-[:HAS_DATA_MODEL]->(b);
+MATCH (a:Document {name: 'Spec-06 plan'}), (b:Document {name: 'Spec-06 quickstart'}) MERGE (a)-[:HAS_QUICKSTART]->(b);
