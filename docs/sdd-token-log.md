@@ -49,6 +49,9 @@ Spec Kitコマンドごとのトークン消費を記録する。
 | Spec-10 | /sync-graphdb | 2026-08-13 | — | — | ADR-014追加・240ノード |
 | Spec-11 | /speckit-specify | 2026-08-13 | — | — | PoCステージデータ仕様作成・チェックリスト16項目全PASS |
 | Spec-11 | /sync-graphdb | 2026-08-13 | — | — | pocStage Conceptノード追加・243ノード |
+| Spec-11 | /speckit-plan | 2026-08-13 | — | — | plan.md / research.md / data-model.md / quickstart.md 作成・ADR-015追加 |
+| Spec-11 | /speckit-tasks | 2026-08-13 | — | — | tasks.md 作成（T001〜T011、5フェーズ） |
+| Spec-11 | /speckit-implement | 2026-08-13 | — | — | pocStage.ts 新規・pocStage.test.ts 新規・291テスト全PASS・coverage lines/funcs 100% |
 
 ## 累計
 

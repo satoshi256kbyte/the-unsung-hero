@@ -1026,3 +1026,66 @@ MERGE (:Document {name: 'Spec-11 checklists/requirements.md', path: 'specs/011-p
   description: 'Spec-11仕様チェックリスト。16項目全PASS', status: 'completed', created: '2026-08-13'});
 MERGE (:Concept {name: 'pocStage', description: 'PoCステージのStageData定数。budget=500万・deadline=22ターン・メンバー3名・タスク8〜10件・条件付きイベント3〜5件', file: 'src/game/stages/poc.ts', spec: 'Spec-11'});
 MATCH (spec:Document {name: 'Spec-11 spec.md'}), (c:Concept {name: 'pocStage'}) MERGE (spec)-[:DEFINES]->(c);
+
+// =============================================================================
+// Spec-11 /speckit-plan: PoCステージデータ計画フェーズ
+// =============================================================================
+MERGE (:Document {name: 'Spec-11 plan.md', path: 'specs/011-poc-stage-data/plan.md', type: 'plan', spec: 'Spec-11',
+  description: 'Spec-11実装計画。src/game/stages/pocStage.ts新設。メンバー3名・ガントタスク9件・条件付きイベント5件・初期カード3枚',
+  status: 'completed', created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-11 research.md', path: 'specs/011-poc-stage-data/research.md', type: 'research', spec: 'Spec-11',
+  description: 'evaluateCondition対応9パターン確認。GanttTask初期statusはactive（waitingは型なし）。キャロルskill=6はリテラル定義',
+  status: 'completed', created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-11 data-model.md', path: 'specs/011-poc-stage-data/data-model.md', type: 'data-model', spec: 'Spec-11',
+  description: 'pocStageデータモデル。9タスク(5フェーズ)・5条件付きイベント・initialCards3枚のDAG定義',
+  status: 'completed', created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-11 quickstart.md', path: 'specs/011-poc-stage-data/quickstart.md', type: 'quickstart', spec: 'Spec-11',
+  description: 'Spec-11検証ガイド。vitest/tsc実行手順と4検証シナリオ',
+  status: 'completed', created: '2026-08-13'});
+
+MERGE (poc:Concept {name: 'pocStage'})
+SET poc.type = 'StageData',
+    poc.file = 'src/game/stages/pocStage.ts',
+    poc.budget = 5000000,
+    poc.deadline = 22,
+    poc.memberCount = 3,
+    poc.ganttTaskCount = 9,
+    poc.conditionalEventCount = 5,
+    poc.initialCardCount = 3,
+    poc.spec = 'Spec-11';
+
+MERGE (:ADR {id: 'ADR-015',
+  title: 'PoCステージデータの構造設計',
+  date: '2026-08-13', status: 'accepted',
+  context: 'GameEngineに渡す最初のStageData定数が必要。3名体制・22ターン・500万円予算のPoC開発プロジェクトを表現する。',
+  decision: 'src/game/stages/pocStage.tsにStageData型定数を実装。アリス(skill=12)・ボブ(skill=8)・キャロル(skill=6)。ガントタスク9件(5フェーズ)。条件付きイベント5件。初期カード(デイリー・レビュー・モニタリング)。',
+  rationale: 'stages/サブディレクトリ新設で複数ステージ対応を想定。GanttTask初期statusはactive（waiting型は存在しないため）。キャロルskill値はリテラルで記述（constants.ts肥大化を避ける）。',
+  consequences: 'GameEngineが正しく初期化できることをVitestで検証。カバレッジゲートをクリアするためテストファイルも同時作成が必要。'});
+MATCH (adr:ADR {id: 'ADR-015'}), (spec:Document {name: 'Spec-11 spec.md'}) MERGE (adr)-[:AFFECTS]->(spec);
+MATCH (adr:ADR {id: 'ADR-015'}), (poc:Concept {name: 'pocStage'}) MERGE (adr)-[:AFFECTS]->(poc);
+MATCH (ge:Concept {name: 'GameEngine'}), (poc:Concept {name: 'pocStage'}) MERGE (ge)-[:ACCEPTS]->(poc);
+MATCH (spec:Document {name: 'Spec-11 plan.md'}), (poc:Concept {name: 'pocStage'}) MERGE (spec)-[:DEFINES]->(poc);
+
+// =============================================================================
+// Spec-11 /speckit-tasks: tasks.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-11 tasks.md', path: 'specs/011-poc-stage-data/tasks.md', type: 'tasks', spec: 'Spec-11',
+  description: 'Spec-11タスク一覧。T001〜T011、5フェーズ。Setup→US1(pocStage実装+テスト)→US2(ガント整合性テスト)→US3(条件付きイベントテスト)→Polish。TDD方式。',
+  status: 'pending', created: '2026-08-13'});
+MATCH (a:Document {name: 'Spec-11 spec.md'}), (b:Document {name: 'Spec-11 tasks.md'}) MERGE (a)-[:HAS_TASKS]->(b);
+
+// =============================================================================
+// Spec-11 /speckit-implement: pocStage.ts + pocStage.test.ts
+// =============================================================================
+MERGE (:Document {name: 'src/game/stages/pocStage.ts', path: 'src/game/stages/pocStage.ts', type: 'implementation', spec: 'Spec-11',
+  description: 'pocStage定数。StageData型準拠。メンバー3名(アリス12/ボブ8/キャロル6)・ガントタスク9件(5フェーズ)・条件付きイベント5件・初期カード3枚',
+  status: 'completed', created: '2026-08-13'});
+MERGE (:Document {name: 'tests/unit/stages/pocStage.test.ts', path: 'tests/unit/stages/pocStage.test.ts', type: 'test', spec: 'Spec-11',
+  description: 'pocStageテスト。US1初期化(9)・US2ガント整合性(5)・US3条件付きイベント(4) = 18件全PASS',
+  status: 'completed', test_count: 18, created: '2026-08-13'});
+MERGE (:Document {name: 'Spec-11 tasks.md', path: 'specs/011-poc-stage-data/tasks.md', type: 'tasks', spec: 'Spec-11',
+  status: 'completed', created: '2026-08-13'});
+
+MATCH (poc:Concept {name: 'pocStage'}), (impl:Document {name: 'src/game/stages/pocStage.ts'}) MERGE (poc)-[:IMPLEMENTED_IN]->(impl);
+MATCH (poc:Concept {name: 'pocStage'}), (test:Document {name: 'tests/unit/stages/pocStage.test.ts'}) MERGE (poc)-[:TESTED_IN]->(test);
+MATCH (spec:Document {name: 'Spec-11 spec.md'}), (impl:Document {name: 'src/game/stages/pocStage.ts'}) MERGE (spec)-[:IMPLEMENTS]->(impl);
