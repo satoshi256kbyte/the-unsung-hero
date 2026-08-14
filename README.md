@@ -18,7 +18,18 @@ PMとなってウォーターフォール型プロジェクトを完遂し、目
 
 ### 前提
 
-- Docker / Docker Compose
+- Node.js / npm
+- Docker / Docker Compose（ナレッジグラフ用）
+
+### アプリの起動
+
+```bash
+npm install
+npm run dev
+```
+
+起動後、コンソールに表示されるURL（デフォルトは
+<http://localhost:5173>）をブラウザで開く。
 
 ### ナレッジグラフ（Neo4j）
 
