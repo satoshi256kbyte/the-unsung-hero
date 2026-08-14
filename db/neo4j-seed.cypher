@@ -1370,22 +1370,136 @@ MERGE (task)-[:DEPENDS_ON]->(s13);
 MATCH (n:Document {name: 'Spec-13: カード・イベント・ステージのファイル構造再編'}) SET n.status = 'completed';
 MATCH (n:Document {name: 'Spec-13 tasks.md'}) SET n.status = 'completed';
 
-MERGE (:Document {name: 'Spec-13 implementation', path: 'src/game/cards/ + src/game/events/ + src/game/stages/', type: 'implementation', spec: 'Spec-13',
-  description: 'カード26ファイル(実装済み6+スタブ20)+cards/index.ts、イベント15ファイル(実装済み5+スタブ10)+events/index.ts、ステージ1ファイル(poc-01.ts)+stages/index.ts。card.ts/event.ts/pocStage.ts削除。docs側はカード26/イベント23/ステージ1(PoCステージ01.md新規)に分割。',
-  status: 'completed', tests: 329, coverage_lines: 98.3, coverage_branches: 93.91, coverage_funcs: 100,
-  created: '2026-08-14'});
-MATCH (s13:Document {name: 'Spec-13: カード・イベント・ステージのファイル構造再編'}), (impl:Document {name: 'Spec-13 implementation'})
-MERGE (s13)-[:IMPLEMENTED_BY]->(impl);
-
 MATCH (n:Concept {name: 'CardDefinition'}) SET n.status = 'implemented';
 MATCH (n:Concept {name: 'EventDefinition'}) SET n.status = 'implemented';
-MERGE (:Concept {name: 'CARD_REGISTRY', description: 'CardName→CardDefinitionのレジストリ。satisfies Record<CardName, CardDefinition>で網羅性を保証', file: 'src/game/cards/index.ts', spec: 'Spec-13', status: 'implemented'});
-MERGE (:Concept {name: 'EVENT_REGISTRY', description: 'イベント種別キー→EventDefinitionのレジストリ（15種）', file: 'src/game/events/index.ts', spec: 'Spec-13', status: 'implemented'});
-MERGE (:Concept {name: 'STAGE_REGISTRY', description: 'ステージid→StageDataのレジストリ', file: 'src/game/stages/index.ts', spec: 'Spec-13', status: 'implemented'});
+MATCH (n:Concept {name: 'CARD_REGISTRY'}) SET n.status = 'implemented';
+MATCH (n:Concept {name: 'EVENT_REGISTRY'}) SET n.status = 'implemented';
+MATCH (n:Concept {name: 'STAGE_REGISTRY'}) SET n.status = 'implemented';
 MATCH (a:Concept {name: 'CARD_REGISTRY'}), (b:Concept {name: 'CardDefinition'}) MERGE (a)-[:CONTAINS]->(b);
 MATCH (a:Concept {name: 'EVENT_REGISTRY'}), (b:Concept {name: 'EventDefinition'}) MERGE (a)-[:CONTAINS]->(b);
-MATCH (impl:Document {name: 'Spec-13 implementation'}), (c:Concept {name: 'CARD_REGISTRY'}) MERGE (impl)-[:DEFINES]->(c);
-MATCH (impl:Document {name: 'Spec-13 implementation'}), (c:Concept {name: 'EVENT_REGISTRY'}) MERGE (impl)-[:DEFINES]->(c);
-MATCH (impl:Document {name: 'Spec-13 implementation'}), (c:Concept {name: 'STAGE_REGISTRY'}) MERGE (impl)-[:DEFINES]->(c);
+MATCH (impl:Document {name: 'Spec-13 implement結果'}), (c:Concept {name: 'CARD_REGISTRY'}) MERGE (impl)-[:DEFINES]->(c);
+MATCH (impl:Document {name: 'Spec-13 implement結果'}), (c:Concept {name: 'EVENT_REGISTRY'}) MERGE (impl)-[:DEFINES]->(c);
+MATCH (impl:Document {name: 'Spec-13 implement結果'}), (c:Concept {name: 'STAGE_REGISTRY'}) MERGE (impl)-[:DEFINES]->(c);
 
-MATCH (n:Concept {name: 'pocStage'}) SET n.status = 'superseded', n.description = n.description + '（Spec-13でpoc-01にリネーム。id="poc-01"）';
+MATCH (n:Concept {name: 'pocStage'}) SET n.status = 'superseded';
+
+// =============================================================================
+// Phase 9: バランスデータのJSON外部化 の設計セッション（brainstorming）
+// =============================================================================
+
+MERGE (:Document {name: 'Spec-15 design', path: 'docs/superpowers/specs/2026-08-14-json-data-externalization-design.md',
+  type: 'design-doc', spec: 'Spec-15',
+  description: 'カード・イベント・ステージの数値データとconstants.tsの係数テーブルをpublic/data/配下のJSONに外部化。効果ロジックはTSのまま。zodでスキーマ検証、新規PreloadSceneでPhaserのthis.load.jsonにより起動時ロード。docs・グラフDBは係数の意味とJSON参照先のみ記載し具体的な現在値は書かない方針。',
+  status: 'draft', created: '2026-08-14'});
+
+MERGE (:Document {name: 'Spec-15: カード・イベント・ステージ・バランス係数のJSON外部化', path: 'docs/sdd-tasks.md',
+  type: 'spec-entry', spec: 'Spec-15', status: 'planned', created: '2026-08-14'});
+MATCH (s15:Document {name: 'Spec-15: カード・イベント・ステージ・バランス係数のJSON外部化'}), (d:Document {name: 'Spec-15 design'})
+MERGE (s15)-[:HAS_DESIGN]->(d);
+
+MERGE (:Concept {name: 'PreloadScene', description: 'BootSceneとTitleSceneの間に挟む新規Scene。カード26+イベント15+ステージ1+バランス1=43件のJSONをPhaserのthis.load.jsonで一括ロードし、zod検証後にレジストリを構築する（設計のみ、未実装）', file: 'src/scenes/PreloadScene.ts', spec: 'Spec-15'});
+MERGE (:Concept {name: 'GLOBAL_RULES', description: 'constants.tsのPOC_STAGEを改名。ステージ非依存のグローバルルール（BUFFER_RATIO・TARGET_PROFIT_RATE・DAILY_COST_CAP・OVERTIME_COST_CAP）のみを残す。ステージ固有の重複値（WORKING_DAYS等）は削除（設計のみ、未実装）', file: 'src/game/constants.ts', spec: 'Spec-15'});
+
+// ADR-022: バランスデータのJSON外部化と数値の記載方針
+MERGE (:ADR {
+  id: 'ADR-022',
+  title: 'カード・イベント・ステージ・バランス係数の数値データをJSON外部化し、docs/グラフDBには数値を書かない方針にする',
+  date: '2026-08-14',
+  status: 'accepted',
+  context: 'Spec-13でカード・イベント・ステージは1ファイル1定義のTypeScript構造になったが、数値（コスト・確率・ガントチャート・係数）を変更するたびにTypeScriptのビルド・型チェックを経る必要があり、バランス調整のイテレーションが重い。また、docsやADR/Parameterノードに具体的な数値を書くと、チューニングのたびに複数箇所を更新する必要が生じ、ADR-018で踏んだ更新漏れ・陳腐化と同じ問題を数値データで再発させるリスクがあった。',
+  decision: 'カードの`cost`、イベントの基本確率、ステージデータ全体、constants.tsの係数テーブルをpublic/data/配下のJSON（Spec-13のファイル粒度と1:1対応）に外部化する。効果ロジック（applyEffect/roll関数）はTypeScriptのまま残す。zodで起動時にスキーマ検証し、新規PreloadScene（BootScene→TitleScene間）でPhaserのthis.load.jsonにより読み込む。CARD_REGISTRY等はモジュール定数からbuildCardRegistry()等の構築関数に変える。constants.tsのPOC_STAGEはGLOBAL_RULESに改名し、ステージ非依存の4項目のみ残す。docsとグラフDBには係数の意味・計算式の形・JSON参照先のみを記載し、具体的な現在値は書かない。',
+  rationale: 'src/game/はConstitution Principle IによりPhaser/DOM非依存のためfetchを持てず、読み込み処理はsrc/scenes/側に置く必要がある。JSON化する層と効果ロジックの層を分けることでSpec-13の1ファイル1定義構造とsatisfiesによる網羅性チェックの安全性を維持しつつ、数値だけを再ビルド不要で編集できるようにする。数値をdocs/グラフDBに重複させないことで、チューニングのたびの更新漏れを構造的に防ぐ。',
+  consequences: 'card.tsのCARD_COSTS的な定数はcards/*.tsから外れjson側に移る。constants.tsのPOC_STAGEはGLOBAL_RULESに改名され、WORKING_DAYS等ステージ固有の重複値は削除される（poc-01.tsが唯一の情報源になる）。バランスパラメータ.md・カード/*.md・イベント/*.mdの数値表記は撤去しJSON参照に置き換える。新規依存としてzod（MIT）を追加する。'
+});
+MATCH (adr:ADR {id: 'ADR-022'}), (adr19:ADR {id: 'ADR-019'}) MERGE (adr)-[:REFINES]->(adr19);
+MATCH (adr:ADR {id: 'ADR-022'}), (adr18:ADR {id: 'ADR-018'}) MERGE (adr)-[:REFINES]->(adr18);
+MATCH (adr:ADR {id: 'ADR-022'}), (ps:Concept {name: 'PreloadScene'}) MERGE (adr)-[:AFFECTS]->(ps);
+MATCH (adr:ADR {id: 'ADR-022'}), (gr:Concept {name: 'GLOBAL_RULES'}) MERGE (adr)-[:AFFECTS]->(gr);
+MATCH (adr:ADR {id: 'ADR-022'}), (reg:Concept {name: 'CARD_REGISTRY'}) MERGE (adr)-[:AFFECTS]->(reg);
+MATCH (adr:ADR {id: 'ADR-022'}), (reg:Concept {name: 'EVENT_REGISTRY'}) MERGE (adr)-[:AFFECTS]->(reg);
+MATCH (adr:ADR {id: 'ADR-022'}), (reg:Concept {name: 'STAGE_REGISTRY'}) MERGE (adr)-[:AFFECTS]->(reg);
+MATCH (adr:ADR {id: 'ADR-022'}), (d:Document {name: 'Spec-15 design'}) MERGE (adr)-[:AFFECTS]->(d);
+
+// =============================================================================
+// Spec-15 /speckit-specify: spec.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-15 spec.md', path: 'specs/015-json-data-externalization/spec.md', type: 'spec', spec: 'Spec-15',
+  description: 'カード・イベント・ステージ・バランス係数のJSON外部化の仕様。US1バランス調整担当者がビルド不要で数値調整・US2起動時のスキーマ検証・US3docs/グラフDBに数値を残さない方針。',
+  status: 'draft', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-15 checklists/requirements.md', path: 'specs/015-json-data-externalization/checklists/requirements.md', type: 'checklist', spec: 'Spec-15',
+  status: 'completed', created: '2026-08-14'});
+MATCH (s15:Document {name: 'Spec-15: カード・イベント・ステージ・バランス係数のJSON外部化'}), (spec:Document {name: 'Spec-15 spec.md'})
+MERGE (s15)-[:HAS_SPEC]->(spec);
+MATCH (design:Document {name: 'Spec-15 design'}), (spec:Document {name: 'Spec-15 spec.md'})
+MERGE (design)-[:INFORMS]->(spec);
+
+// =============================================================================
+// Spec-15 /speckit-plan: plan.md + research.md + data-model.md + contracts + quickstart.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-15 plan.md', path: 'specs/015-json-data-externalization/plan.md', type: 'plan', spec: 'Spec-15',
+  description: 'Constitution Check全項目PASS。JSON読み込みはsrc/scenes/PreloadSceneに置きsrc/game/はgetConfig()経由で参照する設計。zod（MIT）を新規依存として追加。',
+  status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-15 research.md', path: 'specs/015-json-data-externalization/research.md', type: 'research', spec: 'Spec-15', status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-15 data-model.md', path: 'specs/015-json-data-externalization/data-model.md', type: 'data-model', spec: 'Spec-15', status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-15 contracts/json-schema-contracts.md', path: 'specs/015-json-data-externalization/contracts/json-schema-contracts.md', type: 'contracts', spec: 'Spec-15', status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-15 quickstart.md', path: 'specs/015-json-data-externalization/quickstart.md', type: 'quickstart', spec: 'Spec-15', status: 'completed', created: '2026-08-14'});
+MATCH (s15:Document {name: 'Spec-15: カード・イベント・ステージ・バランス係数のJSON外部化'}), (plan:Document {name: 'Spec-15 plan.md'})
+MERGE (s15)-[:HAS_PLAN]->(plan);
+
+MERGE (:Concept {name: 'GameConfig', description: 'PreloadSceneが起動時に一度だけinitGameConfig()で確定させる設定シングルトン。constants.tsの静的importを置き換える（設計のみ、未実装）', file: 'src/game/config.ts', spec: 'Spec-15'});
+
+// ADR-023: constants.tsの静的import参照をGameConfigシングルトンに置き換える
+MERGE (:ADR {
+  id: 'ADR-023',
+  title: 'constants.tsの静的importをGameConfigシングルトン経由の参照に置き換える',
+  date: '2026-08-14',
+  status: 'accepted',
+  context: 'ADR-022でバランス係数をJSON化する方針を決めたが、現状constants.tsは11ファイル（balance.ts/dice.ts/gantt.ts/member.ts/turn.ts/engine.ts/events/index.ts/events/stall.ts/cards/commendation.ts/cards/one-on-one.ts/cards/planned-leave.ts）からモジュールレベルの静的定数として直接importされており、JSON化すると値が起動時にしか手に入らないためこれらの参照方法を変える必要があった。',
+  decision: 'src/game/config.tsに設定シングルトンを置く。initGameConfig(data)をPreloadSceneが起動時に1回だけ呼び、以降src/game/内の各関数はgetConfig().balance.Xの形で参照する。各関数のシグネチャ（引数）は変更しない。constants.tsは削除し、型はzodスキーマ（src/game/schemas/balanceConstants.ts）からz.infer<>で導出する唯一の情報源にする。',
+  rationale: '完全な依存性注入（全関数の引数にテーブルを渡す）は11ファイル・数十箇所の呼び出しシグネチャ変更を要し本Specの規模に対して過大なため却下。起動時に1回だけ設定される読み取り専用シングルトンは、既存のconstants.tsが持っていた「不変なグローバル値」という性質を大きく損なわずに済む。',
+  consequences: 'src/game/config.tsが新規ファイルとして追加される。11ファイルのimport文と参照箇所がgetConfig()経由に変わる。テストはbeforeEachでinitGameConfig(テスト用データ)を呼ぶ必要がある。'
+});
+MATCH (adr:ADR {id: 'ADR-023'}), (gc:Concept {name: 'GameConfig'}) MERGE (adr)-[:AFFECTS]->(gc);
+MATCH (adr:ADR {id: 'ADR-023'}), (p:Document {name: 'Spec-15 plan.md'}) MERGE (adr)-[:AFFECTS]->(p);
+MATCH (adr:ADR {id: 'ADR-023'}), (prev:ADR {id: 'ADR-022'}) MERGE (adr)-[:REFINES]->(prev);
+
+// =============================================================================
+// Spec-15 /speckit-tasks: tasks.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-15 tasks.md', path: 'specs/015-json-data-externalization/tasks.md', type: 'tasks', spec: 'Spec-15',
+  description: 'T001〜T044、6フェーズ（Setup→Foundational(zodスキーマ+config.ts)→US1(JSON外部化本体)→US2(検証E2E)→US3(docs整理)→Polish）。BootScene→PreloadScene→MainSceneの順に接続（Spec-14未実装のためTitleScene代わりにMainSceneへ遷移）。',
+  status: 'completed', created: '2026-08-14'});
+MATCH (s15:Document {name: 'Spec-15: カード・イベント・ステージ・バランス係数のJSON外部化'}), (t:Document {name: 'Spec-15 tasks.md'})
+MERGE (s15)-[:HAS_TASKS]->(t);
+MATCH (plan:Document {name: 'Spec-15 plan.md'}), (t:Document {name: 'Spec-15 tasks.md'})
+MERGE (plan)-[:INFORMS]->(t);
+
+// =============================================================================
+// Spec-15 /speckit-implement 完了
+// =============================================================================
+MATCH (n:Document {name: 'Spec-15: カード・イベント・ステージ・バランス係数のJSON外部化'}) SET n.status = 'implemented';
+MATCH (n:Document {name: 'Spec-15 tasks.md'}) SET n.status = 'completed';
+
+MERGE (:Document {name: 'Spec-15 implement結果', path: 'specs/015-json-data-externalization/tasks.md',
+  type: 'implementation-summary', spec: 'Spec-15',
+  description: 'public/data/配下に43ファイル（カード26・イベント15・ステージ1・バランス1）。zodスキーマ4種、config.tsシングルトン、PreloadScene新規（BootScene→PreloadScene→MainScene）。cards/events/stages/index.tsはinit/getパターンに変更。constants.ts削除、11+1ファイルがgetConfig()経由に移行。docs側はバランスパラメータ.md・カード/*.mdから具体的数値を除去しJSON参照に置換。',
+  status: 'completed', tests: 332, e2e_tests: 44, coverage_lines: 94.08, coverage_branches: 89.41, coverage_funcs: 100,
+  created: '2026-08-14'});
+MATCH (s15:Document {name: 'Spec-15: カード・イベント・ステージ・バランス係数のJSON外部化'}), (r:Document {name: 'Spec-15 implement結果'})
+MERGE (s15)-[:HAS_RESULT]->(r);
+
+MATCH (n:Concept {name: 'PreloadScene'}) SET n.status = 'implemented';
+MATCH (n:Concept {name: 'GameConfig'}) SET n.status = 'implemented';
+MATCH (n:Concept {name: 'GLOBAL_RULES'}) SET n.status = 'implemented';
+MATCH (n:Concept {name: 'CARD_REGISTRY'}) SET n.status = 'superseded', n.description = n.description + '（Spec-15でinitCardRegistry()/getCardRegistry()関数に変更）';
+MATCH (n:Concept {name: 'EVENT_REGISTRY'}) SET n.status = 'superseded', n.description = n.description + '（Spec-15でinitEventRegistry()/getEventRegistry()関数に変更）';
+MATCH (n:Concept {name: 'STAGE_REGISTRY'}) SET n.status = 'superseded', n.description = n.description + '（Spec-15でinitStageRegistry()/getStage()関数に変更）';
+MATCH (n:Concept {name: 'pocStage'}) SET n.status = 'superseded', n.description = n.description + '（Spec-15でpoc-01.tsは削除。データはpublic/data/stages/poc-01.jsonに移動）';
+
+// Parameterノードの数値プロパティをjsonPathに置き換える（ADR-022）
+MATCH (p:Parameter {name: '技'}) SET p.min = null, p.max = null, p.jsonPath = 'public/data/balance/constants.json の MEMBER_PARAMS.SKILL';
+MATCH (p:Parameter {name: '心'}) SET p.min = null, p.max = null, p.jsonPath = 'public/data/balance/constants.json の MEMBER_PARAMS.MORALE';
+MATCH (p:Parameter {name: '体'}) SET p.min = null, p.max = null, p.jsonPath = 'public/data/balance/constants.json の MEMBER_PARAMS.HEALTH';
+MATCH (p:Parameter {name: '透明性'}) SET p.initialValue = null, p.range = null, p.jsonPath = 'public/data/balance/constants.json の MEMBER_PARAMS.TRANSPARENCY';
+MATCH (p:Parameter {name: '緊張感'}) SET p.initialValue = null, p.range = null, p.jsonPath = 'public/data/balance/constants.json の MEMBER_PARAMS.TENSION';
+MATCH (p:Parameter {name: '経験値'}) SET p.jsonPath = 'public/data/balance/constants.json の EXP';

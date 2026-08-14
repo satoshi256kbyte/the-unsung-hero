@@ -1,7 +1,6 @@
-import type { CardDefinition } from "./index.js";
+import type { CardEffectLogic } from "./index.js";
 
-export const progressBoost: CardDefinition = {
-  cost: 3,
+export const progressBoost: CardEffectLogic = {
   applyEffect(_state) {
     return { effectsToAdd: [], memberUpdates: [] };
   },

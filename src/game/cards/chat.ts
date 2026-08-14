@@ -1,7 +1,6 @@
-import type { CardDefinition } from "./index.js";
+import type { CardEffectLogic } from "./index.js";
 
-export const chat: CardDefinition = {
-  cost: 1,
+export const chat: CardEffectLogic = {
   applyEffect(_state) {
     return { effectsToAdd: [], memberUpdates: [] };
   },

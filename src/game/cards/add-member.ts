@@ -1,7 +1,6 @@
-import type { CardDefinition } from "./index.js";
+import type { CardEffectLogic } from "./index.js";
 
-export const addMember: CardDefinition = {
-  cost: 4,
+export const addMember: CardEffectLogic = {
   applyEffect(_state) {
     return { effectsToAdd: [], memberUpdates: [] };
   },

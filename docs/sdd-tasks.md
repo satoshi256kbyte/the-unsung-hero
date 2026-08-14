@@ -43,6 +43,11 @@
       （設計: `docs/superpowers/specs/2026-08-14-title-stageselect-flow-design.md`、
       ステージ確認画面の追記が未反映のため設計ドキュメントの更新が必要）
 
+## Phase 9: バランスデータのJSON外部化
+
+- [x] Spec-15: カード・イベント・ステージ・バランス係数のJSON外部化
+      （設計: `docs/superpowers/specs/2026-08-14-json-data-externalization-design.md`）
+
 ---
 
 ## SDD外タスク（ツール・スキル整備）

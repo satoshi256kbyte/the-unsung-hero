@@ -1,7 +1,6 @@
-import type { CardDefinition } from "./index.js";
+import type { CardEffectLogic } from "./index.js";
 
-export const takeover: CardDefinition = {
-  cost: 2,
+export const takeover: CardEffectLogic = {
   applyEffect(_state) {
     return { effectsToAdd: [], memberUpdates: [] };
   },

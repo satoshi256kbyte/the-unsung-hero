@@ -1,3 +1,4 @@
+import type { CardData } from "../schemas/cardData.js";
 import type { CardEffect, CardName, GameState, MemberUpdate } from "../types.js";
 import { addMember } from "./add-member.js";
 import { assign } from "./assign.js";
@@ -31,12 +32,14 @@ export interface CardDefinition {
   applyEffect(state: GameState): { effectsToAdd: CardEffect[]; memberUpdates: MemberUpdate[] };
 }
 
+export type CardEffectLogic = Pick<CardDefinition, "applyEffect">;
+
 export interface CardApplicationResult {
   effectsToAdd: CardEffect[];
   memberUpdates: MemberUpdate[];
 }
 
-export const CARD_REGISTRY = {
+const CARD_EFFECT_LOGIC = {
   デイリー: daily,
   デイリー中止: dailyCancel,
   レビュー: review,
@@ -63,14 +66,76 @@ export const CARD_REGISTRY = {
   休出: holidayWork,
   納期交渉: deadlineNegotiation,
   スコープ交渉: scopeNegotiation,
-} satisfies Record<CardName, CardDefinition>;
+} satisfies Record<CardName, CardEffectLogic>;
+
+/**
+ * カード名 → JSONファイル名（拡張子なし）。public/data/cards/配下の
+ * ファイル名と一致させる。PreloadSceneがJSONロード時に参照する。
+ */
+export const CARD_JSON_FILES = {
+  デイリー: "daily",
+  デイリー中止: "daily-cancel",
+  レビュー: "review",
+  モニタリング: "monitoring",
+  サマライズ: "summarize",
+  臨時MTG: "emergency-meeting",
+  臨時モニタリング: "emergency-monitoring",
+  臨時サマライズ: "emergency-summarize",
+  教育: "education",
+  ペアプログラミング: "pair-programming",
+  雑談: "chat",
+  停滞対応: "stall-response",
+  個別面談: "one-on-one",
+  表彰: "commendation",
+  計画休: "planned-leave",
+  残業許可: "overtime-permission",
+  アサイン: "assign",
+  入れ替え: "swap",
+  巻取り: "takeover",
+  進捗ブースト: "progress-boost",
+  強制締め: "forced-closing",
+  リスケ: "reschedule",
+  メンバー追加: "add-member",
+  休出: "holiday-work",
+  納期交渉: "deadline-negotiation",
+  スコープ交渉: "scope-negotiation",
+} satisfies Record<CardName, string>;
+
+export function buildCardRegistry(
+  costData: Record<CardName, CardData>,
+): Record<CardName, CardDefinition> {
+  const result = {} as Record<CardName, CardDefinition>;
+  for (const name of Object.keys(CARD_EFFECT_LOGIC) as CardName[]) {
+    result[name] = {
+      cost: costData[name].cost,
+      applyEffect: CARD_EFFECT_LOGIC[name].applyEffect,
+    };
+  }
+  return result;
+}
+
+let cardRegistry: Record<CardName, CardDefinition> | null = null;
+
+export function initCardRegistry(costData: Record<CardName, CardData>): void {
+  cardRegistry = buildCardRegistry(costData);
+}
+
+export function getCardRegistry(): Record<CardName, CardDefinition> {
+  if (cardRegistry === null) {
+    throw new Error("Card registry is not initialized. Call initCardRegistry() first.");
+  }
+  return cardRegistry;
+}
 
 export function applyCards(state: GameState, cards: CardName[]): CardApplicationResult {
+  if (cardRegistry === null) {
+    throw new Error("Card registry is not initialized. Call initCardRegistry() first.");
+  }
   const effectsToAdd: CardEffect[] = [];
   const memberUpdates: MemberUpdate[] = [];
 
   for (const card of cards) {
-    const result = CARD_REGISTRY[card].applyEffect(state);
+    const result = cardRegistry[card].applyEffect(state);
     effectsToAdd.push(...result.effectsToAdd);
     memberUpdates.push(...result.memberUpdates);
   }

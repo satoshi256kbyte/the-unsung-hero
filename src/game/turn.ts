@@ -1,6 +1,6 @@
 import { applyCards } from "./cards/index.js";
 import { rollConditionalEvents } from "./conditional.js";
-import { POC_STAGE } from "./constants.js";
+import { getConfig } from "./config.js";
 import { rollProgress } from "./dice.js";
 import { applyEffectTick } from "./effect.js";
 import { applyEventToMember, applyEventToProgress, rollRandomEvents } from "./events/index.js";
@@ -102,7 +102,7 @@ export function processTurn(
   const isGameOver = allDone || deadlineExceeded;
   const gameOverReason = allDone ? "全タスク完了" : deadlineExceeded ? "納期超過" : null;
 
-  const costDelta = POC_STAGE.DAILY_COST_CAP * state.members.length;
+  const costDelta = getConfig().balance.GLOBAL_RULES.DAILY_COST_CAP * state.members.length;
 
   // Step 7: memberUpdates = カード由来 + decay 由来 + イベント由来を統合
   const memberUpdates: MemberUpdate[] = [

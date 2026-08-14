@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CARD_REGISTRY } from "../../../src/game/cards/index.js";
+import { getCardRegistry } from "../../../src/game/cards/index.js";
 import type { CardName, GameState } from "../../../src/game/types.js";
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
@@ -45,7 +45,7 @@ const STUB_CARDS: Array<[CardName, number]> = [
 
 describe("CARD_REGISTRY - 未実装カードのスタブ", () => {
   it.each(STUB_CARDS)("%s のコストは %i で、効果は空である", (name, cost) => {
-    const def = CARD_REGISTRY[name];
+    const def = getCardRegistry()[name];
     expect(def.cost).toBe(cost);
     const result = def.applyEffect(makeState());
     expect(result.effectsToAdd).toHaveLength(0);

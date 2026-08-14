@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { applyCards } from "../../../src/game/cards/index.js";
-import { PARAM_DELTA } from "../../../src/game/constants.js";
 import type { GameState } from "../../../src/game/types.js";
+import { testBalanceConstants } from "../testConfig.js";
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
   return {
@@ -27,7 +27,9 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
 describe("applyCards - 個別面談", () => {
   it("個別面談 → moraleDelta = ONE_ON_ONE_MORALE (15)", () => {
     const result = applyCards(makeState(), ["個別面談"]);
-    expect(result.memberUpdates[0]?.moraleDelta).toBe(PARAM_DELTA.ONE_ON_ONE_MORALE);
+    expect(result.memberUpdates[0]?.moraleDelta).toBe(
+      testBalanceConstants.PARAM_DELTA.ONE_ON_ONE_MORALE,
+    );
     expect(result.memberUpdates[0]?.healthDelta).toBe(0);
     expect(result.effectsToAdd).toHaveLength(0);
   });

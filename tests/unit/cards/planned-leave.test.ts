@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { applyCards } from "../../../src/game/cards/index.js";
-import { PARAM_DELTA } from "../../../src/game/constants.js";
 import type { GameState } from "../../../src/game/types.js";
+import { testBalanceConstants } from "../testConfig.js";
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
   return {
@@ -27,8 +27,12 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
 describe("applyCards - 計画休", () => {
   it("計画休 → moraleDelta = PLANNED_LEAVE_MORALE (20), healthDelta = PLANNED_LEAVE_HEALTH (25)", () => {
     const result = applyCards(makeState(), ["計画休"]);
-    expect(result.memberUpdates[0]?.moraleDelta).toBe(PARAM_DELTA.PLANNED_LEAVE_MORALE);
-    expect(result.memberUpdates[0]?.healthDelta).toBe(PARAM_DELTA.PLANNED_LEAVE_HEALTH);
+    expect(result.memberUpdates[0]?.moraleDelta).toBe(
+      testBalanceConstants.PARAM_DELTA.PLANNED_LEAVE_MORALE,
+    );
+    expect(result.memberUpdates[0]?.healthDelta).toBe(
+      testBalanceConstants.PARAM_DELTA.PLANNED_LEAVE_HEALTH,
+    );
   });
 
   it("メンバーが 0 人のとき memberUpdates が空（パニックしない）", () => {

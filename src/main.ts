@@ -1,5 +1,6 @@
 import { BootScene } from "@scenes/BootScene";
 import { MainScene } from "@scenes/MainScene";
+import { PreloadScene } from "@scenes/PreloadScene";
 import Phaser from "phaser";
 
 const config: Phaser.Types.Core.GameConfig = {
@@ -8,7 +9,7 @@ const config: Phaser.Types.Core.GameConfig = {
   width: 960,
   height: 540,
   backgroundColor: "#1a1a2e",
-  scene: [BootScene, MainScene],
+  scene: [BootScene, PreloadScene, MainScene],
 };
 
 new Phaser.Game(config);

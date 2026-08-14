@@ -1,4 +1,4 @@
-import { REWORK } from "./constants.js";
+import { getConfig } from "./config.js";
 import type { GanttChart, GanttTask, TaskStatus } from "./types.js";
 
 function clamp(value: number, min: number, max: number): number {
@@ -19,6 +19,7 @@ export function setTaskStatus(task: GanttTask, status: TaskStatus): GanttTask {
 }
 
 export function applyRework(task: GanttTask, skill: number): GanttTask {
+  const { REWORK } = getConfig().balance;
   const rollbackRate = REWORK.ROLLBACK_BASE - skill * REWORK.ROLLBACK_COEFF;
   const progress = clamp(task.progress - task.progress * rollbackRate, 0, 100);
   return { ...task, progress };

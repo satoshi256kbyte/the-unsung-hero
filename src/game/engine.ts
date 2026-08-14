@@ -1,4 +1,4 @@
-import { MEMBER_PARAMS } from "./constants.js";
+import { getConfig } from "./config.js";
 import { setTaskStatus, updateTaskProgress } from "./gantt.js";
 import { processTurn as processTurnCore } from "./turn.js";
 import type {
@@ -15,6 +15,7 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 function buildInitialState(stageData: StageData): GameState {
+  const { MEMBER_PARAMS } = getConfig().balance;
   return {
     turn: 1,
     members: [...stageData.initialMembers],
@@ -32,6 +33,7 @@ function buildInitialState(stageData: StageData): GameState {
 }
 
 function applyMemberUpdates(members: Member[], result: TurnResult): Member[] {
+  const { MEMBER_PARAMS } = getConfig().balance;
   return members.map((member) => {
     const updates = result.memberUpdates.filter((u) => u.memberId === member.id);
     const moraleDelta = updates.reduce((acc, u) => acc + u.moraleDelta, 0);

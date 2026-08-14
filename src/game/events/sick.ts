@@ -1,11 +1,10 @@
+import type { EventData } from "../schemas/eventData.js";
 import type { EventDefinition } from "./index.js";
 
-const BASE_PROB = 0.05;
-
-export const sick: EventDefinition = {
-  roll(state) {
+export function createRoll(data: EventData): EventDefinition["roll"] {
+  return (state) => {
     const members = state.members;
-    if (Math.random() >= BASE_PROB || members.length === 0) {
+    if (Math.random() >= data.baseProb || members.length === 0) {
       return null;
     }
     const target = members[Math.floor(Math.random() * members.length)];
@@ -19,5 +18,5 @@ export const sick: EventDefinition = {
       targetId: target.id,
       params: { moraleDelta: -8, healthDelta: -10 },
     };
-  },
-};
+  };
+}

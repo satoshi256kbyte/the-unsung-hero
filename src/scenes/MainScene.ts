@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { GameEngine } from "../game/engine.js";
-import { pocStage } from "../game/stages/poc-01.js";
+import { getStage } from "../game/stages/index.js";
 import type { CardName } from "../game/types.js";
 import { MainGameUI } from "../ui/MainGameUI.js";
 
@@ -17,7 +17,7 @@ export class MainScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.engine = new GameEngine(pocStage);
+    this.engine = new GameEngine(getStage("poc-01"));
 
     const overlay = document.getElementById("ui-overlay");
     if (!overlay) {

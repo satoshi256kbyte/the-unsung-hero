@@ -61,6 +61,10 @@ Spec Kitコマンドごとのトークン消費を記録する。
 | Spec-13 | /speckit-plan | 2026-08-14 | — | — | plan.md/research.md/data-model.md/contracts/quickstart.md作成。Constitution Check全項目PASS |
 | Spec-13 | /speckit-tasks | 2026-08-14 | — | — | tasks.md作成（T001〜T054、6フェーズ、US1〜US4） |
 | Spec-13 | /speckit-implement | 2026-08-14 | — | — | T001〜T054全完了。cards/26+events/15+stages/1ファイル+各index.ts、docs側カード26/イベント23/ステージ1、全329テストPASS・型エラー0・カバレッジ lines98.3%/branches93.91% |
+| Spec-15 | /speckit-specify | 2026-08-14 | — | — | カード・イベント・ステージ・バランス係数のJSON外部化。US1〜3・FR9件・SC5件を定義 |
+| Spec-15 | /speckit-plan | 2026-08-14 | — | — | plan.md/research.md/data-model.md/contracts/quickstart.md作成。Constitution Check全項目PASS。constants.ts11箇所の参照元をconfig.tsシングルトンに変更する設計を決定 |
+| Spec-15 | /speckit-tasks | 2026-08-14 | — | — | tasks.md作成（T001〜T044、6フェーズ、US1〜US3） |
+| Spec-15 | /speckit-implement | 2026-08-14 | — | — | T001〜T044全完了。JSON43件+zodスキーマ4種+config.ts+PreloadScene新規、constants.ts削除・11+1ファイルgetConfig()移行、docs数値記載除去、グラフDB Parameterノードjsonpath化。332ユニットテスト+E2E44件全PASS・型エラー0・カバレッジlines94.08%/branches89.41%。副次的にMainGameUI.tsの既存data-testid重複バグを発見・修正 |
 
 ## 累計
 

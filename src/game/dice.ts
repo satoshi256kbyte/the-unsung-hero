@@ -1,5 +1,5 @@
 import { getHealthFactor, getSkillFactorRange } from "./balance.js";
-import { PROGRESS_DICE } from "./constants.js";
+import { getConfig } from "./config.js";
 import type { Member } from "./types.js";
 
 function randomInRange(min: number, max: number): number {
@@ -7,6 +7,7 @@ function randomInRange(min: number, max: number): number {
 }
 
 export function rollProgress(member: Member): number {
+  const { PROGRESS_DICE } = getConfig().balance;
   const [sMin, sMax] = getSkillFactorRange(member.skill);
   const [hMin, hMax] = getHealthFactor(member.health);
   const base = randomInRange(PROGRESS_DICE.BASE_MIN, PROGRESS_DICE.BASE_MAX);

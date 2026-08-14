@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { EVENT_REGISTRY } from "../../../src/game/events/index.js";
+import { getEventRegistry } from "../../../src/game/events/index.js";
 import type { GameState } from "../../../src/game/types.js";
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
@@ -52,7 +52,7 @@ describe("EVENT_REGISTRY - 未実装イベントのスタブ", () => {
   it.each(STUB_EVENT_KEYS)("%s の roll() は常に null を返す", (key) => {
     const state = makeState();
     for (let i = 0; i < 20; i++) {
-      expect(EVENT_REGISTRY[key]?.roll(state, [])).toBeNull();
+      expect(getEventRegistry()[key]?.roll(state, [])).toBeNull();
     }
   });
 });

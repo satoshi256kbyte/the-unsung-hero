@@ -1,4 +1,4 @@
-import { EXP, LEVEL_UP_EXP, MEMBER_PARAMS, PARAM_DELTA } from "./constants.js";
+import { getConfig } from "./config.js";
 import type { Member } from "./types.js";
 
 function clamp(value: number, min: number, max: number): number {
@@ -10,6 +10,7 @@ function randInt(min: number, max: number): number {
 }
 
 function requiredExp(skill: number): number {
+  const { EXP, LEVEL_UP_EXP } = getConfig().balance;
   let required: number = EXP.BASE_EXP;
   for (const [threshold, exp] of LEVEL_UP_EXP) {
     if (skill >= threshold) required = exp;
@@ -18,6 +19,7 @@ function requiredExp(skill: number): number {
 }
 
 export function applyTurnDecay(member: Member): Member {
+  const { PARAM_DELTA, MEMBER_PARAMS } = getConfig().balance;
   const moraleDelta = randInt(PARAM_DELTA.MORALE_NATURAL_MIN, PARAM_DELTA.MORALE_NATURAL_MAX);
   const healthDelta = randInt(PARAM_DELTA.HEALTH_NATURAL_MIN, PARAM_DELTA.HEALTH_NATURAL_MAX);
   return {
@@ -28,6 +30,7 @@ export function applyTurnDecay(member: Member): Member {
 }
 
 export function applyWeekendRecovery(member: Member): Member {
+  const { PARAM_DELTA, MEMBER_PARAMS } = getConfig().balance;
   return {
     ...member,
     morale: clamp(
@@ -44,6 +47,7 @@ export function applyWeekendRecovery(member: Member): Member {
 }
 
 export function applyExperience(member: Member, expGain: number): Member {
+  const { MEMBER_PARAMS } = getConfig().balance;
   if (expGain <= 0 || member.skill >= MEMBER_PARAMS.SKILL.MAX) {
     return member;
   }

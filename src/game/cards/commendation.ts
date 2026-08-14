@@ -1,15 +1,14 @@
-import { PARAM_DELTA } from "../constants.js";
-import type { CardDefinition } from "./index.js";
+import { getConfig } from "../config.js";
+import type { CardEffectLogic } from "./index.js";
 
-export const commendation: CardDefinition = {
-  cost: 2,
+export const commendation: CardEffectLogic = {
   applyEffect(state) {
     const memberUpdates = [];
     const target = state.members[0];
     if (target !== undefined) {
       memberUpdates.push({
         memberId: target.id,
-        moraleDelta: PARAM_DELTA.COMMENDATION_MORALE,
+        moraleDelta: getConfig().balance.PARAM_DELTA.COMMENDATION_MORALE,
         healthDelta: 0,
       });
     }

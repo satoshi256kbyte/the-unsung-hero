@@ -1,4 +1,4 @@
-import { CARD_REGISTRY } from "../game/cards/index.js";
+import { getCardRegistry } from "../game/cards/index.js";
 import type { CardName, GameState } from "../game/types.js";
 import { CardSlot } from "./CardSlot.js";
 import { LoadingScreen } from "./LoadingScreen.js";
@@ -172,7 +172,7 @@ export class MainGameUI {
   }
 
   private handleDrop(slot: CardSlot, cardName: CardName): void {
-    const cardCost = CARD_REGISTRY[cardName]?.cost ?? 0;
+    const cardCost = getCardRegistry()[cardName]?.cost ?? 0;
     const currentTotal = this.getTotalCost();
     const slotCurrentCost = slot.cost;
     const newTotal = currentTotal - slotCurrentCost + cardCost;
@@ -237,7 +237,6 @@ export class MainGameUI {
         row.style.marginBottom = "6px";
 
         const skill = document.createElement("span");
-        skill.dataset.testid = `member-${member.id}-skill`;
         skill.textContent = `${member.name} 技`;
 
         const skillVal = document.createElement("span");
