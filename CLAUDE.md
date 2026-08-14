@@ -33,11 +33,27 @@ MATCH (adr:ADR)-[:AFFECTS]->(n {name: '調べたいノード名'})
 RETURN adr.title, adr.decision, adr.rationale
 ```
 
+### 進捗確認
+
+**Specの実装進捗は基本的にグラフDBで確認する。** `docs/sdd-tasks.md` はチェックリストの体裁だが、
+各Documentノードの `status` プロパティ（`completed` / `implemented` / `all-pass` 等）が正の情報源。
+
+```cypher
+// 全Specの進捗確認
+MATCH (d:Document) WHERE d.name STARTS WITH 'Spec-'
+RETURN d.name AS name, d.type AS type, d.status AS status
+ORDER BY name
+```
+
 ### docs/ の役割
 
-docs/ には以下のみを置く。設計思想・経緯はグラフDBに格納する。
+設計内容・経緯は例外なくすべてグラフDBに格納する。AIはグラフDBだけを見れば全体像が分かる状態を維持する。
 
-| 残すもの | 例 |
+docs/ はその一部を、人間が読みやすい形式で**二重管理として**置いているファイル群。
+グラフDBの代わりではなく、グラフDBの内容のうち下記に該当するものをMarkdown等の形でも
+併存させているだけなので、docs/ に書いてよい内容を制限する意図はない。
+
+| docs/ に置く形式 | 例 |
 | --------- | ----- |
 | 数値・計算式・係数 | バランスパラメータ.md |
 | イベント・カード一覧 | イベント.md / カード.md |
