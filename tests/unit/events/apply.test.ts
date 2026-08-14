@@ -1,26 +1,7 @@
 import * as fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import {
-  applyEventToMember,
-  applyEventToProgress,
-  rollRandomEvents,
-} from "../../src/game/event.js";
-import type { CardEffect, GameEvent, GameState, GanttTask, Member } from "../../src/game/types.js";
-
-function makeTask(overrides: Partial<GanttTask> = {}): GanttTask {
-  return {
-    id: "t1",
-    name: "設計",
-    phase: "設計",
-    startTurn: 1,
-    duration: 5,
-    assignedMemberId: "m1",
-    progress: 50,
-    status: "active",
-    dependencies: [],
-    ...overrides,
-  };
-}
+import { applyEventToMember, applyEventToProgress } from "../../../src/game/events/index.js";
+import type { GameEvent, Member } from "../../../src/game/types.js";
 
 function makeMember(overrides: Partial<Member> = {}): Member {
   return {
@@ -30,33 +11,6 @@ function makeMember(overrides: Partial<Member> = {}): Member {
     exp: 0,
     morale: 100,
     health: 100,
-    ...overrides,
-  };
-}
-
-function makeState(overrides: Partial<GameState> = {}): GameState {
-  return {
-    turn: 1,
-    deadline: 22,
-    members: [
-      makeMember({ id: "m1", name: "Alice", skill: 10 }),
-      makeMember({ id: "m2", name: "Bob", skill: 8 }),
-    ],
-    gantt: {
-      tasks: [
-        makeTask({ id: "t1", assignedMemberId: "m1" }),
-        makeTask({ id: "t2", assignedMemberId: "m2" }),
-      ],
-      variantId: null,
-    },
-    totalCost: 0,
-    budget: 200,
-    hand: [],
-    activeEffects: [],
-    transparency: 100,
-    tension: 100,
-    isGameOver: false,
-    gameOverReason: null,
     ...overrides,
   };
 }
@@ -73,7 +27,7 @@ function makeEvent(overrides: Partial<GameEvent> = {}): GameEvent {
 }
 
 // =============================================================================
-// US2: applyEventToProgress
+// applyEventToProgress
 // =============================================================================
 
 describe("applyEventToProgress", () => {
@@ -123,7 +77,7 @@ describe("applyEventToProgress", () => {
 });
 
 // =============================================================================
-// US3: applyEventToMember
+// applyEventToMember
 // =============================================================================
 
 describe("applyEventToMember", () => {
@@ -220,106 +174,7 @@ describe("applyEventToMember", () => {
 });
 
 // =============================================================================
-// US1: rollRandomEvents
-// =============================================================================
-
-describe("rollRandomEvents", () => {
-  it("アクティブタスク0件のとき stall・rework イベントが発生しない", () => {
-    const state = makeState({
-      gantt: {
-        tasks: [
-          makeTask({ id: "t1", status: "done", progress: 100 }),
-          makeTask({ id: "t2", status: "done", progress: 100 }),
-        ],
-        variantId: null,
-      },
-    });
-    for (let i = 0; i < 200; i++) {
-      const events = rollRandomEvents(state, []);
-      expect(events.every((e) => !e.id.startsWith("stall") && !e.id.startsWith("rework"))).toBe(
-        true,
-      );
-    }
-  });
-
-  it("メンバー0人のとき sick・low_motivation・fatigue イベントが発生しない", () => {
-    const state = makeState({ members: [] });
-    for (let i = 0; i < 200; i++) {
-      const events = rollRandomEvents(state, []);
-      expect(
-        events.every(
-          (e) =>
-            !e.id.startsWith("sick") &&
-            !e.id.startsWith("low_motivation") &&
-            !e.id.startsWith("fatigue"),
-        ),
-      ).toBe(true);
-    }
-  });
-
-  it("返却値は GameEvent[] 型（配列）である", () => {
-    const state = makeState();
-    const events = rollRandomEvents(state, []);
-    expect(Array.isArray(events)).toBe(true);
-  });
-
-  it("stall イベントが発生した場合 params.stallTurns が 1 または 2 である", () => {
-    const state = makeState();
-    const allStallEvents: GameEvent[] = [];
-    for (let i = 0; i < 1000; i++) {
-      const events = rollRandomEvents(state, []);
-      allStallEvents.push(...events.filter((e) => e.id.startsWith("stall")));
-    }
-    for (const e of allStallEvents) {
-      expect([1, 2]).toContain(e.params.stallTurns);
-    }
-  });
-
-  it("rework イベントが発生した場合 params.reworkDelta が負値または 0 である", () => {
-    const state = makeState();
-    const allReworkEvents: GameEvent[] = [];
-    for (let i = 0; i < 1000; i++) {
-      const events = rollRandomEvents(state, []);
-      allReworkEvents.push(...events.filter((e) => e.id.startsWith("rework")));
-    }
-    for (const e of allReworkEvents) {
-      expect(e.params.reworkDelta as number).toBeLessThanOrEqual(0);
-    }
-  });
-
-  it("sick イベントが発生した場合 targetId がメンバーIDである", () => {
-    const state = makeState();
-    const memberIds = new Set(state.members.map((m) => m.id));
-    for (let i = 0; i < 500; i++) {
-      const events = rollRandomEvents(state, []);
-      for (const e of events.filter((ev) => ev.id.startsWith("sick"))) {
-        expect(memberIds.has(e.targetId ?? "")).toBe(true);
-      }
-    }
-  });
-
-  it("task_event_prob_reduced 効果ありのとき stall 発生率が半減する（大量サンプル）", () => {
-    const state = makeState();
-    const effect: CardEffect = {
-      cardName: "デイリー",
-      targetId: "project",
-      effectType: "task_event_prob_reduced",
-      remainingTurns: null,
-    };
-
-    let countWithout = 0;
-    let countWith = 0;
-    const N = 5000;
-    for (let i = 0; i < N; i++) {
-      if (rollRandomEvents(state, []).some((e) => e.id.startsWith("stall"))) countWithout++;
-      if (rollRandomEvents(state, [effect]).some((e) => e.id.startsWith("stall"))) countWith++;
-    }
-    expect(countWith).toBeLessThan(countWithout * 0.75);
-  });
-});
-
-// =============================================================================
-// US5: Immutability
+// Immutability
 // =============================================================================
 
 describe("applyEventToProgress - immutability", () => {
@@ -347,30 +202,6 @@ describe("applyEventToMember - immutability", () => {
     const before = JSON.stringify(member);
     applyEventToMember(event, member);
     expect(JSON.stringify(member)).toBe(before);
-  });
-});
-
-describe("rollRandomEvents - immutability", () => {
-  it("引数の state が変化しない", () => {
-    const state = makeState();
-    const before = JSON.stringify(state);
-    rollRandomEvents(state, []);
-    expect(JSON.stringify(state)).toBe(before);
-  });
-
-  it("引数の activeEffects が変化しない", () => {
-    const state = makeState();
-    const effects: CardEffect[] = [
-      {
-        cardName: "デイリー",
-        targetId: "project",
-        effectType: "task_event_prob_reduced",
-        remainingTurns: 3,
-      },
-    ];
-    const before = JSON.stringify(effects);
-    rollRandomEvents(state, effects);
-    expect(JSON.stringify(effects)).toBe(before);
   });
 });
 

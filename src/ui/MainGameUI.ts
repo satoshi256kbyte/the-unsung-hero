@@ -1,4 +1,4 @@
-import { CARD_COSTS } from "../game/constants.js";
+import { CARD_REGISTRY } from "../game/cards/index.js";
 import type { CardName, GameState } from "../game/types.js";
 import { CardSlot } from "./CardSlot.js";
 import { LoadingScreen } from "./LoadingScreen.js";
@@ -172,7 +172,7 @@ export class MainGameUI {
   }
 
   private handleDrop(slot: CardSlot, cardName: CardName): void {
-    const cardCost = CARD_COSTS[cardName] ?? 0;
+    const cardCost = CARD_REGISTRY[cardName]?.cost ?? 0;
     const currentTotal = this.getTotalCost();
     const slotCurrentCost = slot.cost;
     const newTotal = currentTotal - slotCurrentCost + cardCost;

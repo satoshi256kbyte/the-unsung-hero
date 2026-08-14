@@ -1,7 +1,7 @@
 import type { StageData } from "../types.js";
 
 export const pocStage: StageData = {
-  id: "poc",
+  id: "poc-01",
   name: "PoCステージ",
   budget: 5_000_000,
   deadline: 22,

@@ -57,6 +57,10 @@ Spec Kitコマンドごとのトークン消費を記録する。
 | Spec-12 | /speckit-plan | 2026-08-13 | — | — | plan.md / research.md / data-model.md / contracts/ / quickstart.md 作成・ADR-016追加 |
 | Spec-12 | /speckit-tasks | 2026-08-13 | — | — | tasks.md 作成（T001〜T028、6フェーズ） |
 | Spec-12 | /speckit-implement | 2026-08-13 | — | — | src/ui/ 4ファイル・MainScene・BootScene遷移・E2E 3ファイル・291ユニットテスト全PASS・型エラーゼロ・Phaser境界OK |
+| Spec-13 | /speckit-specify | 2026-08-14 | — | — | カード・イベント・ステージのファイル構造再編。US1〜4・FR17件・SC6件を定義 |
+| Spec-13 | /speckit-plan | 2026-08-14 | — | — | plan.md/research.md/data-model.md/contracts/quickstart.md作成。Constitution Check全項目PASS |
+| Spec-13 | /speckit-tasks | 2026-08-14 | — | — | tasks.md作成（T001〜T054、6フェーズ、US1〜US4） |
+| Spec-13 | /speckit-implement | 2026-08-14 | — | — | T001〜T054全完了。cards/26+events/15+stages/1ファイル+各index.ts、docs側カード26/イベント23/ステージ1、全329テストPASS・型エラー0・カバレッジ lines98.3%/branches93.91% |
 
 ## 累計
 

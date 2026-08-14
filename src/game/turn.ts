@@ -1,9 +1,9 @@
-import { applyCards } from "./card.js";
+import { applyCards } from "./cards/index.js";
 import { rollConditionalEvents } from "./conditional.js";
 import { POC_STAGE } from "./constants.js";
 import { rollProgress } from "./dice.js";
 import { applyEffectTick } from "./effect.js";
-import { applyEventToMember, applyEventToProgress, rollRandomEvents } from "./event.js";
+import { applyEventToMember, applyEventToProgress, rollRandomEvents } from "./events/index.js";
 import { getCompletionRate, updateTaskProgress } from "./gantt.js";
 import { applyTurnDecay, applyWeekendRecovery } from "./member.js";
 import type {

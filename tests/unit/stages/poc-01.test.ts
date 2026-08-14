@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { evaluateCondition } from "../../../src/game/conditional.js";
 import { GameEngine } from "../../../src/game/engine.js";
-import { pocStage } from "../../../src/game/stages/pocStage.js";
+import { pocStage } from "../../../src/game/stages/poc-01.js";
 
 // =============================================================================
 // US1: PoCステージで GameEngine を初期化できる

@@ -32,7 +32,30 @@
 
 - [x] Spec-12: メイン画面UI（DOM overlay + Phaser Scene）
 
+## Phase 7: データ構造リファクタリング
+
+- [x] Spec-13: カード・イベント・ステージのファイル構造再編
+      （設計: `docs/superpowers/specs/2026-08-14-game-data-file-restructure-design.md`）
+
+## Phase 8: 画面遷移
+
+- [ ] Spec-14: タイトル〜ステージセレクト画面遷移
+      （設計: `docs/superpowers/specs/2026-08-14-title-stageselect-flow-design.md`、
+      ステージ確認画面の追記が未反映のため設計ドキュメントの更新が必要）
+
 ---
+
+## SDD外タスク（ツール・スキル整備）
+
+Specの実装対象（ゲームロジック・画面）ではなく、開発ツール・AIエージェント向けの
+スキル整備タスク。`/speckit-specify` 等のSDDパイプラインは通さない。
+
+- [ ] `docs/03-詳細設計/カード/` `イベント/` `ステージ/` 配下のMarkdownから
+      `src/game/cards/` `events/` `stages/` 配下のソースコードを生成するskillを作る。
+      Spec-13でdocsとソースコードが1カード/1イベント/1ステージ=1ファイルの
+      1:1構造になることが前提。表形式のデータ（コスト・確率・ガントチャート・
+      条件付きイベント）の変換は大部分プログラム化できる見込み。
+      Spec-13完了後に着手する
 
 ## 実行ルール
 

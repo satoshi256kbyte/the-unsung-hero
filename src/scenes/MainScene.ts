@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { GameEngine } from "../game/engine.js";
-import { pocStage } from "../game/stages/pocStage.js";
+import { pocStage } from "../game/stages/poc-01.js";
 import type { CardName } from "../game/types.js";
 import { MainGameUI } from "../ui/MainGameUI.js";
 

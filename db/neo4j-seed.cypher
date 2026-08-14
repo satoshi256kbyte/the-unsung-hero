@@ -1215,3 +1215,177 @@ MERGE (:ADR {
   rationale: 'docs/とグラフDBの役割分担ではなく、グラフDBを唯一の正としたうえでの人間向けの重複配置であることを明確にし、AIがdocs/を正の情報源と誤認するリスクを排除するため。',
   consequences: 'Constitution v1.2.0→v1.2.1（PATCH）。.specify/memory/constitution.mdとdocs/sync-graphdbスキルの該当箇所を修正。今後docs/に何を書くかの判断は「人間に見せたいかどうか」のみで行い、Neo4jへの格納要否とは無関係になる。'
 });
+
+// =============================================================================
+// Phase 7-8: データ構造リファクタリング / 画面遷移 の設計セッション（brainstorming）
+// =============================================================================
+
+MERGE (:Document {name: 'Spec-13 design', path: 'docs/superpowers/specs/2026-08-14-game-data-file-restructure-design.md',
+  type: 'design-doc', spec: 'Spec-13',
+  description: 'カード・イベント・ステージを1ファイル1定義に再編する設計。src/game/cards|events|stages 配下へ分割し、docs/03-詳細設計 側も同粒度でカード/イベント/ステージのフォルダに分割する（フォルダ・ファイル名は日本語）。',
+  status: 'draft', created: '2026-08-14'});
+
+MERGE (:Document {name: 'Spec-13: カード・イベント・ステージのファイル構造再編', path: 'docs/sdd-tasks.md',
+  type: 'spec-entry', spec: 'Spec-13', status: 'planned', created: '2026-08-14'});
+MATCH (s13:Document {name: 'Spec-13: カード・イベント・ステージのファイル構造再編'}), (d:Document {name: 'Spec-13 design'})
+MERGE (s13)-[:HAS_DESIGN]->(d);
+
+MERGE (:Document {name: 'Spec-14 design', path: 'docs/superpowers/specs/2026-08-14-title-stageselect-flow-design.md',
+  type: 'design-doc', spec: 'Spec-14',
+  description: 'BootScene→TitleScene→StageSelectScene→MainSceneの画面遷移設計。ステージ確認画面（プロジェクト概要・予算・目標利益率を表示しYES/NOを問う）の追記が未反映のため更新が必要。',
+  status: 'draft', created: '2026-08-14'});
+
+MERGE (:Document {name: 'Spec-14: タイトル〜ステージセレクト画面遷移', path: 'docs/sdd-tasks.md',
+  type: 'spec-entry', spec: 'Spec-14', status: 'planned', created: '2026-08-14'});
+MATCH (s14:Document {name: 'Spec-14: タイトル〜ステージセレクト画面遷移'}), (d:Document {name: 'Spec-14 design'})
+MERGE (s14)-[:HAS_DESIGN]->(d);
+
+MERGE (:Concept {name: 'CardDefinition', description: 'カード1件分のコスト＋効果ロジックをまとめた定義。cards/配下の各ファイルがこの形でexportする（設計のみ、未実装）', file: 'src/game/cards/index.ts', spec: 'Spec-13'});
+MERGE (:Concept {name: 'EventDefinition', description: 'ランダムイベント1種のroll関数をまとめた定義。events/配下の各ファイルがこの形でexportする（設計のみ、未実装）', file: 'src/game/events/index.ts', spec: 'Spec-13'});
+MERGE (:Concept {name: 'TitleScene', description: 'タイトルロゴ＋スタートボタンのみのScene。押下でStageSelectSceneへ遷移（設計のみ、未実装）', file: 'src/scenes/TitleScene.ts', spec: 'Spec-14'});
+MERGE (:Concept {name: 'StageSelectScene', description: 'ステージカード一覧を表示するScene。カード選択で確認画面（プロジェクト概要・予算・目標利益率）を表示し、YESでMainSceneへ遷移（設計のみ、未実装）', file: 'src/scenes/StageSelectScene.ts', spec: 'Spec-14'});
+
+// ADR-019: カード・イベント・ステージのファイル構造再編
+MERGE (:ADR {
+  id: 'ADR-019',
+  title: 'カード・イベント・ステージを1ファイル1定義の構造に再編する',
+  date: '2026-08-14',
+  status: 'accepted',
+  context: 'カードのコスト・効果ロジックはconstants.tsのCARD_COSTSテーブルとcard.tsの1つのswitch文に、ランダムイベントの発生確率・効果ロジックも同様にconstants.tsのEVENT_PROBテーブルとevent.tsの1つのswitch文に集約されていた。ステージもpocStage.tsという「唯一のPoCステージ」であるかのような名前の1ファイルのみだった。カード・イベント・ステージを増やすたびに複数箇所（定義テーブルとswitch文）を編集する必要があり、今後のゲーム設計（バランス調整・コンテンツ追加）の妨げになっていた。',
+  decision: 'src/game/cards/・events/・stages/ 配下にカード1種・イベント1種・ステージ1件ごとに1ファイルを置く構造に再編する。各ファイルはデータ定義（コスト・発生確率）と効果ロジックの両方を持つ。cards/index.ts・events/index.ts・stages/index.ts にレジストリを置き、card.ts/event.tsのswitch文を置き換える。CardNameはtypes.tsの明示的なunion型として残し、レジストリ側でsatisfies Record<CardName, CardDefinition>により網羅性をコンパイル時に保証する。ステージファイル名は「タイプ+連番」のフラット命名（例: poc-01.ts）とし、StageData.idも同じ文字列にする。docs/03-詳細設計側もカード/イベント/ステージのフォルダに同粒度で分割するが、フォルダ・ファイル名は日本語にする。条件付きイベントの条件式評価（conditional.ts）とイベントの汎用適用処理（applyEventToProgress/applyEventToMember）はイベント種別に依存しない共通処理のため分割対象外とする。',
+  rationale: 'ステージ・カード・イベントを増やす作業を「ファイルを1つ追加するだけ」にし、複数箇所の同時編集による更新漏れを防ぐため。CardNameをレジストリから型導出する案（要ファイル追加のみで完結）も検討したが、カード名の一覧を1箇所で見渡せる明示的unionの可読性と、satisfies活用による同等のコンパイル時網羅性チェックを優先し採用しなかった。ファイル分割によりフォーマット変更時の影響範囲は広がるが、追加のしやすさのメリットが上回ると判断した。未実装のカード19種・イベント10種前後も同じ構造のスタブファイルとして作成し、実装済み分と構造を揃える。',
+  consequences: 'card.ts・event.tsは廃止しcards/index.ts・events/index.tsに統合。constants.tsからCARD_COSTS・EVENT_PROBを除去。pocStage.tsはstages/poc-01.tsにリネーム（既存のMainScene.ts等のimport元を要修正）。docs/03-詳細設計/カード.md・イベント.mdは横断的な説明のみを残し個別カード/イベントの内容をカード/・イベント/配下に分割。既存の単体テスト（card.test.ts/event.test.ts）の再編方針は本ADRのスコープ外で別途検討する。'
+});
+MATCH (adr:ADR {id: 'ADR-019'}), (poc:Concept {name: 'pocStage'}) MERGE (adr)-[:AFFECTS]->(poc);
+MATCH (adr:ADR {id: 'ADR-019'}), (re:Concept {name: 'rollRandomEvents'}) MERGE (adr)-[:AFFECTS]->(re);
+MATCH (adr:ADR {id: 'ADR-019'}), (cd:Concept {name: 'CardDefinition'}) MERGE (adr)-[:AFFECTS]->(cd);
+MATCH (adr:ADR {id: 'ADR-019'}), (ed:Concept {name: 'EventDefinition'}) MERGE (adr)-[:AFFECTS]->(ed);
+MATCH (adr:ADR {id: 'ADR-019'}), (d:Document {name: 'Spec-13 design'}) MERGE (adr)-[:AFFECTS]->(d);
+
+// ADR-020: ステージ選択時に確認画面（YES/NO）を挟む
+MERGE (:ADR {
+  id: 'ADR-020',
+  title: 'ステージ選択時にステージ確認画面（プロジェクト概要・予算・目標利益率の表示とYES/NO確認）を挟む',
+  date: '2026-08-14',
+  status: 'accepted',
+  context: '当初はStageSelectSceneでステージカードをクリックした時点で即座にMainSceneへ遷移する設計だったが、ステージ内容（プロジェクト概要・予算・目標利益率＝クリア条件）を事前に確認してからプレイを開始したいという要望があった。',
+  decision: 'ステージカードクリック時にMainSceneへ即遷移するのではなく、選択したステージの確認画面（プロジェクト概要・予算・目標利益率を表示し「開始する」「もどる」を選ばせる）を挟む。目標利益率は率のみ表示（例:「目標利益率 5%以上」）し、予算×率の具体金額は表示しない。「開始する」でMainSceneへ遷移、「もどる」でステージ一覧に戻る。これに伴いStageDataにdescription（プロジェクト概要文）フィールドを追加する。',
+  rationale: 'プレイヤーがステージの内容を把握したうえで開始できるようにするため。目標金額まで計算表示すると分かりやすさは増すが、利益の定義（予算-コストの厳密な計算式）を先に確定させる必要が生じるため、今回は率表示のみに留めスコープを絞った。',
+  consequences: 'StageSelectSceneは一覧表示と確認表示の2状態を持つ（別Sceneには分けない）。StageData（types.ts）にdescription: stringフィールドを追加し、各ステージファイルに文言を設定する必要がある。'
+});
+MATCH (adr:ADR {id: 'ADR-020'}), (ms:Concept {name: 'MainScene'}) MERGE (adr)-[:AFFECTS]->(ms);
+MATCH (adr:ADR {id: 'ADR-020'}), (sss:Concept {name: 'StageSelectScene'}) MERGE (adr)-[:AFFECTS]->(sss);
+MATCH (adr:ADR {id: 'ADR-020'}), (d:Document {name: 'Spec-14 design'}) MERGE (adr)-[:AFFECTS]->(d);
+
+// =============================================================================
+// Spec-13 /speckit-specify: spec.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-13 spec.md', path: 'specs/013-card-event-stage-files/spec.md', type: 'spec', spec: 'Spec-13',
+  description: 'カード・イベント・ステージのファイル構造再編の仕様。US1カード1ファイル化・US2イベント1ファイル化・US3ステージ命名規則統一・US4docs分割の4ユーザーストーリー。',
+  status: 'draft', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-13 checklists/requirements.md', path: 'specs/013-card-event-stage-files/checklists/requirements.md', type: 'checklist', spec: 'Spec-13',
+  status: 'completed', created: '2026-08-14'});
+MATCH (s13:Document {name: 'Spec-13: カード・イベント・ステージのファイル構造再編'}), (spec:Document {name: 'Spec-13 spec.md'})
+MERGE (s13)-[:HAS_SPEC]->(spec);
+MATCH (design:Document {name: 'Spec-13 design'}), (spec:Document {name: 'Spec-13 spec.md'})
+MERGE (design)-[:INFORMS]->(spec);
+
+// =============================================================================
+// Spec-13 /speckit-plan: plan.md + research.md + data-model.md + contracts + quickstart.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-13 plan.md', path: 'specs/013-card-event-stage-files/plan.md', type: 'plan', spec: 'Spec-13',
+  description: 'Constitution Check全項目PASS。cards/events/stages配下+各index.tsレジストリ、tests/unit/cards|events配下（実装済みは個別ファイル、未実装はstubs.test.tsに集約）。',
+  status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-13 research.md', path: 'specs/013-card-event-stage-files/research.md', type: 'research', spec: 'Spec-13', status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-13 data-model.md', path: 'specs/013-card-event-stage-files/data-model.md', type: 'data-model', spec: 'Spec-13', status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-13 contracts/module-contracts.md', path: 'specs/013-card-event-stage-files/contracts/module-contracts.md', type: 'contracts', spec: 'Spec-13', status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-13 quickstart.md', path: 'specs/013-card-event-stage-files/quickstart.md', type: 'quickstart', spec: 'Spec-13', status: 'completed', created: '2026-08-14'});
+MATCH (s13:Document {name: 'Spec-13: カード・イベント・ステージのファイル構造再編'}), (plan:Document {name: 'Spec-13 plan.md'})
+MERGE (s13)-[:HAS_PLAN]->(plan);
+
+// ADR-021: CardDefinition/EventDefinitionインターフェース形状とテスト再編方針
+MERGE (:ADR {
+  id: 'ADR-021',
+  title: 'CardDefinition/EventDefinitionのインターフェース形状と既存単体テストの再編方針',
+  date: '2026-08-14',
+  status: 'accepted',
+  context: 'ADR-019でカード・イベントを1ファイル1定義に再編する方針を決めたが、各ファイルが実際にexportするインターフェースの形状と、既存の単体テスト（card.test.ts/event.test.ts）をどう再編するかは未決定だった。',
+  decision: 'CardDefinitionは{cost, applyEffect(state)}、EventDefinitionは{roll(state, activeEffects): GameEvent|null}という最小限の形状にする。確率補正が必要なイベントはroll()内部でcalcEventProbModifierを呼び出す（データ形状を無理に共通化しない）。applyEventToProgress/applyEventToMemberはイベント種別に依存しない汎用処理としてevents/index.tsに残す。単体テストは実装済み分（カード6種・イベント5種）をソースと同じ粒度でtests/unit/cards|events配下に分割し、未実装分（カード19種・イベント10種前後）はstubs.test.tsに集約して一括検証する。',
+  rationale: 'イベントのroll()を完全にデータ駆動な共通形状に固めると、既存のstall/rework（タスクをランダム選択）とsick等（メンバーをランダム選択）という異なる処理形状の移植が複雑になるため、柔軟性を優先した。未実装カード・イベントを1件ずつテストファイル化すると同型のテストが29件前後増えるだけで保守コストに見合わないため、スタブ検証は集約する。',
+  consequences: 'tests/unit/card.test.ts・event.test.tsは廃止しtests/unit/cards/・events/配下に再編。新しいカード・イベントを追加する開発者は、実装ありならcards/<name>.test.tsを追加、実装なしならstubs.test.tsの対象リストに1行追加するだけでよい。'
+});
+MATCH (adr:ADR {id: 'ADR-021'}), (cd:Concept {name: 'CardDefinition'}) MERGE (adr)-[:AFFECTS]->(cd);
+MATCH (adr:ADR {id: 'ADR-021'}), (ed:Concept {name: 'EventDefinition'}) MERGE (adr)-[:AFFECTS]->(ed);
+MATCH (adr:ADR {id: 'ADR-021'}), (p:Document {name: 'Spec-13 plan.md'}) MERGE (adr)-[:AFFECTS]->(p);
+MATCH (adr:ADR {id: 'ADR-021'}), (prev:ADR {id: 'ADR-019'}) MERGE (adr)-[:REFINES]->(prev);
+
+// =============================================================================
+// Spec-13 /speckit-tasks: tasks.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-13 tasks.md', path: 'specs/013-card-event-stage-files/tasks.md', type: 'tasks', spec: 'Spec-13',
+  description: 'T001〜T054、6フェーズ（Setup→US1カード→US2イベント→US4docs分割→US3ステージ→Polish）。カード実装済み6種・スタブ20種、イベント実装済み5種・スタブ10種を個別ファイル化するタスクを含む。',
+  status: 'completed', created: '2026-08-14'});
+MATCH (s13:Document {name: 'Spec-13: カード・イベント・ステージのファイル構造再編'}), (t:Document {name: 'Spec-13 tasks.md'})
+MERGE (s13)-[:HAS_TASKS]->(t);
+MATCH (plan:Document {name: 'Spec-13 plan.md'}), (t:Document {name: 'Spec-13 tasks.md'})
+MERGE (plan)-[:INFORMS]->(t);
+
+// =============================================================================
+// Spec-13 /speckit-implement: 完了
+// =============================================================================
+MATCH (n:Document {name: 'Spec-13: カード・イベント・ステージのファイル構造再編'}) SET n.status = 'implemented';
+MATCH (n:Document {name: 'Spec-13 tasks.md'}) SET n.status = 'completed';
+
+MERGE (:Concept {name: 'CARD_REGISTRY', description: 'カード名からCardDefinitionを引くレジストリ。satisfies Record<CardName, CardDefinition>で網羅性を保証', file: 'src/game/cards/index.ts', spec: 'Spec-13'});
+MERGE (:Concept {name: 'EVENT_REGISTRY', description: 'イベントキーからEventDefinitionを引くレジストリ。旧EVENT_PROBのキー名を踏襲', file: 'src/game/events/index.ts', spec: 'Spec-13'});
+MERGE (:Concept {name: 'STAGE_REGISTRY', description: 'ステージidからStageDataを引くレジストリ', file: 'src/game/stages/index.ts', spec: 'Spec-13'});
+MATCH (cd:Concept {name: 'CardDefinition'}), (reg:Concept {name: 'CARD_REGISTRY'}) MERGE (reg)-[:IMPLEMENTS]->(cd);
+MATCH (ed:Concept {name: 'EventDefinition'}), (reg:Concept {name: 'EVENT_REGISTRY'}) MERGE (reg)-[:IMPLEMENTS]->(ed);
+MATCH (adr:ADR {id: 'ADR-019'}), (reg:Concept {name: 'CARD_REGISTRY'}) MERGE (adr)-[:AFFECTS]->(reg);
+MATCH (adr:ADR {id: 'ADR-019'}), (reg:Concept {name: 'EVENT_REGISTRY'}) MERGE (adr)-[:AFFECTS]->(reg);
+MATCH (adr:ADR {id: 'ADR-019'}), (reg:Concept {name: 'STAGE_REGISTRY'}) MERGE (adr)-[:AFFECTS]->(reg);
+
+MATCH (poc:Concept {name: 'pocStage'}) SET poc.file = 'src/game/stages/poc-01.ts', poc.description = 'PoCステージデータ。id="poc-01"。stages/poc-01.tsからexportされ、STAGE_REGISTRYに登録される';
+
+MERGE (:Document {name: 'Spec-13 implement結果', path: 'specs/013-card-event-stage-files/tasks.md',
+  type: 'implementation-summary', spec: 'Spec-13',
+  description: 'cards/26ファイル+index.ts、events/15ファイル+index.ts、stages/poc-01.ts+index.ts。docs/03-詳細設計/カード26件・イベント23件・ステージ1件（PoCステージ01.md）。card.ts/event.ts/pocStage.ts/CARD_COSTS/EVENT_PROBは削除・統合済み。',
+  status: 'completed', tests: 329, coverage_lines: 98.3, coverage_branches: 93.91,
+  created: '2026-08-14'});
+MATCH (s13:Document {name: 'Spec-13: カード・イベント・ステージのファイル構造再編'}), (r:Document {name: 'Spec-13 implement結果'})
+MERGE (s13)-[:HAS_RESULT]->(r);
+
+// =============================================================================
+// SDD外タスク: docs→ソースコード自動生成skill
+// =============================================================================
+MERGE (:Document {name: 'skill: docs-to-code generator', path: 'docs/sdd-tasks.md',
+  type: 'backlog-task', status: 'planned', created: '2026-08-14',
+  description: 'docs/03-詳細設計/カード|イベント|ステージ 配下のMarkdownからsrc/game/cards|events|stages 配下のソースコードを生成するClaude Codeスキル。表形式データ（コスト・確率・ガントチャート・条件付きイベント）の変換は大部分プログラム化できる見込み。SDDパイプライン（speckit）は通さない。Spec-13完了後に着手。'});
+MATCH (task:Document {name: 'skill: docs-to-code generator'}), (s13:Document {name: 'Spec-13: カード・イベント・ステージのファイル構造再編'})
+MERGE (task)-[:DEPENDS_ON]->(s13);
+
+// =============================================================================
+// Spec-13 /speckit-implement 完了
+// =============================================================================
+MATCH (n:Document {name: 'Spec-13: カード・イベント・ステージのファイル構造再編'}) SET n.status = 'completed';
+MATCH (n:Document {name: 'Spec-13 tasks.md'}) SET n.status = 'completed';
+
+MERGE (:Document {name: 'Spec-13 implementation', path: 'src/game/cards/ + src/game/events/ + src/game/stages/', type: 'implementation', spec: 'Spec-13',
+  description: 'カード26ファイル(実装済み6+スタブ20)+cards/index.ts、イベント15ファイル(実装済み5+スタブ10)+events/index.ts、ステージ1ファイル(poc-01.ts)+stages/index.ts。card.ts/event.ts/pocStage.ts削除。docs側はカード26/イベント23/ステージ1(PoCステージ01.md新規)に分割。',
+  status: 'completed', tests: 329, coverage_lines: 98.3, coverage_branches: 93.91, coverage_funcs: 100,
+  created: '2026-08-14'});
+MATCH (s13:Document {name: 'Spec-13: カード・イベント・ステージのファイル構造再編'}), (impl:Document {name: 'Spec-13 implementation'})
+MERGE (s13)-[:IMPLEMENTED_BY]->(impl);
+
+MATCH (n:Concept {name: 'CardDefinition'}) SET n.status = 'implemented';
+MATCH (n:Concept {name: 'EventDefinition'}) SET n.status = 'implemented';
+MERGE (:Concept {name: 'CARD_REGISTRY', description: 'CardName→CardDefinitionのレジストリ。satisfies Record<CardName, CardDefinition>で網羅性を保証', file: 'src/game/cards/index.ts', spec: 'Spec-13', status: 'implemented'});
+MERGE (:Concept {name: 'EVENT_REGISTRY', description: 'イベント種別キー→EventDefinitionのレジストリ（15種）', file: 'src/game/events/index.ts', spec: 'Spec-13', status: 'implemented'});
+MERGE (:Concept {name: 'STAGE_REGISTRY', description: 'ステージid→StageDataのレジストリ', file: 'src/game/stages/index.ts', spec: 'Spec-13', status: 'implemented'});
+MATCH (a:Concept {name: 'CARD_REGISTRY'}), (b:Concept {name: 'CardDefinition'}) MERGE (a)-[:CONTAINS]->(b);
+MATCH (a:Concept {name: 'EVENT_REGISTRY'}), (b:Concept {name: 'EventDefinition'}) MERGE (a)-[:CONTAINS]->(b);
+MATCH (impl:Document {name: 'Spec-13 implementation'}), (c:Concept {name: 'CARD_REGISTRY'}) MERGE (impl)-[:DEFINES]->(c);
+MATCH (impl:Document {name: 'Spec-13 implementation'}), (c:Concept {name: 'EVENT_REGISTRY'}) MERGE (impl)-[:DEFINES]->(c);
+MATCH (impl:Document {name: 'Spec-13 implementation'}), (c:Concept {name: 'STAGE_REGISTRY'}) MERGE (impl)-[:DEFINES]->(c);
+
+MATCH (n:Concept {name: 'pocStage'}) SET n.status = 'superseded', n.description = n.description + '（Spec-13でpoc-01にリネーム。id="poc-01"）';

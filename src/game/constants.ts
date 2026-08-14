@@ -1,5 +1,3 @@
-import type { CardName } from "./types.js";
-
 // ===== 1. PoCステージ基本情報 =====
 
 export const POC_STAGE = {
@@ -124,35 +122,6 @@ export const THRESHOLDS = {
   PROGRESS_BOOST_LINE: 0.9,
 } as const;
 
-// ===== 7. ランダムイベント発生確率 =====
-
-export const EVENT_PROB = {
-  /** タスクイベント基本確率 */
-  STALL: 0.05,
-  REWORK: 0.08,
-  SPEC_UNCLEAR: 0.05,
-  BLOCKER: 0.04,
-  ENV_ISSUE: 0.03,
-  OVER_REPORT: 0.04,
-  UNDER_REPORT: 0.03,
-  MISSING_REPORT: 0.03,
-  INSPIRATION: 0.03,
-  FIRST_PASS: 0.02,
-  /** タスクイベント・カード使用時確率 */
-  REWORK_WITH_DAILY_REVIEW: 0.05,
-  SPEC_UNCLEAR_WITH_DAILY: 0.03,
-  BLOCKER_WITH_DAILY: 0.03,
-  OVER_REPORT_WITH_MONITORING: 0.02,
-  UNDER_REPORT_WITH_MONITORING: 0.01,
-  MISSING_REPORT_WITH_MONITORING: 0.01,
-  /** メンバーイベント基本確率 */
-  SICK: 0.05,
-  LOW_MOTIVATION: 0.06,
-  FATIGUE: 0.04,
-  REST: 0.03,
-  LOCAL_WIN: 0.02,
-} as const;
-
 // ===== 8. 手戻りの巻き戻し量 =====
 
 export const REWORK = {
@@ -184,37 +153,6 @@ export const CHECKPOINT_PROB = {
   MILESTONE_PASS: 0.45,
   CLOSING: 0.5,
 } as const;
-
-// ===== 11. カードコスト =====
-
-export const CARD_COSTS: Record<CardName, number> = {
-  デイリー: 1,
-  デイリー中止: 0,
-  レビュー: 1,
-  モニタリング: 1,
-  サマライズ: 1,
-  臨時MTG: 1,
-  臨時モニタリング: 1,
-  臨時サマライズ: 1,
-  教育: 2,
-  ペアプログラミング: 2,
-  雑談: 1,
-  停滞対応: 1,
-  個別面談: 2,
-  表彰: 2,
-  計画休: 2,
-  残業許可: 1,
-  アサイン: 1,
-  入れ替え: 1,
-  巻取り: 2,
-  進捗ブースト: 3,
-  強制締め: 4,
-  リスケ: 2,
-  メンバー追加: 4,
-  休出: 6,
-  納期交渉: 6,
-  スコープ交渉: 6,
-};
 
 // ===== 12. skill_factor テーブル =====
 
