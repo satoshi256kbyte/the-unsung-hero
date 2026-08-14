@@ -996,10 +996,7 @@ MERGE (:Document {name: 'tests/unit/engine.test.ts', path: 'tests/unit/engine.te
   description: 'GameEngineテスト。US1初期化(8)・US2ターン処理(7)・US3ゲーム終了(5)・US4メンバー集計(4) = 24件全PASS',
   status: 'completed', test_count: 24,
   created: '2026-08-13'});
-MERGE (:Document {name: 'Spec-10 tasks', path: 'specs/010-game-engine/tasks.md', type: 'tasks', spec: 'Spec-10',
-  description: 'Spec-10実装タスク一覧。T001〜T016、6フェーズ。Setup→テスト先行（US1/US2/US3/US4）→初期化→processTurn→memberUpdates集計→Polish。TDD方式。',
-  status: 'completed',
-  created: '2026-08-13'});
+MATCH (t10tasks:Document {name: 'Spec-10 tasks'}) SET t10tasks.status = 'completed';
 MERGE (:Concept {name: 'buildInitialState', description: 'StageDataから初期GameStateを構築するヘルパー関数（engine.ts内部）', file: 'src/game/engine.ts', spec: 'Spec-10'});
 MERGE (:Concept {name: 'applyMemberUpdates', description: '同一メンバーのmemberUpdateエントリを合算しclampして適用するヘルパー関数（engine.ts内部）', file: 'src/game/engine.ts', spec: 'Spec-10'});
 
@@ -1083,8 +1080,7 @@ MERGE (:Document {name: 'src/game/stages/pocStage.ts', path: 'src/game/stages/po
 MERGE (:Document {name: 'tests/unit/stages/pocStage.test.ts', path: 'tests/unit/stages/pocStage.test.ts', type: 'test', spec: 'Spec-11',
   description: 'pocStageテスト。US1初期化(9)・US2ガント整合性(5)・US3条件付きイベント(4) = 18件全PASS',
   status: 'completed', test_count: 18, created: '2026-08-13'});
-MERGE (:Document {name: 'Spec-11 tasks.md', path: 'specs/011-poc-stage-data/tasks.md', type: 'tasks', spec: 'Spec-11',
-  status: 'completed', created: '2026-08-13'});
+MATCH (t11tasks:Document {name: 'Spec-11 tasks.md'}) SET t11tasks.status = 'completed';
 
 MATCH (poc:Concept {name: 'pocStage'}), (impl:Document {name: 'src/game/stages/pocStage.ts'}) MERGE (poc)-[:IMPLEMENTED_IN]->(impl);
 MATCH (poc:Concept {name: 'pocStage'}), (test:Document {name: 'tests/unit/stages/pocStage.test.ts'}) MERGE (poc)-[:TESTED_IN]->(test);
