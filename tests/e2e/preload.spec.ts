@@ -1,10 +1,12 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("US2: 起動時にJSONの内容を検証する", () => {
-  test("正常系: 全JSONが正しい場合はPreloadSceneを経てゲームが開始される", async ({ page }) => {
+  test("正常系: 全JSONが正しい場合はPreloadSceneを経てタイトル画面が表示される", async ({
+    page,
+  }) => {
     await page.goto("/");
-    await page.waitForSelector('[data-testid="confirm-turn-btn"]', { timeout: 10000 });
-    await expect(page.locator('[data-testid="confirm-turn-btn"]')).toBeVisible();
+    await page.waitForSelector('[data-testid="title-start-btn"]', { timeout: 10000 });
+    await expect(page.locator('[data-testid="title-start-btn"]')).toBeVisible();
   });
 
   test("異常系: 必須フィールドが欠落したJSONの場合はゲームが開始されない", async ({ page }) => {
@@ -22,10 +24,10 @@ test.describe("US2: 起動時にJSONの内容を検証する", () => {
 
     await page.goto("/");
     await page
-      .waitForSelector('[data-testid="confirm-turn-btn"]', { timeout: 3000 })
+      .waitForSelector('[data-testid="title-start-btn"]', { timeout: 3000 })
       .catch(() => undefined);
 
-    await expect(page.locator('[data-testid="confirm-turn-btn"]')).not.toBeVisible();
+    await expect(page.locator('[data-testid="title-start-btn"]')).not.toBeVisible();
     expect(pageErrors.length).toBeGreaterThan(0);
   });
 });

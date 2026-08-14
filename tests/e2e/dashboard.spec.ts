@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { startGame } from "./helpers.js";
 
 test.describe("US1: ダッシュボードでゲーム状態を確認できる", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await startGame(page);
     await page.waitForSelector('[data-testid="header-turn"]', { timeout: 10000 });
   });
 

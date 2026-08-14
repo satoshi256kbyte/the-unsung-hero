@@ -8,6 +8,8 @@ import type { StageData } from "../../../src/game/types.js";
 const pocStage: StageData = {
   id: "poc-01",
   name: "PoCステージ",
+  description:
+    "PoC（概念実証）案件。要件定義・設計・実装・テスト・リリース準備の5工程を22日間で完遂し、目標利益率の達成を目指す。",
   budget: 5_000_000,
   deadline: 22,
   initialMembers: [

@@ -37,6 +37,7 @@ const conditionalEventSchema = z.object({
 export const stageDataSchema = z.object({
   id: z.string(),
   name: z.string(),
+  description: z.string(),
   budget: z.number(),
   deadline: z.number(),
   initialMembers: z.array(memberSchema),

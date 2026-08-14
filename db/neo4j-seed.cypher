@@ -1503,3 +1503,80 @@ MATCH (p:Parameter {name: '体'}) SET p.min = null, p.max = null, p.jsonPath = '
 MATCH (p:Parameter {name: '透明性'}) SET p.initialValue = null, p.range = null, p.jsonPath = 'public/data/balance/constants.json の MEMBER_PARAMS.TRANSPARENCY';
 MATCH (p:Parameter {name: '緊張感'}) SET p.initialValue = null, p.range = null, p.jsonPath = 'public/data/balance/constants.json の MEMBER_PARAMS.TENSION';
 MATCH (p:Parameter {name: '経験値'}) SET p.jsonPath = 'public/data/balance/constants.json の EXP';
+
+// =============================================================================
+// Spec-14 設計ドキュメント更新（Spec-13/15後の実コード状態＋ADR-020確認画面を反映）
+// =============================================================================
+MATCH (d:Document {name: 'Spec-14 design'})
+SET d.description = 'BootScene→PreloadScene→TitleScene→StageSelectScene→MainSceneの画面遷移設計。StageSelectUIは一覧表示/確認表示の2状態を持ち、確認表示でプロジェクト概要・予算・目標利益率（GLOBAL_RULES.TARGET_PROFIT_RATE、率のみ）を表示しYES/NOを問う。StageDataにdescriptionフィールドを追加。MainSceneはgetStage(stageId)経由でステージデータを取得する形に変更。';
+
+MERGE (:ADR {
+  id: 'ADR-024',
+  title: 'Spec-14設計をSpec-13/15後の実コード状態（PreloadScene・getStage()レジストリ）に合わせて更新する',
+  date: '2026-08-14',
+  status: 'accepted',
+  context: 'Spec-14の設計ドキュメントは2026-08-14の会話冒頭（Spec-13/15着手前）に書かれたもので、当時の想定は「BootScene→TitleScene→StageSelectScene→MainScene」かつ「MainSceneはinit(data: {stage: StageData})でStageData本体を直接受け取る」という設計だった。その後Spec-13でステージがpoc-01.tsに、Spec-15でPreloadScene＋getStage()レジストリ方式に変わり、実際のScene構成・データ受け渡し方法が設計ドキュメントと食い違っていた。また、会話の中盤で決まったステージ確認画面（ADR-020: プロジェクト概要・予算・目標利益率を表示しYES/NOを問う）もまだ設計ドキュメントに反映されていなかった。',
+  decision: '設計ドキュメントを実際のコード状態に合わせて全面更新した。Scene遷移をBootScene→PreloadScene→TitleScene→StageSelectScene→MainSceneに修正。MainSceneはinit(data: {stageId: string})でidのみを受け取りgetStage(stageId)でStageDataを取得する形に変更（StageData本体のScene間受け渡しは行わない）。StageDataにdescriptionフィールドを追加し、stageDataSchema（Spec-15のzodスキーマ）・poc-01.jsonにも反映する。ADR-020の確認画面仕様（プロジェクト概要・予算・目標利益率の表示、率のみで具体金額は非表示）をStageSelectUIの2状態設計として明記した。',
+  rationale: '設計ドキュメントが実装と食い違ったまま/speckit-specifyに進むと、仕様書生成時に誤った前提（古いScene構成）が混入するため、着手前に実コード状態との整合を取る必要があった。',
+  consequences: 'Spec-14の実装ではStageData型定義・zodスキーマ・poc-01.jsonの3箇所にdescriptionフィールドを追加する作業が発生する（Spec-15のJSON外部化後のフローに従う）。'
+});
+MATCH (adr:ADR {id: 'ADR-024'}), (d:Document {name: 'Spec-14 design'}) MERGE (adr)-[:AFFECTS]->(d);
+MATCH (adr:ADR {id: 'ADR-024'}), (prev:ADR {id: 'ADR-020'}) MERGE (adr)-[:REFINES]->(prev);
+MATCH (adr:ADR {id: 'ADR-024'}), (ps:Concept {name: 'PreloadScene'}) MERGE (adr)-[:AFFECTS]->(ps);
+MATCH (adr:ADR {id: 'ADR-024'}), (sr:Concept {name: 'STAGE_REGISTRY'}) MERGE (adr)-[:AFFECTS]->(sr);
+
+// =============================================================================
+// Spec-14 /speckit-specify: spec.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-14 spec.md', path: 'specs/016-title-stage-select/spec.md', type: 'spec', spec: 'Spec-14',
+  description: 'タイトル〜ステージセレクト画面遷移の仕様。US1タイトルからのゲーム開始・US2ステージ確認画面（プロジェクト概要・予算・目標利益率を率のみ表示、YES/NO）。FR9件・SC3件。',
+  status: 'draft', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-14 checklists/requirements.md', path: 'specs/016-title-stage-select/checklists/requirements.md', type: 'checklist', spec: 'Spec-14',
+  status: 'completed', created: '2026-08-14'});
+MATCH (s14:Document {name: 'Spec-14: タイトル〜ステージセレクト画面遷移'}), (spec:Document {name: 'Spec-14 spec.md'})
+MERGE (s14)-[:HAS_SPEC]->(spec);
+MATCH (design:Document {name: 'Spec-14 design'}), (spec:Document {name: 'Spec-14 spec.md'})
+MERGE (design)-[:INFORMS]->(spec);
+
+// =============================================================================
+// Spec-14 /speckit-plan: plan.md + research.md + data-model.md + contracts + quickstart.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-14 plan.md', path: 'specs/016-title-stage-select/plan.md', type: 'plan', spec: 'Spec-14',
+  description: 'Constitution Check全項目PASS。TitleScene/StageSelectSceneをsrc/scenes/に、TitleUI/StageSelectUIをsrc/ui/に追加。MainSceneはinit(data:{stageId})に変更。StageDataにdescription追加（types.ts/stageDataSchema/poc-01.jsonの3箇所）。',
+  status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-14 research.md', path: 'specs/016-title-stage-select/research.md', type: 'research', spec: 'Spec-14', status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-14 data-model.md', path: 'specs/016-title-stage-select/data-model.md', type: 'data-model', spec: 'Spec-14', status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-14 contracts/ui-contracts.md', path: 'specs/016-title-stage-select/contracts/ui-contracts.md', type: 'contracts', spec: 'Spec-14', status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-14 quickstart.md', path: 'specs/016-title-stage-select/quickstart.md', type: 'quickstart', spec: 'Spec-14', status: 'completed', created: '2026-08-14'});
+MATCH (s14:Document {name: 'Spec-14: タイトル〜ステージセレクト画面遷移'}), (plan:Document {name: 'Spec-14 plan.md'})
+MERGE (s14)-[:HAS_PLAN]->(plan);
+
+MATCH (n:Concept {name: 'TitleScene'}) SET n.status = 'planned';
+MATCH (n:Concept {name: 'StageSelectScene'}) SET n.status = 'planned';
+
+// =============================================================================
+// Spec-14 /speckit-tasks: tasks.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-14 tasks.md', path: 'specs/016-title-stage-select/tasks.md', type: 'tasks', spec: 'Spec-14',
+  description: 'T001〜T021、4フェーズ（Setup→US1タイトル+一覧→US2確認画面+ゲーム開始→Polish）。',
+  status: 'completed', created: '2026-08-14'});
+MATCH (s14:Document {name: 'Spec-14: タイトル〜ステージセレクト画面遷移'}), (t:Document {name: 'Spec-14 tasks.md'})
+MERGE (s14)-[:HAS_TASKS]->(t);
+MATCH (plan:Document {name: 'Spec-14 plan.md'}), (t:Document {name: 'Spec-14 tasks.md'})
+MERGE (plan)-[:INFORMS]->(t);
+
+// =============================================================================
+// Spec-14 /speckit-implement 完了
+// =============================================================================
+MATCH (n:Document {name: 'Spec-14: タイトル〜ステージセレクト画面遷移'}) SET n.status = 'implemented';
+MATCH (n:Document {name: 'Spec-14 tasks.md'}) SET n.status = 'completed';
+MATCH (n:Concept {name: 'TitleScene'}) SET n.status = 'implemented';
+MATCH (n:Concept {name: 'StageSelectScene'}) SET n.status = 'implemented';
+
+MERGE (:Document {name: 'Spec-14 implement結果', path: 'specs/016-title-stage-select/tasks.md',
+  type: 'implementation-summary', spec: 'Spec-14',
+  description: 'TitleScene/StageSelectScene新規（src/scenes/）、TitleUI/StageSelectUI新規（src/ui/）。StageDataにdescription追加（types.ts/stageDataSchema/poc-01.json）。MainSceneはinit(data:{stageId})経由でgetStage()解決に変更。既存E2E4ファイルを新遷移フロー対応に更新（tests/e2e/helpers.tsのstartGame()を共通化）。',
+  status: 'completed', tests: 332, e2e_tests: 54, coverage_lines: 94.08, coverage_branches: 89.41, coverage_funcs: 100,
+  created: '2026-08-14'});
+MATCH (s14:Document {name: 'Spec-14: タイトル〜ステージセレクト画面遷移'}), (r:Document {name: 'Spec-14 implement結果'})
+MERGE (s14)-[:HAS_RESULT]->(r);

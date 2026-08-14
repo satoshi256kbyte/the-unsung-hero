@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { startGame } from "./helpers.js";
 
 test.describe("US3: ターン確定後にターン移行ロード画面が表示される", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
-    await page.waitForSelector('[data-testid="confirm-turn-btn"]', { timeout: 10000 });
+    await startGame(page);
   });
 
   test("初期状態でローディング画面は非表示である", async ({ page }) => {

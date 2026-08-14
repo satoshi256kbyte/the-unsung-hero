@@ -11,13 +11,18 @@ function sleep(ms: number): Promise<void> {
 export class MainScene extends Phaser.Scene {
   private engine!: GameEngine;
   private ui!: MainGameUI;
+  private stageId!: string;
 
   constructor() {
     super({ key: "MainScene" });
   }
 
+  init(data: { stageId: string }): void {
+    this.stageId = data.stageId;
+  }
+
   create(): void {
-    this.engine = new GameEngine(getStage("poc-01"));
+    this.engine = new GameEngine(getStage(this.stageId));
 
     const overlay = document.getElementById("ui-overlay");
     if (!overlay) {

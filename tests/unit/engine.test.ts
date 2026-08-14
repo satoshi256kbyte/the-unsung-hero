@@ -23,6 +23,7 @@ function makeStageData(overrides: Partial<StageData> = {}): StageData {
   return {
     id: "poc",
     name: "PoCステージ",
+    description: "テスト用ステージ",
     budget: 1000000,
     deadline: 22,
     initialMembers: [

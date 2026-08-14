@@ -170,6 +170,8 @@ export interface GameState {
 export interface StageData {
   id: string;
   name: string;
+  /** ステージ確認画面に表示するプロジェクト概要文 */
+  description: string;
   budget: number;
   deadline: number;
   initialMembers: Member[];

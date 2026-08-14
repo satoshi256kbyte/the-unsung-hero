@@ -65,6 +65,10 @@ Spec Kitコマンドごとのトークン消費を記録する。
 | Spec-15 | /speckit-plan | 2026-08-14 | — | — | plan.md/research.md/data-model.md/contracts/quickstart.md作成。Constitution Check全項目PASS。constants.ts11箇所の参照元をconfig.tsシングルトンに変更する設計を決定 |
 | Spec-15 | /speckit-tasks | 2026-08-14 | — | — | tasks.md作成（T001〜T044、6フェーズ、US1〜US3） |
 | Spec-15 | /speckit-implement | 2026-08-14 | — | — | T001〜T044全完了。JSON43件+zodスキーマ4種+config.ts+PreloadScene新規、constants.ts削除・11+1ファイルgetConfig()移行、docs数値記載除去、グラフDB Parameterノードjsonpath化。332ユニットテスト+E2E44件全PASS・型エラー0・カバレッジlines94.08%/branches89.41%。副次的にMainGameUI.tsの既存data-testid重複バグを発見・修正 |
+| Spec-14 | /speckit-specify | 2026-08-14 | — | — | タイトル〜ステージセレクト画面遷移。US1〜2・FR9件・SC3件を定義（設計ドキュメントをSpec-13/15後の実コード状態に合わせて更新した上で仕様化） |
+| Spec-14 | /speckit-plan | 2026-08-14 | — | — | plan.md/research.md/data-model.md/contracts/quickstart.md作成。Constitution Check全項目PASS |
+| Spec-14 | /speckit-tasks | 2026-08-14 | — | — | tasks.md作成（T001〜T021、4フェーズ、US1〜US2） |
+| Spec-14 | /speckit-implement | 2026-08-14 | — | — | T001〜T021全完了。TitleScene/StageSelectScene新規、TitleUI/StageSelectUI新規、StageDataにdescription追加、MainSceneはstageId経由に変更。既存E2E4ファイルを新遷移フロー対応に更新（共通helpers.ts追加）。332ユニットテスト+E2E54件（chromium/Mobile Chrome）全PASS・型エラー0・カバレッジlines94.08%/branches89.41% |
 
 ## 累計
 

@@ -53,6 +53,6 @@ export class PreloadScene extends Phaser.Scene {
     const stageData = stageDataSchema.parse(stageRaw) as unknown as StageData;
     initStageRegistry({ "poc-01": stageData });
 
-    this.scene.start("MainScene");
+    this.scene.start("TitleScene");
   }
 }

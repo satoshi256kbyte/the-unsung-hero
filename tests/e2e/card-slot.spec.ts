@@ -1,8 +1,9 @@
 import { expect, test } from "@playwright/test";
+import { startGame } from "./helpers.js";
 
 test.describe("US2: カード枠でターンのアクションを組み立てられる", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await startGame(page);
     await page.waitForSelector('[data-testid="hand-card-デイリー"]', { timeout: 10000 });
   });
 

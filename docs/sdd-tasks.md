@@ -39,9 +39,8 @@
 
 ## Phase 8: 画面遷移
 
-- [ ] Spec-14: タイトル〜ステージセレクト画面遷移
-      （設計: `docs/superpowers/specs/2026-08-14-title-stageselect-flow-design.md`、
-      ステージ確認画面の追記が未反映のため設計ドキュメントの更新が必要）
+- [x] Spec-14: タイトル〜ステージセレクト画面遷移
+      （設計: `docs/superpowers/specs/2026-08-14-title-stageselect-flow-design.md`）
 
 ## Phase 9: バランスデータのJSON外部化
 
