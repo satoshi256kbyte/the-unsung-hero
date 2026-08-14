@@ -1198,3 +1198,12 @@ MATCH (ms:Concept {name: 'MainScene'}), (ge:Concept {name: 'GameEngine'}) MERGE 
 // Spec-12 implement 完了
 MATCH (n:Document {name: 'Spec-12 tasks.md'}) SET n.status = 'completed';
 MATCH (n:Document {name: 'Spec-12 spec.md'}) SET n.status = 'completed';
+
+// Spec-01〜04 完了ステータス反映（Phase 1-2完了当時は status プロパティ未整備だったため後追い）
+MATCH (d:Document)
+WHERE d.name STARTS WITH 'Spec-01' OR d.name STARTS WITH 'Spec-02' OR d.name STARTS WITH 'Spec-03' OR d.name STARTS WITH 'Spec-04'
+SET d.status = CASE d.type
+  WHEN 'source' THEN 'implemented'
+  WHEN 'test' THEN 'all-pass'
+  ELSE 'completed'
+END;
