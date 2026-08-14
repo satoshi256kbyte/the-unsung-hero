@@ -25,17 +25,17 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
 
 describe("applyCards - レビュー", () => {
   it("レビュー → effectType='rework_prob_reduced' が effectsToAdd に含まれる", () => {
-    const result = applyCards(makeState(), ["レビュー"]);
+    const result = applyCards(makeState(), [{ name: "レビュー" }]);
     expect(result.effectsToAdd.some((e) => e.effectType === "rework_prob_reduced")).toBe(true);
   });
 
   it("effectsToAdd の targetId は 'project'", () => {
-    const result = applyCards(makeState(), ["レビュー"]);
+    const result = applyCards(makeState(), [{ name: "レビュー" }]);
     expect(result.effectsToAdd.every((e) => e.targetId === "project")).toBe(true);
   });
 
   it("effectsToAdd の remainingTurns は null", () => {
-    const result = applyCards(makeState(), ["レビュー"]);
+    const result = applyCards(makeState(), [{ name: "レビュー" }]);
     expect(result.effectsToAdd.every((e) => e.remainingTurns === null)).toBe(true);
   });
 });

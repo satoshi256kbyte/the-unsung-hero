@@ -12,7 +12,8 @@ import { emergencyMeeting } from "./emergency-meeting.js";
 import { emergencyMonitoring } from "./emergency-monitoring.js";
 import { emergencySummarize } from "./emergency-summarize.js";
 import { forcedClosing } from "./forced-closing.js";
-import { holidayWork } from "./holiday-work.js";
+import { holidayWorkSat } from "./holiday-work-sat.js";
+import { holidayWorkSun } from "./holiday-work-sun.js";
 import { monitoring } from "./monitoring.js";
 import { oneOnOne } from "./one-on-one.js";
 import { overtimePermission } from "./overtime-permission.js";
@@ -29,10 +30,14 @@ import { takeover } from "./takeover.js";
 
 export interface CardDefinition {
   readonly cost: number;
-  applyEffect(state: GameState): { effectsToAdd: CardEffect[]; memberUpdates: MemberUpdate[] };
+  readonly requiresTarget?: boolean;
+  applyEffect(
+    state: GameState,
+    targetId?: string,
+  ): { effectsToAdd: CardEffect[]; memberUpdates: MemberUpdate[] };
 }
 
-export type CardEffectLogic = Pick<CardDefinition, "applyEffect">;
+export type CardEffectLogic = Pick<CardDefinition, "applyEffect" | "requiresTarget">;
 
 export interface CardApplicationResult {
   effectsToAdd: CardEffect[];
@@ -63,7 +68,8 @@ const CARD_EFFECT_LOGIC = {
   強制締め: forcedClosing,
   リスケ: reschedule,
   メンバー追加: addMember,
-  休出: holidayWork,
+  "休出（土）": holidayWorkSat,
+  "休出（日）": holidayWorkSun,
   納期交渉: deadlineNegotiation,
   スコープ交渉: scopeNegotiation,
 } satisfies Record<CardName, CardEffectLogic>;
@@ -96,7 +102,8 @@ export const CARD_JSON_FILES = {
   強制締め: "forced-closing",
   リスケ: "reschedule",
   メンバー追加: "add-member",
-  休出: "holiday-work",
+  "休出（土）": "holiday-work-sat",
+  "休出（日）": "holiday-work-sun",
   納期交渉: "deadline-negotiation",
   スコープ交渉: "scope-negotiation",
 } satisfies Record<CardName, string>;
@@ -106,9 +113,11 @@ export function buildCardRegistry(
 ): Record<CardName, CardDefinition> {
   const result = {} as Record<CardName, CardDefinition>;
   for (const name of Object.keys(CARD_EFFECT_LOGIC) as CardName[]) {
+    const logic = CARD_EFFECT_LOGIC[name];
     result[name] = {
       cost: costData[name].cost,
-      applyEffect: CARD_EFFECT_LOGIC[name].applyEffect,
+      applyEffect: logic.applyEffect,
+      ...(logic.requiresTarget !== undefined ? { requiresTarget: logic.requiresTarget } : {}),
     };
   }
   return result;
@@ -127,7 +136,10 @@ export function getCardRegistry(): Record<CardName, CardDefinition> {
   return cardRegistry;
 }
 
-export function applyCards(state: GameState, cards: CardName[]): CardApplicationResult {
+export function applyCards(
+  state: GameState,
+  cards: { name: CardName; targetId?: string }[],
+): CardApplicationResult {
   if (cardRegistry === null) {
     throw new Error("Card registry is not initialized. Call initCardRegistry() first.");
   }
@@ -135,7 +147,7 @@ export function applyCards(state: GameState, cards: CardName[]): CardApplication
   const memberUpdates: MemberUpdate[] = [];
 
   for (const card of cards) {
-    const result = cardRegistry[card].applyEffect(state);
+    const result = cardRegistry[card.name].applyEffect(state, card.targetId);
     effectsToAdd.push(...result.effectsToAdd);
     memberUpdates.push(...result.memberUpdates);
   }

@@ -32,7 +32,12 @@ describe("applyCards - 集約動作", () => {
   });
 
   it("確率低減カードと即時メンバー系カードの混在", () => {
-    const result = applyCards(makeState(), ["デイリー", "レビュー", "モニタリング", "個別面談"]);
+    const result = applyCards(makeState(), [
+      { name: "デイリー" },
+      { name: "レビュー" },
+      { name: "モニタリング" },
+      { name: "個別面談" },
+    ]);
     expect(result.effectsToAdd).toHaveLength(3);
     expect(result.memberUpdates).toHaveLength(1);
   });
@@ -40,21 +45,21 @@ describe("applyCards - 集約動作", () => {
   it("state.members が変化しない", () => {
     const state = makeState();
     const membersBefore = JSON.stringify(state.members);
-    applyCards(state, ["個別面談", "表彰", "計画休"]);
+    applyCards(state, [{ name: "個別面談" }, { name: "表彰" }, { name: "計画休" }]);
     expect(JSON.stringify(state.members)).toBe(membersBefore);
   });
 
   it("state.activeEffects が変化しない", () => {
     const state = makeState();
     const effectsBefore = JSON.stringify(state.activeEffects);
-    applyCards(state, ["デイリー", "レビュー", "モニタリング"]);
+    applyCards(state, [{ name: "デイリー" }, { name: "レビュー" }, { name: "モニタリング" }]);
     expect(JSON.stringify(state.activeEffects)).toBe(effectsBefore);
   });
 
   it("state.members の参照が変化しない", () => {
     const state = makeState();
     const memberRef = state.members;
-    applyCards(state, ["個別面談"]);
+    applyCards(state, [{ name: "個別面談" }]);
     expect(state.members).toBe(memberRef);
   });
 });
@@ -69,8 +74,11 @@ const arbCardName = fc.constantFrom(
   "納期交渉" as const,
   "スコープ交渉" as const,
   "リスケ" as const,
-  "休出" as const,
+  "休出（土）" as const,
+  "休出（日）" as const,
 );
+
+const arbCard = arbCardName.map((name) => ({ name }));
 
 const arbMember = fc.record({
   id: fc.uuid(),
@@ -99,7 +107,7 @@ const arbGameState = fc.record({
 describe("applyCards - fast-check properties", () => {
   it("任意の GameState・CardName[] で例外が発生しない", () => {
     fc.assert(
-      fc.property(arbGameState, fc.array(arbCardName, { maxLength: 8 }), (state, cards) => {
+      fc.property(arbGameState, fc.array(arbCard, { maxLength: 8 }), (state, cards) => {
         expect(() => applyCards(state, cards)).not.toThrow();
       }),
       { numRuns: 200 },
@@ -108,7 +116,7 @@ describe("applyCards - fast-check properties", () => {
 
   it("memberUpdates の moraleDelta / healthDelta は有限数", () => {
     fc.assert(
-      fc.property(arbGameState, fc.array(arbCardName, { maxLength: 8 }), (state, cards) => {
+      fc.property(arbGameState, fc.array(arbCard, { maxLength: 8 }), (state, cards) => {
         const result = applyCards(state, cards);
         for (const u of result.memberUpdates) {
           expect(Number.isFinite(u.moraleDelta)).toBe(true);
@@ -121,7 +129,7 @@ describe("applyCards - fast-check properties", () => {
 
   it("GameState は変化しない（イミュータブル）", () => {
     fc.assert(
-      fc.property(arbGameState, fc.array(arbCardName, { maxLength: 8 }), (state, cards) => {
+      fc.property(arbGameState, fc.array(arbCard, { maxLength: 8 }), (state, cards) => {
         const membersBefore = JSON.stringify(state.members);
         const effectsBefore = JSON.stringify(state.activeEffects);
         applyCards(state, cards);
@@ -141,9 +149,11 @@ describe("applyCards - fast-check properties", () => {
       "overtime_cap_extended",
       "education_stall",
       "pair_prog_stall",
+      "holiday_work_sat",
+      "holiday_work_sun",
     ]);
     fc.assert(
-      fc.property(arbGameState, fc.array(arbCardName, { maxLength: 8 }), (state, cards) => {
+      fc.property(arbGameState, fc.array(arbCard, { maxLength: 8 }), (state, cards) => {
         const result = applyCards(state, cards);
         for (const e of result.effectsToAdd) {
           expect(validEffectTypes.has(e.effectType)).toBe(true);

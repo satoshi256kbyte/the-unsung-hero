@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { GameEngine } from "../game/engine.js";
 import { getStage } from "../game/stages/index.js";
-import type { CardName } from "../game/types.js";
+import type { PlacedCard } from "../ui/MainGameUI.js";
 import { MainGameUI } from "../ui/MainGameUI.js";
 
 function sleep(ms: number): Promise<void> {
@@ -37,7 +37,7 @@ export class MainScene extends Phaser.Scene {
     this.ui.render(this.engine.getState());
   }
 
-  async confirmTurn(cards: CardName[]): Promise<void> {
+  async confirmTurn(cards: PlacedCard[]): Promise<void> {
     this.ui.loading.show();
 
     const [result] = await Promise.all([

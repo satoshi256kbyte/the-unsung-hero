@@ -4,6 +4,7 @@ export class CardSlot {
   readonly el: HTMLElement;
   private _card: CardName | null = null;
   private _cost: number = 0;
+  private _targetMemberId: string | null = null;
 
   constructor(index: number) {
     this.el = document.createElement("div");
@@ -35,9 +36,18 @@ export class CardSlot {
     return this._cost;
   }
 
+  get targetMemberId(): string | null {
+    return this._targetMemberId;
+  }
+
+  setTarget(memberId: string): void {
+    this._targetMemberId = memberId;
+  }
+
   place(cardName: CardName, cardCost: number): void {
     this._card = cardName;
     this._cost = cardCost;
+    this._targetMemberId = null;
     this.el.dataset.occupied = "true";
     this.el.dataset.card = cardName;
     this.el.dataset.blocked = "false";
@@ -49,6 +59,7 @@ export class CardSlot {
   remove(): void {
     this._card = null;
     this._cost = 0;
+    this._targetMemberId = null;
     delete this.el.dataset.card;
     this.el.dataset.occupied = "false";
     this.el.dataset.blocked = "false";

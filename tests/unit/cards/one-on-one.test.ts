@@ -26,7 +26,7 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
 
 describe("applyCards - 個別面談", () => {
   it("個別面談 → moraleDelta = ONE_ON_ONE_MORALE (15)", () => {
-    const result = applyCards(makeState(), ["個別面談"]);
+    const result = applyCards(makeState(), [{ name: "個別面談" }]);
     expect(result.memberUpdates[0]?.moraleDelta).toBe(
       testBalanceConstants.PARAM_DELTA.ONE_ON_ONE_MORALE,
     );
@@ -35,13 +35,13 @@ describe("applyCards - 個別面談", () => {
   });
 
   it("memberId は state.members[0].id", () => {
-    const result = applyCards(makeState(), ["個別面談"]);
+    const result = applyCards(makeState(), [{ name: "個別面談" }]);
     expect(result.memberUpdates[0]?.memberId).toBe("m1");
   });
 
   it("メンバーが 0 人のとき memberUpdates が空（パニックしない）", () => {
     const emptyState = makeState({ members: [] });
-    const result = applyCards(emptyState, ["個別面談"]);
+    const result = applyCards(emptyState, [{ name: "個別面談" }]);
     expect(result.memberUpdates).toHaveLength(0);
   });
 });

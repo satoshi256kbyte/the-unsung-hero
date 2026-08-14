@@ -26,7 +26,8 @@ export type CardName =
   | "強制締め"
   | "リスケ"
   | "メンバー追加"
-  | "休出"
+  | "休出（土）"
+  | "休出（日）"
   | "納期交渉"
   | "スコープ交渉";
 
@@ -40,7 +41,9 @@ export type EffectType =
   | "morale_decay_mitigated"
   | "overtime_cap_extended"
   | "education_stall"
-  | "pair_prog_stall";
+  | "pair_prog_stall"
+  | "holiday_work_sat"
+  | "holiday_work_sun";
 
 export type EventType = "ニュートラル" | "ネガティブ" | "ポジティブ";
 

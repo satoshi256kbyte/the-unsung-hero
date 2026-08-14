@@ -1,10 +1,15 @@
 import { getCardRegistry } from "../game/cards/index.js";
-import type { CardName, GameState } from "../game/types.js";
+import type { CardName, GameState, Member } from "../game/types.js";
 import { CardSlot } from "./CardSlot.js";
 import { LoadingScreen } from "./LoadingScreen.js";
 
 const MAX_COST = 8;
 const SLOT_COUNT = 8;
+
+export interface PlacedCard {
+  name: CardName;
+  targetId?: string;
+}
 
 function gauge(value: number, max: number): string {
   const pct = Math.min(Math.max(value / max, 0), 1);
@@ -18,7 +23,9 @@ export class MainGameUI {
   private slots: CardSlot[] = [];
   private totalCostEl!: HTMLElement;
   private confirmBtn!: HTMLButtonElement;
-  private onConfirm: ((cards: CardName[]) => void) | null = null;
+  private onConfirm: ((cards: PlacedCard[]) => void) | null = null;
+  private currentMembers: Member[] = [];
+  private targetPickerEl!: HTMLElement;
 
   constructor(container: HTMLElement) {
     this.root = container;
@@ -40,6 +47,7 @@ export class MainGameUI {
     this.buildDashboard();
     this.buildCardArea();
     this.buildFooter();
+    this.buildTargetPicker();
   }
 
   private buildHeader(): void {
@@ -47,7 +55,7 @@ export class MainGameUI {
     header.style.cssText = "background:#1a1a3e;border-radius:6px;padding:4px 10px;";
     const turn = document.createElement("span");
     turn.dataset.testid = "header-turn";
-    turn.textContent = "ターン - / 残り -";
+    turn.textContent = "-日目 / 残り-日";
     header.appendChild(turn);
     this.root.appendChild(header);
   }
@@ -172,7 +180,8 @@ export class MainGameUI {
   }
 
   private handleDrop(slot: CardSlot, cardName: CardName): void {
-    const cardCost = getCardRegistry()[cardName]?.cost ?? 0;
+    const cardDef = getCardRegistry()[cardName];
+    const cardCost = cardDef?.cost ?? 0;
     const currentTotal = this.getTotalCost();
     const slotCurrentCost = slot.cost;
     const newTotal = currentTotal - slotCurrentCost + cardCost;
@@ -185,6 +194,50 @@ export class MainGameUI {
 
     slot.place(cardName, cardCost);
     this.updateTotalCost();
+
+    if (cardDef?.requiresTarget) {
+      this.showTargetPicker(slot);
+    }
+  }
+
+  private buildTargetPicker(): void {
+    this.targetPickerEl = document.createElement("div");
+    this.targetPickerEl.dataset.testid = "target-picker";
+    this.targetPickerEl.style.cssText = [
+      "position:absolute",
+      "inset:0",
+      "display:none",
+      "align-items:center",
+      "justify-content:center",
+      "background:rgba(0,0,0,0.7)",
+      "pointer-events:auto",
+      "z-index:10",
+    ].join(";");
+    this.root.appendChild(this.targetPickerEl);
+  }
+
+  private showTargetPicker(slot: CardSlot): void {
+    this.targetPickerEl.innerHTML = "";
+    const panel = document.createElement("div");
+    panel.style.cssText =
+      "background:#1a1a3e;border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:8px;";
+
+    for (const member of this.currentMembers) {
+      const btn = document.createElement("button");
+      btn.dataset.testid = `target-member-${member.id}`;
+      btn.textContent = member.name;
+      btn.classList.add("interactive");
+      btn.style.cssText =
+        "background:#4a9eff;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;";
+      btn.addEventListener("click", () => {
+        slot.setTarget(member.id);
+        this.targetPickerEl.style.display = "none";
+      });
+      panel.appendChild(btn);
+    }
+
+    this.targetPickerEl.appendChild(panel);
+    this.targetPickerEl.style.display = "flex";
   }
 
   private getTotalCost(): number {
@@ -195,8 +248,14 @@ export class MainGameUI {
     this.totalCostEl.textContent = String(this.getTotalCost());
   }
 
-  getPlacedCards(): CardName[] {
-    return this.slots.filter((s) => s.card !== null).map((s) => s.card as CardName);
+  getPlacedCards(): PlacedCard[] {
+    return this.slots
+      .filter((s) => s.card !== null)
+      .map((s) =>
+        s.targetMemberId !== null
+          ? { name: s.card as CardName, targetId: s.targetMemberId }
+          : { name: s.card as CardName },
+      );
   }
 
   reset(): void {
@@ -206,15 +265,17 @@ export class MainGameUI {
     this.updateTotalCost();
   }
 
-  setOnConfirm(cb: (cards: CardName[]) => void): void {
+  setOnConfirm(cb: (cards: PlacedCard[]) => void): void {
     this.onConfirm = cb;
   }
 
   render(state: GameState): void {
+    this.currentMembers = state.members;
+
     // Header
     const turnEl = this.root.querySelector<HTMLElement>('[data-testid="header-turn"]');
     if (turnEl) {
-      turnEl.textContent = `ターン ${state.turn} / 残り ${state.deadline - state.turn + 1}`;
+      turnEl.textContent = `${state.turn}日目 / 残り${state.deadline - state.turn + 1}日`;
     }
 
     // KPI

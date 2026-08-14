@@ -69,6 +69,10 @@ Spec Kitコマンドごとのトークン消費を記録する。
 | Spec-14 | /speckit-plan | 2026-08-14 | — | — | plan.md/research.md/data-model.md/contracts/quickstart.md作成。Constitution Check全項目PASS |
 | Spec-14 | /speckit-tasks | 2026-08-14 | — | — | tasks.md作成（T001〜T021、4フェーズ、US1〜US2） |
 | Spec-14 | /speckit-implement | 2026-08-14 | — | — | T001〜T021全完了。TitleScene/StageSelectScene新規、TitleUI/StageSelectUI新規、StageDataにdescription追加、MainSceneはstageId経由に変更。既存E2E4ファイルを新遷移フロー対応に更新（共通helpers.ts追加）。332ユニットテスト+E2E54件（chromium/Mobile Chrome）全PASS・型エラー0・カバレッジlines94.08%/branches89.41% |
+| Spec-16 | /speckit-specify | 2026-08-14 | — | — | 週モデル変更（ターン＝暦日・7ターン周期・休出カード・対象選択UI）。US1〜2・FR9件・SC4件を定義 |
+| Spec-16 | /speckit-plan | 2026-08-14 | — | — | plan.md/research.md/data-model.md/contracts/quickstart.md作成。Constitution Check全項目PASS。締切を22→30ターン、条件付きイベントのターン番号を再校正 |
+| Spec-16 | /speckit-tasks | 2026-08-14 | — | — | tasks.md作成（T001〜T034、5フェーズ、US1+US2統合実装） |
+| Spec-16 | /speckit-implement | 2026-08-14 | — | — | T001〜T034全完了。calendar.ts新規（dayOfWeek/isWeekend）、休出カードを（土）（日）2種に分割し対象選択UI（target-picker）を新規実装、applyCards/processTurnのシグネチャを`{name,targetId?}[]`へ変更、週末回復をturn%7へ変更、ヘッダー表記を「ターンN」→「N日目」に変更。358ユニットテスト+E2E29件（chromium）全PASS・型エラー0・lint 0・カバレッジlines94.37%/branches90.52%/functions100%。手札への静的追加が必要だった制約（カード再抽選機構が未実装）はSpec-19としてバックログ化 |
 
 ## 累計
 

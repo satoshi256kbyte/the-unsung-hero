@@ -1580,3 +1580,121 @@ MERGE (:Document {name: 'Spec-14 implement結果', path: 'specs/016-title-stage-
   created: '2026-08-14'});
 MATCH (s14:Document {name: 'Spec-14: タイトル〜ステージセレクト画面遷移'}), (r:Document {name: 'Spec-14 implement結果'})
 MERGE (s14)-[:HAS_RESULT]->(r);
+
+// =============================================================================
+// Phase 10: 週モデル変更 の設計セッション（brainstorming）
+// =============================================================================
+
+MERGE (:Document {name: 'Spec-16 design', path: 'docs/superpowers/specs/2026-08-14-week-model-redesign.md',
+  type: 'design-doc', spec: 'Spec-16',
+  description: 'ターン＝暦日（月曜始まり・7ターン周期）への変更。turn.tsの進捗ダイス土日スキップ・週末回復判定変更。休出（土）・休出（日）カード新規（1枚=メンバー1人分、効果はその週だけ）。カードに対象メンバーを指定できる仕組み（CardDefinitionにtargetId引数追加）とCardSlot/MainGameUIへの対象選択UIを新規追加。PoCステージのdeadline再校正（約30〜31ターン）。',
+  status: 'draft', created: '2026-08-14'});
+
+MERGE (:Document {name: 'Spec-16: 週モデル変更', path: 'docs/sdd-tasks.md',
+  type: 'spec-entry', spec: 'Spec-16', status: 'planned', created: '2026-08-14'});
+MATCH (s16:Document {name: 'Spec-16: 週モデル変更'}), (d:Document {name: 'Spec-16 design'})
+MERGE (s16)-[:HAS_DESIGN]->(d);
+
+MERGE (:Document {name: 'Spec-17: docsガントチャート表記見直し', path: 'docs/sdd-tasks.md',
+  type: 'spec-entry', spec: 'Spec-17', status: 'planned', created: '2026-08-14',
+  description: 'docs/03-詳細設計/ステージ配下のガントチャート表記を、日付列（ターン+暦日）が並ぶカレンダー形式に見直す。Spec-16（週モデル変更）に依存。'});
+MERGE (:Document {name: 'Spec-18: ゲーム内ガントチャートUI', path: 'docs/sdd-tasks.md',
+  type: 'spec-entry', spec: 'Spec-18', status: 'planned', created: '2026-08-14',
+  description: 'ゲーム内に予定/実績2行＋稲妻線を持つガントチャート表示UIを新規実装する。Spec-16・Spec-17に依存。'});
+MATCH (s16:Document {name: 'Spec-16: 週モデル変更'}), (s17:Document {name: 'Spec-17: docsガントチャート表記見直し'}) MERGE (s17)-[:DEPENDS_ON]->(s16);
+MATCH (s16:Document {name: 'Spec-16: 週モデル変更'}), (s18:Document {name: 'Spec-18: ゲーム内ガントチャートUI'}) MERGE (s18)-[:DEPENDS_ON]->(s16);
+MATCH (s17:Document {name: 'Spec-17: docsガントチャート表記見直し'}), (s18:Document {name: 'Spec-18: ゲーム内ガントチャートUI'}) MERGE (s18)-[:DEPENDS_ON]->(s17);
+
+MERGE (:Concept {name: 'isWeekend', description: '曜日判定ヘルパー。ターン番号から月曜始まり7ターン周期で土日を判定する（設計のみ、未実装）', file: 'src/game/calendar.ts', spec: 'Spec-16'});
+MERGE (:Concept {name: 'HolidayWorkSat', description: '休出（土）カード。1枚=メンバー1人分。対象は使用時にプレイヤーが選択（設計のみ、未実装）', file: 'src/game/cards/holiday-work-sat.ts', spec: 'Spec-16'});
+MERGE (:Concept {name: 'HolidayWorkSun', description: '休出（日）カード。1枚=メンバー1人分。対象は使用時にプレイヤーが選択（設計のみ、未実装）', file: 'src/game/cards/holiday-work-sun.ts', spec: 'Spec-16'});
+
+// ADR-025: ターン＝暦日への変更と休出カードの対象選択UI導入
+MERGE (:ADR {
+  id: 'ADR-025',
+  title: 'ターン＝暦日（7ターン周期）に変更し、休出カードに対象選択UIを導入する',
+  date: '2026-08-14',
+  status: 'accepted',
+  context: 'docs/03-詳細設計/ステージのガントチャート表記を一般的なガントチャート（日付列・土日非表示）に見直す作業がきっかけで、現状のturn.tsが「5ターン=1週間、土日はターンを消費しない」前提（進捗ダイスは全ターンで無条件に実行、週末回復はturn%5==0で判定）であることが判明した。一方、休出カードは「土日を稼働ターンに変換する」という設計意図（メンバー.mdに記載）があり、土日がターン番号を持たない前提とは矛盾していた。また、ターン処理フロー.mdに書かれた固定イベント判定（キックオフ・週次進捗会議・締め・クロージング）は実装が存在しないことも判明した。',
+  decision: 'ターン＝暦日（土日もターン番号を持つ）とし、週の起点を月曜とする（ターン1=月曜、6=土、7=日）。画面表示は「ターン」ではなく「◯日目」と表現する。turn.tsの進捗ダイスは土日をスキップし（休出の対象になっている場合を除く）、週末回復の判定を7ターン周期の実際の週境界に基づく判定に変更する。休出は土日で別カード「休出（土）」「休出（日）」とし、1枚=メンバー1人分、効果は使用した週だけとする。休出の対象メンバーはプレイヤーが使用時に選択できるようにする（既存のどのカードにも対象選択の仕組みがなかったため、CardDefinitionにtargetId引数を追加し、CardSlot/MainGameUIに対象選択UIを新規実装する）。既存の個別面談・表彰・計画休（state.members[0]固定）は今回リトロフィットしない。PoCステージの締切は実働日数（22日相当）を維持するため約30〜31ターンに再校正する（具体値はテストプレイ後のバランス調整）。固定イベント判定の実装は本Specのスコープ外とする。',
+  rationale: '休出カードの設計意図（土日を稼働可能にする）を成立させるには土日がターンとして存在する必要があるため。対象選択の仕組みは休出カード専用の使い捨て実装にせず、CardDefinitionインターフェースレベルで汎用的に追加することで将来の対象指定カードにも再利用できるようにした。既存カードのリトロフィットは本Specの目的（週モデル整合性の確保）に対して余分なスコープ拡大となるため見送った。',
+  consequences: 'turn.ts・cards/index.ts・CardSlot.ts・MainGameUI.ts・types.ts（CardName）・poc-01.json・関連docsの広範な変更が必要になる。既存のturn.test.ts等は新しい週モデルに合わせて更新が必要。固定イベント（キックオフ等）は引き続き未実装のまま残る。'
+});
+MATCH (adr:ADR {id: 'ADR-025'}), (iw:Concept {name: 'isWeekend'}) MERGE (adr)-[:AFFECTS]->(iw);
+MATCH (adr:ADR {id: 'ADR-025'}), (hs:Concept {name: 'HolidayWorkSat'}) MERGE (adr)-[:AFFECTS]->(hs);
+MATCH (adr:ADR {id: 'ADR-025'}), (hu:Concept {name: 'HolidayWorkSun'}) MERGE (adr)-[:AFFECTS]->(hu);
+MATCH (adr:ADR {id: 'ADR-025'}), (d:Document {name: 'Spec-16 design'}) MERGE (adr)-[:AFFECTS]->(d);
+
+// =============================================================================
+// Spec-16 /speckit-specify: spec.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-16 spec.md', path: 'specs/017-week-model-redesign/spec.md', type: 'spec', spec: 'Spec-16',
+  description: '週モデル変更の仕様。US1土日は通常稼働しない・US2休日出勤カードで対象選択。FR9件・SC4件。',
+  status: 'draft', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-16 checklists/requirements.md', path: 'specs/017-week-model-redesign/checklists/requirements.md', type: 'checklist', spec: 'Spec-16',
+  status: 'completed', created: '2026-08-14'});
+MATCH (s16:Document {name: 'Spec-16: 週モデル変更'}), (spec:Document {name: 'Spec-16 spec.md'})
+MERGE (s16)-[:HAS_SPEC]->(spec);
+MATCH (design:Document {name: 'Spec-16 design'}), (spec:Document {name: 'Spec-16 spec.md'})
+MERGE (design)-[:INFORMS]->(spec);
+
+// =============================================================================
+// Spec-16 /speckit-plan: plan.md + research.md + data-model.md + contracts + quickstart.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-16 plan.md', path: 'specs/017-week-model-redesign/plan.md', type: 'plan', spec: 'Spec-16',
+  description: 'Constitution Check全項目PASS。calendar.ts新規、turn.ts変更、休出（土）/（日）カード（コスト暫定2）、対象選択UI、poc-01.jsonの締切を22→30ターンに再校正。',
+  status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-16 research.md', path: 'specs/017-week-model-redesign/research.md', type: 'research', spec: 'Spec-16', status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-16 data-model.md', path: 'specs/017-week-model-redesign/data-model.md', type: 'data-model', spec: 'Spec-16', status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-16 contracts/calendar-and-targeting-contracts.md', path: 'specs/017-week-model-redesign/contracts/calendar-and-targeting-contracts.md', type: 'contracts', spec: 'Spec-16', status: 'completed', created: '2026-08-14'});
+MERGE (:Document {name: 'Spec-16 quickstart.md', path: 'specs/017-week-model-redesign/quickstart.md', type: 'quickstart', spec: 'Spec-16', status: 'completed', created: '2026-08-14'});
+MATCH (s16:Document {name: 'Spec-16: 週モデル変更'}), (plan:Document {name: 'Spec-16 plan.md'})
+MERGE (s16)-[:HAS_PLAN]->(plan);
+
+// =============================================================================
+// Spec-16 /speckit-tasks: tasks.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-16 tasks.md', path: 'specs/017-week-model-redesign/tasks.md', type: 'tasks', spec: 'Spec-16',
+  description: 'T001〜T034、5フェーズ（Setup→Foundational(calendar.ts+対象選択基盤)→US1+US2統合実装(週末スキップ+休出カード+対象選択UI)→docs更新→Polish）。',
+  status: 'completed', created: '2026-08-14'});
+MATCH (s16:Document {name: 'Spec-16: 週モデル変更'}), (t:Document {name: 'Spec-16 tasks.md'})
+MERGE (s16)-[:HAS_TASKS]->(t);
+MATCH (plan:Document {name: 'Spec-16 plan.md'}), (t:Document {name: 'Spec-16 tasks.md'})
+MERGE (plan)-[:INFORMS]->(t);
+
+// =============================================================================
+// Spec-16 /speckit-implement 完了
+// =============================================================================
+MATCH (n:Document {name: 'Spec-16: 週モデル変更'}) SET n.status = 'implemented';
+MATCH (n:Document {name: 'Spec-16 tasks.md'}) SET n.status = 'completed';
+
+MERGE (:Document {name: 'Spec-16 implement結果', path: 'specs/017-week-model-redesign/tasks.md',
+  type: 'implementation-summary', spec: 'Spec-16',
+  description: 'src/game/calendar.tsを新規追加（dayOfWeek/isWeekend、月曜起点7ターン周期）。休出カードを休出（土）/休出（日）の2枚（各cost=2、1枚=メンバー1人分）に分割し、CardDefinitionにrequiresTarget?/applyEffect(state, targetId?)を追加。applyCards/processTurnのシグネチャを CardName[] から {name: CardName; targetId?: string}[] に変更。CardSlot.tsに対象メンバー保持、MainGameUI.tsに対象選択オーバーレイ（data-testid=target-picker）を新規実装。turn.tsの進捗ダイスは土日をスキップ（対象になっている場合を除く）、週末回復をturn%7===0に変更。ヘッダー表示を「ターンN」から「N日目」に変更。poc-01.jsonのdeadlineを22→30、conditionalEventsのターン番号を再校正、initialCardsに休出2種を追加（手札の再抽選機構が存在しないため静的追加が必要だった＝Spec-19で解消予定）。',
+  status: 'completed', tests: 358, e2e_tests: 29, coverage_lines: 94.37, coverage_branches: 90.52, coverage_funcs: 100,
+  created: '2026-08-14'});
+MATCH (s16:Document {name: 'Spec-16: 週モデル変更'}), (r:Document {name: 'Spec-16 implement結果'})
+MERGE (s16)-[:HAS_RESULT]->(r);
+
+MATCH (n:Concept {name: 'isWeekend'}) SET n.status = 'implemented', n.description = '曜日判定ヘルパー。ターン番号から月曜始まり7ターン周期で土日を判定する';
+MATCH (n:Concept {name: 'HolidayWorkSat'}) SET n.status = 'implemented', n.description = '休出（土）カード。1枚=メンバー1人分。対象は使用時にプレイヤーが選択する（CardSlot.setTarget/MainGameUIのtarget-pickerオーバーレイ経由）';
+MATCH (n:Concept {name: 'HolidayWorkSun'}) SET n.status = 'implemented', n.description = '休出（日）カード。1枚=メンバー1人分。対象は使用時にプレイヤーが選択する（CardSlot.setTarget/MainGameUIのtarget-pickerオーバーレイ経由）';
+
+// ADR-026: 手札の静的性（再抽選機構の不在）の発見と暫定対応
+MERGE (:ADR {
+  id: 'ADR-026',
+  title: 'カード再抽選機構が存在しないためinitialCardsへの静的追加で暫定対応し、恒久対応はSpec-19にバックログ化する',
+  date: '2026-08-14',
+  status: 'accepted',
+  context: 'Spec-16実装中、state.handはGameEngine構築時にstageData.initialCardsから一度だけ設定され、以降ターン経過やイベントで再抽選・補充される仕組みが存在しないことが判明した。休出（土）（日）カードをpoc-01.jsonのinitialCardsに追加しない限り、これらのカードはプレイヤーが永久に入手できず機能として到達不能になる。',
+  decision: '当面の対応としてpoc-01.jsonのinitialCardsに休出（土）（日）を追加し、既存の静的手札の枠内で到達可能にする。カードを手札に組み込む（ドロー・補充）機能そのものの実装はSpec-16のスコープ外とし、docs/sdd-tasks.mdにSpec-19としてバックログ化する。',
+  rationale: 'Spec-16の目的は週モデル整合性の確保であり、手札管理機構の新規設計・実装まで含めるとスコープが大きく膨らむ。initialCardsへの追加は既存の仕組みの範囲内での最小限の修正であり、機能的な到達可能性を確保する上で必須の対応（スコープ拡大ではなく基本的な動作保証）と判断した。',
+  consequences: '当面、ステージ定義者は新規カードを必ずinitialCardsに含める必要がある（手動運用でカバー）。Spec-19実装後はこの制約が解消される見込み。'
+});
+MATCH (adr:ADR {id: 'ADR-026'}), (hs:Concept {name: 'HolidayWorkSat'}) MERGE (adr)-[:AFFECTS]->(hs);
+MATCH (adr:ADR {id: 'ADR-026'}), (hu:Concept {name: 'HolidayWorkSun'}) MERGE (adr)-[:AFFECTS]->(hu);
+
+MERGE (:Document {name: 'Spec-19: カード選択・手札への組み込み機能', path: 'docs/sdd-tasks.md', type: 'spec-entry', spec: 'Spec-19',
+  description: '現状state.handはステージ開始時の固定配列で、ターン経過による再抽選・補充の仕組みが存在しない。Spec-16で追加した休出カード等、initialCardsに含めない限り到達不能になる制約を解消するためのバックログSpec（未着手）。',
+  status: 'backlog', created: '2026-08-14'});
+MATCH (adr:ADR {id: 'ADR-026'}), (s19:Document {name: 'Spec-19: カード選択・手札への組み込み機能'}) MERGE (adr)-[:AFFECTS]->(s19);

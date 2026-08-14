@@ -25,27 +25,27 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
 
 describe("applyCards - デイリー", () => {
   it("デイリー → effectType='task_event_prob_reduced' が effectsToAdd に含まれる", () => {
-    const result = applyCards(makeState(), ["デイリー"]);
+    const result = applyCards(makeState(), [{ name: "デイリー" }]);
     expect(result.effectsToAdd.some((e) => e.effectType === "task_event_prob_reduced")).toBe(true);
   });
 
   it("effectsToAdd の targetId は 'project'", () => {
-    const result = applyCards(makeState(), ["デイリー"]);
+    const result = applyCards(makeState(), [{ name: "デイリー" }]);
     expect(result.effectsToAdd.every((e) => e.targetId === "project")).toBe(true);
   });
 
   it("effectsToAdd の remainingTurns は null", () => {
-    const result = applyCards(makeState(), ["デイリー"]);
+    const result = applyCards(makeState(), [{ name: "デイリー" }]);
     expect(result.effectsToAdd.every((e) => e.remainingTurns === null)).toBe(true);
   });
 
   it("effectsToAdd の cardName がカード名と一致する", () => {
-    const result = applyCards(makeState(), ["デイリー"]);
+    const result = applyCards(makeState(), [{ name: "デイリー" }]);
     expect(result.effectsToAdd[0]?.cardName).toBe("デイリー");
   });
 
   it("同じカードを複数含む → 複数エントリを生成する", () => {
-    const result = applyCards(makeState(), ["デイリー", "デイリー"]);
+    const result = applyCards(makeState(), [{ name: "デイリー" }, { name: "デイリー" }]);
     expect(result.effectsToAdd).toHaveLength(2);
   });
 });

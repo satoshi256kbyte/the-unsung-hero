@@ -47,6 +47,20 @@
 - [x] Spec-15: カード・イベント・ステージ・バランス係数のJSON外部化
       （設計: `docs/superpowers/specs/2026-08-14-json-data-externalization-design.md`）
 
+## Phase 10: 週モデル変更
+
+- [x] Spec-16: 週モデル変更（ターン＝暦日・7ターン周期・休出カード・対象選択UI）
+      （設計: `docs/superpowers/specs/2026-08-14-week-model-redesign.md`）
+- [ ] Spec-17: docsガントチャート表記見直し（カレンダー列形式、Spec-16に依存）
+- [ ] Spec-18: ゲーム内ガントチャートUI（予定/実績＋稲妻線、Spec-16・17に依存）
+
+## Phase 11: 手札管理（バックログ）
+
+- [ ] Spec-19: カード選択・手札への組み込み機能（現状`hand`はステージ開始時の
+      固定配列で、ターン経過による再抽選・補充の仕組みが存在しない。
+      Spec-16で追加した休出カード等、`initialCards`に含めない限り
+      到達不能になる制約を解消する）
+
 ---
 
 ## SDD外タスク（ツール・スキル整備）

@@ -1,3 +1,4 @@
+import { dayOfWeek, isWeekend } from "./calendar.js";
 import { applyCards } from "./cards/index.js";
 import { rollConditionalEvents } from "./conditional.js";
 import { getConfig } from "./config.js";
@@ -19,7 +20,7 @@ import type {
 
 export function processTurn(
   state: GameState,
-  cards: CardName[],
+  cards: { name: CardName; targetId?: string }[],
   conditionalEvents?: ConditionalEvent[],
 ): TurnResult {
   const events: GameEvent[] = [];
@@ -31,8 +32,22 @@ export function processTurn(
   // Step 2: currentEffects = 前ターン継続 + 今ターン追加
   const currentEffects: CardEffect[] = [...state.activeEffects, ...effectsToAdd];
 
-  // Step 3: Progress dice per member's active tasks
+  // Step 3: Progress dice per member's active tasks（土日は休日出勤の対象でない限りスキップ）
+  const weekendEffectType =
+    isWeekend(state.turn) && dayOfWeek(state.turn) === 5
+      ? "holiday_work_sat"
+      : isWeekend(state.turn)
+        ? "holiday_work_sun"
+        : null;
+
   for (const member of state.members) {
+    if (weekendEffectType !== null) {
+      const isWorkingToday = currentEffects.some(
+        (e) => e.effectType === weekendEffectType && e.targetId === member.id,
+      );
+      if (!isWorkingToday) continue;
+    }
+
     const activeTasks = state.gantt.tasks.filter(
       (t) => t.assignedMemberId === member.id && t.status === "active",
     );
@@ -46,7 +61,7 @@ export function processTurn(
   const decayMemberUpdates: MemberUpdate[] = [];
   for (const member of state.members) {
     const decayed = applyTurnDecay(member);
-    const final = state.turn % 5 === 0 ? applyWeekendRecovery(decayed) : decayed;
+    const final = state.turn % 7 === 0 ? applyWeekendRecovery(decayed) : decayed;
     decayMemberUpdates.push({
       memberId: member.id,
       moraleDelta: final.morale - member.morale,

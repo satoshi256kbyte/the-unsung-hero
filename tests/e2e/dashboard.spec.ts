@@ -9,7 +9,7 @@ test.describe("US1: ダッシュボードでゲーム状態を確認できる", 
 
   test("ヘッダーにターン1が表示される", async ({ page }) => {
     const headerTurn = page.locator('[data-testid="header-turn"]');
-    await expect(headerTurn).toContainText("ターン 1");
+    await expect(headerTurn).toContainText("1日目");
   });
 
   test("KPIエリアが表示される", async ({ page }) => {

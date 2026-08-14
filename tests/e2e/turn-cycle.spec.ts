@@ -45,6 +45,6 @@ test.describe("US3: ターン確定後にターン移行ロード画面が表示
       timeout: 5000,
     });
 
-    await expect(page.locator('[data-testid="header-turn"]')).toContainText("ターン 2");
+    await expect(page.locator('[data-testid="header-turn"]')).toContainText("2日目");
   });
 });

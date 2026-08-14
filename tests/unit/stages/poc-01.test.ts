@@ -11,7 +11,7 @@ const pocStage: StageData = {
   description:
     "PoC（概念実証）案件。要件定義・設計・実装・テスト・リリース準備の5工程を22日間で完遂し、目標利益率の達成を目指す。",
   budget: 5_000_000,
-  deadline: 22,
+  deadline: 30,
   initialMembers: [
     { id: "alice", name: "アリス", skill: 12, exp: 0, morale: 100, health: 100 },
     { id: "bob", name: "ボブ", skill: 8, exp: 0, morale: 100, health: 100 },
@@ -132,14 +132,14 @@ const pocStage: StageData = {
     },
     {
       id: "ce02",
-      turn: 10,
+      turn: 12,
       condition: "completion_rate < 0.4",
       eventType: "ネガティブ",
       params: { message: "前半終了時点で進捗が40%未満です", category: "デバフ系" },
     },
     {
       id: "ce03",
-      turn: 12,
+      turn: 16,
       condition: "any_member_morale < 60",
       eventType: "ネガティブ",
       params: {
@@ -150,20 +150,20 @@ const pocStage: StageData = {
     },
     {
       id: "ce04",
-      turn: 16,
+      turn: 22,
       condition: "budget_remaining <= 1500000",
       eventType: "ネガティブ",
       params: { message: "予算残高が150万円を下回りました", category: "スコープ変化系" },
     },
     {
       id: "ce05",
-      turn: 18,
+      turn: 24,
       condition: "completion_rate >= 0.8",
       eventType: "ポジティブ",
       params: { message: "終盤80%以上の進捗：リリースに向けて順調です", category: "バフ系" },
     },
   ],
-  initialCards: ["デイリー", "レビュー", "モニタリング"],
+  initialCards: ["デイリー", "レビュー", "モニタリング", "休出（土）", "休出（日）"],
 };
 
 // =============================================================================
@@ -190,16 +190,16 @@ describe("pocStage - US1: GameEngine初期化", () => {
     expect(engine.getState().budget).toBe(5_000_000);
   });
 
-  it("getState().deadline === 22", () => {
+  it("getState().deadline === 30", () => {
     const engine = new GameEngine(pocStage);
-    expect(engine.getState().deadline).toBe(22);
+    expect(engine.getState().deadline).toBe(30);
   });
 
-  it("getState().hand に 2〜3枚の CardName が含まれる", () => {
+  it("getState().hand に 2〜5枚の CardName が含まれる", () => {
     const engine = new GameEngine(pocStage);
     const hand = engine.getState().hand;
     expect(hand.length).toBeGreaterThanOrEqual(2);
-    expect(hand.length).toBeLessThanOrEqual(3);
+    expect(hand.length).toBeLessThanOrEqual(5);
   });
 
   it("getState().gantt.tasks に 8〜10件のタスクがある", () => {
@@ -333,10 +333,10 @@ describe("pocStage - US3: 条件付きイベント", () => {
     expect(evaluateCondition(state, "turn >= 5")).toBe(false);
   });
 
-  it("GameEngine で 22 ターン進行しても例外が発生しない", () => {
+  it("GameEngine で 30 ターン進行しても例外が発生しない", () => {
     const engine = new GameEngine(pocStage);
     expect(() => {
-      for (let i = 0; i < 22; i++) {
+      for (let i = 0; i < 30; i++) {
         if (engine.isGameOver()) break;
         engine.processTurn([]);
       }

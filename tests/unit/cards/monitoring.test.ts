@@ -25,17 +25,17 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
 
 describe("applyCards - モニタリング", () => {
   it("モニタリング → effectType='overreport_prob_reduced' が effectsToAdd に含まれる", () => {
-    const result = applyCards(makeState(), ["モニタリング"]);
+    const result = applyCards(makeState(), [{ name: "モニタリング" }]);
     expect(result.effectsToAdd.some((e) => e.effectType === "overreport_prob_reduced")).toBe(true);
   });
 
   it("effectsToAdd の targetId は 'project'", () => {
-    const result = applyCards(makeState(), ["モニタリング"]);
+    const result = applyCards(makeState(), [{ name: "モニタリング" }]);
     expect(result.effectsToAdd.every((e) => e.targetId === "project")).toBe(true);
   });
 
   it("effectsToAdd の remainingTurns は null", () => {
-    const result = applyCards(makeState(), ["モニタリング"]);
+    const result = applyCards(makeState(), [{ name: "モニタリング" }]);
     expect(result.effectsToAdd.every((e) => e.remainingTurns === null)).toBe(true);
   });
 });

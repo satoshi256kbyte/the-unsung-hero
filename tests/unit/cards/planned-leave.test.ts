@@ -26,7 +26,7 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
 
 describe("applyCards - 計画休", () => {
   it("計画休 → moraleDelta = PLANNED_LEAVE_MORALE (20), healthDelta = PLANNED_LEAVE_HEALTH (25)", () => {
-    const result = applyCards(makeState(), ["計画休"]);
+    const result = applyCards(makeState(), [{ name: "計画休" }]);
     expect(result.memberUpdates[0]?.moraleDelta).toBe(
       testBalanceConstants.PARAM_DELTA.PLANNED_LEAVE_MORALE,
     );
@@ -37,7 +37,7 @@ describe("applyCards - 計画休", () => {
 
   it("メンバーが 0 人のとき memberUpdates が空（パニックしない）", () => {
     const emptyState = makeState({ members: [] });
-    const result = applyCards(emptyState, ["計画休"]);
+    const result = applyCards(emptyState, [{ name: "計画休" }]);
     expect(result.memberUpdates).toHaveLength(0);
   });
 });

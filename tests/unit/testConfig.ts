@@ -132,7 +132,8 @@ export const testCardCostData: Record<CardName, CardData> = {
   強制締め: { cost: 4 },
   リスケ: { cost: 2 },
   メンバー追加: { cost: 4 },
-  休出: { cost: 6 },
+  "休出（土）": { cost: 2 },
+  "休出（日）": { cost: 2 },
   納期交渉: { cost: 6 },
   スコープ交渉: { cost: 6 },
 };

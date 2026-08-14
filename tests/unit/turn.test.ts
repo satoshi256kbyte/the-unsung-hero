@@ -168,43 +168,43 @@ describe("processTurn - rework with no active tasks", () => {
 // =============================================================================
 
 describe("processTurn - US2 weekend recovery", () => {
-  it("healthDelta is greater on turn=5 than on turn=4 (averaged over samples)", () => {
-    const state4 = makeState({ turn: 4 });
-    const state5 = makeState({ turn: 5 });
+  it("healthDelta is greater on turn=7 (Sunday) than on turn=1 (Monday) (averaged over samples)", () => {
+    const state1 = makeState({ turn: 1 });
+    const state7 = makeState({ turn: 7 });
 
-    let sumDelta4 = 0;
-    let sumDelta5 = 0;
+    let sumDelta1 = 0;
+    let sumDelta7 = 0;
     const N = 100;
     for (let i = 0; i < N; i++) {
-      const r4 = processTurn(state4, []);
-      const r5 = processTurn(state5, []);
-      sumDelta4 += r4.memberUpdates[0]!.healthDelta;
-      sumDelta5 += r5.memberUpdates[0]!.healthDelta;
+      const r1 = processTurn(state1, []);
+      const r7 = processTurn(state7, []);
+      sumDelta1 += r1.memberUpdates[0]!.healthDelta;
+      sumDelta7 += r7.memberUpdates[0]!.healthDelta;
     }
-    expect(sumDelta5 / N).toBeGreaterThan(sumDelta4 / N);
+    expect(sumDelta7 / N).toBeGreaterThan(sumDelta1 / N);
   });
 
   it("weekend recovery boosts healthDelta by at least 9 when health=50 (12 - 3)", () => {
     // With health=50 (no clamping), healthDelta >= WEEKEND_HEALTH_RECOVERY + HEALTH_NATURAL_MIN = 12 + (-3) = 9
-    const state5 = makeState({
-      turn: 5,
+    const state7 = makeState({
+      turn: 7,
       members: [
         { id: "m1", name: "Alice", skill: 10, exp: 0, morale: 100, health: 50 },
         { id: "m2", name: "Bob", skill: 8, exp: 0, morale: 100, health: 50 },
       ],
     });
     for (let i = 0; i < 200; i++) {
-      const r5 = processTurn(state5, []);
-      expect(r5.memberUpdates[0]!.healthDelta).toBeGreaterThanOrEqual(9);
+      const r7 = processTurn(state7, []);
+      expect(r7.memberUpdates[0]!.healthDelta).toBeGreaterThanOrEqual(9);
     }
   });
 
-  it("no weekend recovery on turn=4", () => {
-    // On turn=4, healthDelta should be <= HEALTH_NATURAL_MAX = -1
-    const state4 = makeState({ turn: 4 });
+  it("no weekend recovery on turn=1 (Monday)", () => {
+    // On turn=1, healthDelta should be <= HEALTH_NATURAL_MAX = -1
+    const state1 = makeState({ turn: 1 });
     for (let i = 0; i < 200; i++) {
-      const r4 = processTurn(state4, []);
-      expect(r4.memberUpdates[0]!.healthDelta).toBeLessThanOrEqual(-1);
+      const r1 = processTurn(state1, []);
+      expect(r1.memberUpdates[0]!.healthDelta).toBeLessThanOrEqual(-1);
     }
   });
 });
@@ -382,21 +382,21 @@ describe("processTurn - US1 カード統合", () => {
   });
 
   it("デイリーカードありのとき activeEffectsAdded に task_event_prob_reduced が含まれる", () => {
-    const result = processTurn(makeState(), ["デイリー"]);
+    const result = processTurn(makeState(), [{ name: "デイリー" }]);
     expect(result.activeEffectsAdded.some((e) => e.effectType === "task_event_prob_reduced")).toBe(
       true,
     );
   });
 
   it("レビューカードありのとき activeEffectsAdded に rework_prob_reduced が含まれる", () => {
-    const result = processTurn(makeState(), ["レビュー"]);
+    const result = processTurn(makeState(), [{ name: "レビュー" }]);
     expect(result.activeEffectsAdded.some((e) => e.effectType === "rework_prob_reduced")).toBe(
       true,
     );
   });
 
   it("デイリーカードありのとき activeEffectsAfterTick にも task_event_prob_reduced が残る（永続効果）", () => {
-    const result = processTurn(makeState(), ["デイリー"]);
+    const result = processTurn(makeState(), [{ name: "デイリー" }]);
     expect(
       result.activeEffectsAfterTick.some((e) => e.effectType === "task_event_prob_reduced"),
     ).toBe(true);
@@ -404,7 +404,7 @@ describe("processTurn - US1 カード統合", () => {
 
   it("個別面談カードありのとき memberUpdates に moraleDelta > 0 が含まれる（カード由来）", () => {
     const state = makeState();
-    const result = processTurn(state, ["個別面談"]);
+    const result = processTurn(state, [{ name: "個別面談" }]);
     const cardUpdate = result.memberUpdates.find((u) => u.memberId === "m1" && u.moraleDelta > 0);
     expect(cardUpdate).toBeDefined();
   });
@@ -455,7 +455,7 @@ describe("processTurn - US1 カード統合", () => {
       ],
     });
     const effectsBefore = JSON.stringify(state.activeEffects);
-    processTurn(state, ["レビュー"]);
+    processTurn(state, [{ name: "レビュー" }]);
     expect(JSON.stringify(state.activeEffects)).toBe(effectsBefore);
   });
 });
@@ -588,5 +588,46 @@ describe("processTurn - US5 conditional event integration", () => {
     const result = processTurn(state, [], conditionalEvents);
     const conditionalFound = result.events.some((e) => e.id.startsWith("conditional-"));
     expect(conditionalFound).toBe(false);
+  });
+});
+
+// =============================================================================
+// Spec-16: 週末は休日出勤対象でない限り進捗が発生しない
+// =============================================================================
+
+describe("processTurn - Spec-16 週末の進捗スキップ", () => {
+  it("土曜（turn=6）は休日出勤の対象がいなければ進捗が発生しない", () => {
+    const state = makeState({ turn: 6 });
+    const result = processTurn(state, []);
+    expect(result.progressUpdates).toHaveLength(0);
+  });
+
+  it("日曜（turn=7）は休日出勤の対象がいなければ進捗が発生しない", () => {
+    const state = makeState({ turn: 7 });
+    const result = processTurn(state, []);
+    expect(result.progressUpdates).toHaveLength(0);
+  });
+
+  it("土曜に休出（土）の対象になっているメンバーのタスクだけ進捗する", () => {
+    const state = makeState({
+      turn: 6,
+      activeEffects: [
+        {
+          cardName: "休出（土）",
+          targetId: "m1",
+          effectType: "holiday_work_sat",
+          remainingTurns: 1,
+        },
+      ],
+    });
+    const result = processTurn(state, []);
+    expect(result.progressUpdates.some((u) => u.taskId === "t1")).toBe(true);
+    expect(result.progressUpdates.some((u) => u.taskId === "t2")).toBe(false);
+  });
+
+  it("平日（turn=1）は休出の効果がなくても進捗が発生する", () => {
+    const state = makeState({ turn: 1 });
+    const result = processTurn(state, []);
+    expect(result.progressUpdates.length).toBeGreaterThan(0);
   });
 });

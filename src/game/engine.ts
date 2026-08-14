@@ -67,7 +67,7 @@ export class GameEngine {
     this.state = buildInitialState(stageData);
   }
 
-  processTurn(cards: CardName[]): TurnResult {
+  processTurn(cards: { name: CardName; targetId?: string }[]): TurnResult {
     if (this.state.isGameOver) {
       throw new Error("Game is already over");
     }
