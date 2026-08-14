@@ -10,6 +10,15 @@ Templates checked:
   ✅ .specify/templates/tasks-template.md — Phase/story structure compatible with architecture boundaries
 Deferred TODOs:
   - RATIFICATION_DATE set to today (2026-08-12) as initial ratification
+
+--------------------------------------------------------------------------------
+
+Version change: 1.2.0 → 1.2.1
+Modified principles: IV. Design Knowledge in Graph DB — clarified that ALL design knowledge
+  (including numerical values, event/card lists, stage data, and diagrams) is stored in Neo4j;
+  docs/ only duplicates a subset of it for human readability. Previous wording implied docs/
+  exclusively owned that subset, which was not the intent.
+Templates checked: no structural changes required
 -->
 
 # The Unsung Hero Constitution
@@ -57,22 +66,30 @@ Neo4j graph DB as ADR nodes—not in repository documents.
 
 The Neo4j graph DB (`docker compose up -d`) is the ONLY authoritative source for design knowledge.
 Before reading any document in `docs/`, the graph DB MUST be consulted first to understand the
-overall picture. Details not visible in `docs/` files are always in the graph DB.
+overall picture. An AI agent MUST be able to obtain the complete picture from the graph DB alone,
+without ever needing to open a file in `docs/`.
 
 ```cypher
 // Start every design/implementation session with this query
 MATCH (n) RETURN labels(n) AS label, count(n) AS cnt ORDER BY cnt DESC
 ```
 
-Repository documents (`docs/`) MUST contain ONLY:
+Every piece of design knowledge — entity relationships, design rationale, ADRs, "why" decisions,
+concept definitions, numerical values, formulae, coefficients, event/card lists, stage data, and
+screen layout descriptions — MUST be stored in Neo4j. There is no category of design knowledge
+that lives only in `docs/`.
+
+`docs/` MAY additionally duplicate a subset of that knowledge, in human-readable form, for the
+convenience of human readers:
 
 - Numerical values, formulae, and coefficients
 - Event and card lists
 - Stage data
 - Screen layout diagrams (Mermaid)
 
-Everything else — entity relationships, design rationale, ADRs, "why" decisions,
-concept definitions — MUST be stored only in Neo4j.
+This is intentional dual management for humans, not a division of responsibility: the graph DB is
+written first and remains authoritative, and `docs/` is a best-effort mirror of that subset that
+may lag behind it.
 
 When design decisions are made in a session, they MUST be written to
 `docs/design-session/<date>-<topic>.md` (git-ignored) and synced to Neo4j via
@@ -149,4 +166,4 @@ This constitution supersedes all other conventions in the repository. Amendments
 Compliance is verified at every PR review. Complexity deviations from principles MUST be justified
 in the PR description and recorded as ADR nodes in Neo4j.
 
-**Version**: 1.2.0 | **Ratified**: 2026-08-12 | **Last Amended**: 2026-08-12
+**Version**: 1.2.1 | **Ratified**: 2026-08-12 | **Last Amended**: 2026-08-14
