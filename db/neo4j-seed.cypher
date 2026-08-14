@@ -1207,3 +1207,15 @@ SET d.status = CASE d.type
   WHEN 'test' THEN 'all-pass'
   ELSE 'completed'
 END;
+
+// ADR-018: docs/はNeo4jの一部を人間可読に二重管理するだけであり専有領域ではない
+MERGE (:ADR {
+  id: 'ADR-018',
+  title: 'docs/はNeo4jの一部を人間可読に二重管理するだけであり専有領域ではない',
+  date: '2026-08-14',
+  status: 'accepted',
+  context: 'Constitution Principle IVおよびsync-graphdbスキルの「docs/には数値・一覧・ステージデータ等のみを置く」という記述が、それらの情報がグラフDBには格納されず docs/ にしかない、あるいは docs/ にはその4種類しか書けない、という誤読を招いていた。',
+  decision: '設計知識（数値・一覧・ステージデータ・画面構成図を含め）は例外なくすべてNeo4jに格納することを原則とし、docs/はその一部を人間可読な形式で追加的に二重管理しているだけと明記する。AIエージェントはNeo4jのみを参照すれば全体像を把握できる状態を維持する。',
+  rationale: 'docs/とグラフDBの役割分担ではなく、グラフDBを唯一の正としたうえでの人間向けの重複配置であることを明確にし、AIがdocs/を正の情報源と誤認するリスクを排除するため。',
+  consequences: 'Constitution v1.2.0→v1.2.1（PATCH）。.specify/memory/constitution.mdとdocs/sync-graphdbスキルの該当箇所を修正。今後docs/に何を書くかの判断は「人間に見せたいかどうか」のみで行い、Neo4jへの格納要否とは無関係になる。'
+});
