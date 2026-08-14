@@ -72,10 +72,12 @@ describe("processTurn - US1 basic turn", () => {
     expect(result.memberUpdates.some((u) => u.memberId === "m2")).toBe(true);
   });
 
-  it("memberUpdates count equals number of members", () => {
+  it("memberUpdates count is at least the number of members (decay always applies per member)", () => {
     const state = makeState();
     const result = processTurn(state, []);
-    expect(result.memberUpdates).toHaveLength(state.members.length);
+    // decay は毎ターン全メンバー分1件ずつ発生するが、ランダムイベント（sick等）が
+    // 発生したメンバーには追加のエントリが乗るため、常に members.length 以上になる
+    expect(result.memberUpdates.length).toBeGreaterThanOrEqual(state.members.length);
   });
 
   it("costDelta = DAILY_COST_CAP * member count", () => {
@@ -496,8 +498,9 @@ describe("processTurn - US4 random event integration", () => {
         const totalHealth = result.memberUpdates
           .filter((u) => u.memberId === memberId)
           .reduce((sum, u) => sum + u.healthDelta, 0);
-        // sick は moraleDelta -8、decay で最大 -3 → 合計 ≤ -8
-        expect(totalMorale).toBeLessThanOrEqual(-8);
+        // sick は moraleDelta -8、decay の心の自然変動は MORALE_NATURAL_MIN(-3)〜
+        // MORALE_NATURAL_MAX(+1) のため、合計の下限（最も0に近い側）は -8+1 = -7
+        expect(totalMorale).toBeLessThanOrEqual(-7);
         // sick は healthDelta -10、decay で最大 -1 → 合計 ≤ -10
         expect(totalHealth).toBeLessThanOrEqual(-10);
         sickFound = true;
