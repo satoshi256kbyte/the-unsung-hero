@@ -53,6 +53,9 @@
       （設計: `docs/superpowers/specs/2026-08-14-week-model-redesign.md`）
 - [x] Spec-17: docsガントチャート表記見直し（カレンダー列形式、Spec-16に依存）
 - [ ] Spec-18: ゲーム内ガントチャートUI（予定/実績＋稲妻線、Spec-16・17に依存）
+      （2026-08-16時点で未着手。Spec-16・17は実装・コミット済みで着手条件は
+      満たしている。新規UIサブシステムのためbrainstorming skillの
+      architectural pathで設計から開始する）
 
 ## Phase 11: 手札管理（バックログ）
 
