@@ -73,6 +73,10 @@ Spec Kitコマンドごとのトークン消費を記録する。
 | Spec-16 | /speckit-plan | 2026-08-14 | — | — | plan.md/research.md/data-model.md/contracts/quickstart.md作成。Constitution Check全項目PASS。締切を22→30ターン、条件付きイベントのターン番号を再校正 |
 | Spec-16 | /speckit-tasks | 2026-08-14 | — | — | tasks.md作成（T001〜T034、5フェーズ、US1+US2統合実装） |
 | Spec-16 | /speckit-implement | 2026-08-14 | — | — | T001〜T034全完了。calendar.ts新規（dayOfWeek/isWeekend）、休出カードを（土）（日）2種に分割し対象選択UI（target-picker）を新規実装、applyCards/processTurnのシグネチャを`{name,targetId?}[]`へ変更、週末回復をturn%7へ変更、ヘッダー表記を「ターンN」→「N日目」に変更。358ユニットテスト+E2E29件（chromium）全PASS・型エラー0・lint 0・カバレッジlines94.37%/branches90.52%/functions100%。手札への静的追加が必要だった制約（カード再抽選機構が未実装）はSpec-19としてバックログ化 |
+| Spec-17 | /speckit-specify | 2026-08-16 | — | — | docsガントチャート表記見直し（カレンダー列形式）。brainstorming skillのbounded pathで会話内合意した設計をそのままspec.mdへ反映。US1カレンダー列形式で一望・US2実データ整合。FR11件・SC3件を定義 |
+| Spec-17 | /speckit-plan | 2026-08-16 | — | — | plan.md/research.md/data-model.md/quickstart.md作成。Constitution Check全項目PASS（src/変更なしのため）。contracts/は対象外（外部インターフェースなし） |
+| Spec-17 | /speckit-tasks | 2026-08-16 | — | — | tasks.md作成（T001〜T012、5フェーズ、US1+US2） |
+| Spec-17 | /speckit-implement | 2026-08-16 | — | — | T001〜T012全完了。`docs/03-詳細設計/ステージ/PoCステージ01.md`を全面更新。ガントチャート表を1枚・31列（タスク列+ターン1〜30列、見出し「ターン番号(曜日)」形式）に書き換え、セルを■(平日稼働)/・(土日で非稼働)/空欄(期間外)の3値化。ヘッダーテーブル（締切22→30、初期カードに休出2種追加、パス参照をpublic/data/stages/poc-01.jsonに修正）と条件付きイベント表のターン番号（5,12,16,22,24）をSpec-16後の実データに整合。markdownlintエラー0（作業中に自作ファイルのMD013/MD036指摘を修正） |
 
 ## 累計
 

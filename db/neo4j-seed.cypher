@@ -1698,3 +1698,58 @@ MERGE (:Document {name: 'Spec-19: カード選択・手札への組み込み機�
   description: '現状state.handはステージ開始時の固定配列で、ターン経過による再抽選・補充の仕組みが存在しない。Spec-16で追加した休出カード等、initialCardsに含めない限り到達不能になる制約を解消するためのバックログSpec（未着手）。',
   status: 'backlog', created: '2026-08-14'});
 MATCH (adr:ADR {id: 'ADR-026'}), (s19:Document {name: 'Spec-19: カード選択・手札への組み込み機能'}) MERGE (adr)-[:AFFECTS]->(s19);
+
+// =============================================================================
+// Spec-17 /speckit-specify: spec.md（brainstorming skillのbounded pathで
+// この会話内で設計合意。docs/superpowers/specs/への設計ドキュメントは作成せず、
+// 会話内合意を直接spec.mdに反映した）
+// =============================================================================
+MERGE (:Document {name: 'Spec-17 spec.md', path: 'specs/018-gantt-calendar-notation/spec.md', type: 'spec', spec: 'Spec-17',
+  description: 'docsガントチャート表記見直しの仕様。US1カレンダー列形式で一望・US2ヘッダー/条件付きイベントの実データ整合。FR11件・SC3件。1枚の表、列見出しは「ターン番号(曜日)」形式、セルは■(平日稼働)/・(土日で期間内だが非稼働)/空欄(期間外)の3値。',
+  status: 'draft', created: '2026-08-16'});
+MERGE (:Document {name: 'Spec-17 checklists/requirements.md', path: 'specs/018-gantt-calendar-notation/checklists/requirements.md', type: 'checklist', spec: 'Spec-17',
+  status: 'completed', created: '2026-08-16'});
+MATCH (s17:Document {name: 'Spec-17: docsガントチャート表記見直し'}), (spec:Document {name: 'Spec-17 spec.md'})
+MERGE (s17)-[:HAS_SPEC]->(spec);
+
+// =============================================================================
+// Spec-17 /speckit-plan: plan.md + research.md + data-model.md + quickstart.md
+// （contracts/なし。外部インターフェースを持たない純粋なdocs編集のため）
+// =============================================================================
+MERGE (:Document {name: 'Spec-17 plan.md', path: 'specs/018-gantt-calendar-notation/plan.md', type: 'plan', spec: 'Spec-17',
+  description: 'Constitution Check全項目PASS（src/変更なし、テスト・バランス影響なし）。docs/03-詳細設計/ステージ/PoCステージ01.mdのみを対象とする純粋なMarkdown編集。',
+  status: 'completed', created: '2026-08-16'});
+MERGE (:Document {name: 'Spec-17 research.md', path: 'specs/018-gantt-calendar-notation/research.md', type: 'research', spec: 'Spec-17', status: 'completed', created: '2026-08-16'});
+MERGE (:Document {name: 'Spec-17 data-model.md', path: 'specs/018-gantt-calendar-notation/data-model.md', type: 'data-model', spec: 'Spec-17', status: 'completed', created: '2026-08-16'});
+MERGE (:Document {name: 'Spec-17 quickstart.md', path: 'specs/018-gantt-calendar-notation/quickstart.md', type: 'quickstart', spec: 'Spec-17', status: 'completed', created: '2026-08-16'});
+MATCH (s17:Document {name: 'Spec-17: docsガントチャート表記見直し'}), (plan:Document {name: 'Spec-17 plan.md'})
+MERGE (s17)-[:HAS_PLAN]->(plan);
+MATCH (spec:Document {name: 'Spec-17 spec.md'}), (plan:Document {name: 'Spec-17 plan.md'})
+MERGE (spec)-[:INFORMS]->(plan);
+
+// =============================================================================
+// Spec-17 /speckit-tasks: tasks.md
+// =============================================================================
+MERGE (:Document {name: 'Spec-17 tasks.md', path: 'specs/018-gantt-calendar-notation/tasks.md', type: 'tasks', spec: 'Spec-17',
+  description: 'T001〜T012、5フェーズ（Setup→Foundational(曜日列見出し算出)→US1(ガントチャート表のカレンダー列形式化)→US2(ヘッダー/条件付きイベントの実データ整合)→Polish）。',
+  status: 'completed', created: '2026-08-16'});
+MATCH (s17:Document {name: 'Spec-17: docsガントチャート表記見直し'}), (t:Document {name: 'Spec-17 tasks.md'})
+MERGE (s17)-[:HAS_TASKS]->(t);
+MATCH (plan:Document {name: 'Spec-17 plan.md'}), (t:Document {name: 'Spec-17 tasks.md'})
+MERGE (plan)-[:INFORMS]->(t);
+
+// =============================================================================
+// Spec-17 /speckit-implement 完了
+// =============================================================================
+MATCH (n:Document {name: 'Spec-17: docsガントチャート表記見直し'}) SET n.status = 'implemented';
+MATCH (n:Document {name: 'Spec-17 tasks.md'}) SET n.status = 'completed';
+
+MERGE (:Document {name: 'Spec-17 implement結果', path: 'specs/018-gantt-calendar-notation/tasks.md',
+  type: 'implementation-summary', spec: 'Spec-17',
+  description: 'docs/03-詳細設計/ステージ/PoCステージ01.mdを全面更新。ガントチャート表を1枚・31列（タスク列+ターン1〜30列、列見出し「ターン番号(曜日)」形式）に書き換え、セルを■(平日稼働)/・(期間内だが土日で非稼働)/空欄(期間外)の3値で表現。ヘッダーテーブルの締切ターン(22→30)・初期カード(休出（土）（日）追加)・パス参照(src/game/stages/poc-01.ts→public/data/stages/poc-01.json)、条件付きイベント表のターン番号(5,12,16,22,24)をSpec-16後の実データに整合。Spec-13以降docsが未更新のまま乖離していた点を解消。src/配下のコード変更なし。',
+  status: 'completed', created: '2026-08-16'});
+MATCH (s17:Document {name: 'Spec-17: docsガントチャート表記見直し'}), (r:Document {name: 'Spec-17 implement結果'})
+MERGE (s17)-[:HAS_RESULT]->(r);
+
+MATCH (n:Concept {name: 'ガントチャート'})
+SET n.description = coalesce(n.description, '') + '（Spec-17でdocs表記をカレンダー列形式に変更。列見出し「ターン番号(曜日)」、セルは■(平日稼働)/・(土日で非稼働)/空欄(期間外)の3値。実装は docs/03-詳細設計/ステージ/PoCステージ01.md）';
