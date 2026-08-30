@@ -1,5 +1,6 @@
 const IGNORE_PATTERNS = [
   /^\.claude\/skills\/speckit-/,
+  /^\.kiro\/prompts\//,
   /^\.specify\/(templates|scripts|workflows|integrations)\//,
 ];
 
