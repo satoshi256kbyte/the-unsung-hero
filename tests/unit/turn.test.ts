@@ -14,6 +14,8 @@ function makeTask(overrides: Partial<GanttTask> = {}): GanttTask {
     progress: 0,
     status: "active",
     dependencies: [],
+    actualStartTurn: null,
+    actualEndTurn: null,
     ...overrides,
   };
 }
@@ -287,6 +289,8 @@ const arbTask = (memberIds: string[]) =>
     progress: fc.float({ min: 0, max: 100, noNaN: true }),
     status: arbTaskStatus,
     dependencies: fc.array(fc.string()),
+    actualStartTurn: fc.option(fc.integer({ min: 1, max: 22 }), { nil: null }),
+    actualEndTurn: fc.option(fc.integer({ min: 1, max: 22 }), { nil: null }),
   });
 
 const arbGameState = fc

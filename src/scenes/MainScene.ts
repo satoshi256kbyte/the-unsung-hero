@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { GameEngine } from "../game/engine.js";
 import { getStage } from "../game/stages/index.js";
+import { GanttChartUI } from "../ui/GanttChartUI.js";
 import type { PlacedCard } from "../ui/MainGameUI.js";
 import { MainGameUI } from "../ui/MainGameUI.js";
 
@@ -11,6 +12,7 @@ function sleep(ms: number): Promise<void> {
 export class MainScene extends Phaser.Scene {
   private engine!: GameEngine;
   private ui!: MainGameUI;
+  private gantt!: GanttChartUI;
   private stageId!: string;
 
   constructor() {
@@ -30,8 +32,18 @@ export class MainScene extends Phaser.Scene {
     }
 
     this.ui = new MainGameUI(overlay);
+    this.gantt = new GanttChartUI(overlay);
+
     this.ui.setOnConfirm((cards) => {
       void this.confirmTurn(cards);
+    });
+    // 画面切替: ダッシュボード ⇔ ガントチャート
+    this.ui.setOnNavGantt(() => {
+      this.gantt.render(this.engine.getState());
+      this.gantt.show();
+    });
+    this.gantt.setOnBack(() => {
+      this.gantt.hide();
     });
 
     this.ui.render(this.engine.getState());
@@ -48,6 +60,7 @@ export class MainScene extends Phaser.Scene {
     this.ui.loading.hide();
     this.ui.reset();
     this.ui.render(this.engine.getState());
+    this.gantt.render(this.engine.getState());
 
     if (result.events.length > 0) {
       const eventIds = result.events.map((e) => e.id).join(", ");

@@ -46,6 +46,7 @@ export class MainGameUI {
     this.buildHeader();
     this.buildDashboard();
     this.buildCardArea();
+    this.buildMenu();
     this.buildFooter();
     this.buildTargetPicker();
   }
@@ -144,6 +145,43 @@ export class MainGameUI {
     area.appendChild(costRow);
 
     this.root.appendChild(area);
+  }
+
+  private buildMenu(): void {
+    const menu = document.createElement("div");
+    menu.style.cssText = [
+      "background:#1a1a3e",
+      "border-radius:6px",
+      "padding:6px 10px",
+      "display:flex",
+      "gap:8px",
+      "pointer-events:auto",
+    ].join(";");
+
+    const ganttBtn = document.createElement("button");
+    ganttBtn.dataset.testid = "nav-gantt-btn";
+    ganttBtn.textContent = "ガントチャート";
+    ganttBtn.classList.add("interactive");
+    ganttBtn.style.cssText = [
+      "background:#2a2a5e",
+      "color:#e0e0e0",
+      "border:1px solid #4a9eff",
+      "border-radius:6px",
+      "padding:6px 12px",
+      "cursor:pointer",
+    ].join(";");
+    ganttBtn.addEventListener("click", () => {
+      this.onNavGantt?.();
+    });
+    menu.appendChild(ganttBtn);
+    this.root.appendChild(menu);
+  }
+
+  private onNavGantt: (() => void) | null = null;
+
+  /** ガントチャート画面を開く操作のコールバック */
+  setOnNavGantt(cb: () => void): void {
+    this.onNavGantt = cb;
   }
 
   private buildFooter(): void {

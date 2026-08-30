@@ -45,6 +45,8 @@ function makeTask(progress: number) {
     progress,
     status: "active" as const,
     dependencies: [],
+    actualStartTurn: null,
+    actualEndTurn: null,
   };
 }
 

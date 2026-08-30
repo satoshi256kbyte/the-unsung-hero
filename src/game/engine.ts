@@ -80,7 +80,20 @@ export class GameEngine {
       const isStalled = result.events.some(
         (e) => e.id.startsWith("stall") && e.targetId === task.id,
       );
-      return isStalled ? setTaskStatus(updated, "stalled") : updated;
+      const withStatus = isStalled ? setTaskStatus(updated, "stalled") : updated;
+
+      // 実績（着手・完了ターン）の記録
+      const gainedProgress = withStatus.progress > task.progress;
+      const actualStartTurn =
+        withStatus.actualStartTurn === null && gainedProgress
+          ? this.state.turn
+          : withStatus.actualStartTurn;
+      const actualEndTurn =
+        withStatus.actualEndTurn === null && withStatus.progress >= 100
+          ? this.state.turn
+          : withStatus.actualEndTurn;
+
+      return { ...withStatus, actualStartTurn, actualEndTurn };
     });
 
     const updatedMembers = applyMemberUpdates(this.state.members, result);
