@@ -19,6 +19,8 @@ function makeTask(overrides: Partial<GanttTask> = {}): GanttTask {
     progress: 50,
     status: "active",
     dependencies: [],
+    actualStartTurn: null,
+    actualEndTurn: null,
     ...overrides,
   };
 }

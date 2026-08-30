@@ -19,6 +19,8 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
           progress: 50,
           status: "active",
           dependencies: [],
+          actualStartTurn: null,
+          actualEndTurn: null,
         },
       ],
       variantId: null,

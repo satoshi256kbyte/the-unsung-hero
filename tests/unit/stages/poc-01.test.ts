@@ -28,6 +28,8 @@ const pocStage: StageData = {
         assignedMemberId: "alice",
         progress: 0,
         status: "active",
+        actualStartTurn: null,
+        actualEndTurn: null,
         dependencies: [],
       },
       {
@@ -39,6 +41,8 @@ const pocStage: StageData = {
         assignedMemberId: "alice",
         progress: 0,
         status: "active",
+        actualStartTurn: null,
+        actualEndTurn: null,
         dependencies: ["t01"],
       },
       {
@@ -50,6 +54,8 @@ const pocStage: StageData = {
         assignedMemberId: "bob",
         progress: 0,
         status: "active",
+        actualStartTurn: null,
+        actualEndTurn: null,
         dependencies: ["t01"],
       },
       {
@@ -61,6 +67,8 @@ const pocStage: StageData = {
         assignedMemberId: "alice",
         progress: 0,
         status: "active",
+        actualStartTurn: null,
+        actualEndTurn: null,
         dependencies: ["t02", "t03"],
       },
       {
@@ -72,6 +80,8 @@ const pocStage: StageData = {
         assignedMemberId: "carol",
         progress: 0,
         status: "active",
+        actualStartTurn: null,
+        actualEndTurn: null,
         dependencies: ["t02"],
       },
       {
@@ -83,6 +93,8 @@ const pocStage: StageData = {
         assignedMemberId: "bob",
         progress: 0,
         status: "active",
+        actualStartTurn: null,
+        actualEndTurn: null,
         dependencies: ["t03"],
       },
       {
@@ -94,6 +106,8 @@ const pocStage: StageData = {
         assignedMemberId: "bob",
         progress: 0,
         status: "active",
+        actualStartTurn: null,
+        actualEndTurn: null,
         dependencies: ["t04", "t06"],
       },
       {
@@ -105,6 +119,8 @@ const pocStage: StageData = {
         assignedMemberId: "carol",
         progress: 0,
         status: "active",
+        actualStartTurn: null,
+        actualEndTurn: null,
         dependencies: ["t05", "t07"],
       },
       {
@@ -116,6 +132,8 @@ const pocStage: StageData = {
         assignedMemberId: "alice",
         progress: 0,
         status: "active",
+        actualStartTurn: null,
+        actualEndTurn: null,
         dependencies: ["t08"],
       },
     ],

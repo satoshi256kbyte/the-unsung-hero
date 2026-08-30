@@ -19,6 +19,8 @@ const ganttTaskSchema = z.object({
   progress: z.number(),
   status: z.enum(["active", "stalled", "done"]),
   dependencies: z.array(z.string()),
+  actualStartTurn: z.number().nullable().default(null),
+  actualEndTurn: z.number().nullable().default(null),
 });
 
 const ganttChartSchema = z.object({

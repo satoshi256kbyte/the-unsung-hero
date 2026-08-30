@@ -1,7 +1,10 @@
 import {
+  actualPosition,
   applyRework,
   applyVariant,
   getCompletionRate,
+  plannedRate,
+  progressDeviation,
   setTaskStatus,
   updateTaskProgress,
 } from "@game/gantt.js";
@@ -24,6 +27,8 @@ function makeTask(overrides: Partial<GanttTask> = {}): GanttTask {
     progress: 50,
     status: "active",
     dependencies: [],
+    actualStartTurn: null,
+    actualEndTurn: null,
     ...overrides,
   };
 }
@@ -231,7 +236,8 @@ describe("applyVariant", () => {
 
   it("存在するバリアントIDを指定 → バリアントに差し替わる", () => {
     const result = applyVariant(base, "variant-a", variants);
-    expect(result).toBe(variantA);
+    // Spec-18: 実績引き継ぎのため新しいオブジェクトを返す。id が一致するタスクが無いので内容は variantA と同一
+    expect(result).toEqual(variantA);
   });
 
   it("存在しないIDを指定 → 元の gantt をそのまま返す", () => {
@@ -242,5 +248,123 @@ describe("applyVariant", () => {
   it("空の variants を指定 → 元の gantt を返す", () => {
     const result = applyVariant(base, "variant-a", {});
     expect(result).toBe(base);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Spec-18: 稲妻線算出（plannedRate / progressDeviation / actualPosition）
+// ---------------------------------------------------------------------------
+
+describe("plannedRate", () => {
+  it("開始前のターンは 0", () => {
+    const task = makeTask({ startTurn: 5, duration: 4, progress: 0 });
+    expect(plannedRate(task, 4)).toBe(0);
+  });
+
+  it("期間の途中では 0〜100 の間", () => {
+    const task = makeTask({ startTurn: 1, duration: 4, progress: 0 });
+    // turn 2: (2-1+1)/4 = 0.5 → 50%
+    expect(plannedRate(task, 2)).toBeCloseTo(50);
+  });
+
+  it("期間終了以降は 100 にクランプ", () => {
+    const task = makeTask({ startTurn: 1, duration: 4, progress: 0 });
+    expect(plannedRate(task, 10)).toBe(100);
+  });
+
+  it("プロパティ: 常に 0〜100 に収まる", () => {
+    fc.assert(
+      fc.property(
+        fc.integer({ min: 1, max: 30 }),
+        fc.integer({ min: 1, max: 20 }),
+        fc.integer({ min: 0, max: 40 }),
+        (startTurn, duration, currentTurn) => {
+          const task = makeTask({ startTurn, duration, progress: 0 });
+          const r = plannedRate(task, currentTurn);
+          return r >= 0 && r <= 100;
+        },
+      ),
+    );
+  });
+});
+
+describe("progressDeviation", () => {
+  it("遅れているタスクは負", () => {
+    // turn 3, startTurn1 duration4 → plannedRate=75、progress20 → deviation<0
+    const task = makeTask({ startTurn: 1, duration: 4, progress: 20 });
+    expect(progressDeviation(task, 3)).toBeLessThan(0);
+  });
+
+  it("前倒しのタスクは正", () => {
+    const task = makeTask({ startTurn: 1, duration: 4, progress: 90 });
+    expect(progressDeviation(task, 2)).toBeGreaterThan(0);
+  });
+
+  it("予定どおりはほぼ 0", () => {
+    // turn2, startTurn1 duration4 → plannedRate=50、progress50 → 0
+    const task = makeTask({ startTurn: 1, duration: 4, progress: 50 });
+    expect(progressDeviation(task, 2)).toBeCloseTo(0);
+  });
+});
+
+describe("actualPosition", () => {
+  it("progress 0 は startTurn-1", () => {
+    const task = makeTask({ startTurn: 5, duration: 4, progress: 0 });
+    expect(actualPosition(task)).toBe(4);
+  });
+
+  it("progress 100 は startTurn-1+duration", () => {
+    const task = makeTask({ startTurn: 5, duration: 4, progress: 100 });
+    expect(actualPosition(task)).toBe(8);
+  });
+
+  it("プロパティ: startTurn-1 〜 startTurn-1+duration の範囲に収まる", () => {
+    fc.assert(
+      fc.property(
+        fc.integer({ min: 1, max: 30 }),
+        fc.integer({ min: 1, max: 20 }),
+        fc.float({ min: 0, max: 100, noNaN: true }),
+        (startTurn, duration, progress) => {
+          const task = makeTask({ startTurn, duration, progress });
+          const pos = actualPosition(task);
+          return pos >= startTurn - 1 && pos <= startTurn - 1 + duration;
+        },
+      ),
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Spec-18: リスケ差し替え時の実績引き継ぎ
+// ---------------------------------------------------------------------------
+
+describe("applyVariant - 実績引き継ぎ", () => {
+  it("同一 id のタスクの実績（actualStartTurn/actualEndTurn）を引き継ぐ", () => {
+    const current = makeGantt([
+      makeTask({ id: "t1", startTurn: 1, duration: 3, actualStartTurn: 2, actualEndTurn: 5 }),
+    ]);
+    const variant = makeGantt([
+      makeTask({ id: "t1", startTurn: 1, duration: 6, actualStartTurn: null, actualEndTurn: null }),
+    ]);
+    const result = applyVariant(current, "v1", { v1: variant });
+    const t1 = result.tasks.find((t) => t.id === "t1")!;
+    expect(t1.duration).toBe(6); // 予定は差し替わる
+    expect(t1.actualStartTurn).toBe(2); // 実績は引き継ぐ
+    expect(t1.actualEndTurn).toBe(5);
+  });
+
+  it("新規 id のタスクは実績 null のまま", () => {
+    const current = makeGantt([makeTask({ id: "t1", actualStartTurn: 2 })]);
+    const variant = makeGantt([makeTask({ id: "t2", actualStartTurn: null })]);
+    const result = applyVariant(current, "v1", { v1: variant });
+    const t2 = result.tasks.find((t) => t.id === "t2")!;
+    expect(t2.actualStartTurn).toBeNull();
+  });
+
+  it("消えた id の実績は破棄される（結果に含まれない）", () => {
+    const current = makeGantt([makeTask({ id: "t1", actualStartTurn: 2 })]);
+    const variant = makeGantt([makeTask({ id: "t2" })]);
+    const result = applyVariant(current, "v1", { v1: variant });
+    expect(result.tasks.find((t) => t.id === "t1")).toBeUndefined();
   });
 });

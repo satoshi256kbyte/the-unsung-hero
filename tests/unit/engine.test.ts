@@ -15,6 +15,8 @@ function makeTask(overrides: Partial<GanttTask> = {}): GanttTask {
     progress: 0,
     status: "active",
     dependencies: [],
+    actualStartTurn: null,
+    actualEndTurn: null,
     ...overrides,
   };
 }
@@ -273,5 +275,80 @@ describe("GameEngine - US4 memberUpdates aggregation", () => {
     engine.processTurn([]);
     const member = engine.getState().members[0]!;
     expect(member.health).toBeLessThanOrEqual(100);
+  });
+});
+
+// =============================================================================
+// Spec-18: 実績（着手・完了ターン）の記録
+// =============================================================================
+
+describe("GameEngine - Spec-18 実績記録", () => {
+  it("進捗が増えたターンで actualStartTurn が現在ターンに設定される", () => {
+    // skill を大きくして進捗ダイスが必ず正になるようにする
+    const stageData = makeStageData({
+      initialMembers: [{ id: "m1", name: "Alice", skill: 100, exp: 0, morale: 100, health: 100 }],
+      initialGantt: {
+        tasks: [makeTask({ id: "t1", assignedMemberId: "m1", progress: 0 })],
+        variantId: null,
+      },
+    });
+    const engine = new GameEngine(stageData);
+    engine.processTurn([]); // turn 1 で進捗
+    const task = engine.getState().gantt.tasks[0]!;
+    expect(task.progress).toBeGreaterThan(0);
+    expect(task.actualStartTurn).toBe(1);
+  });
+
+  it("progress が 100 到達ターンで actualEndTurn が設定される", () => {
+    const stageData = makeStageData({
+      initialMembers: [{ id: "m1", name: "Alice", skill: 100, exp: 0, morale: 100, health: 100 }],
+      initialGantt: {
+        tasks: [makeTask({ id: "t1", assignedMemberId: "m1", progress: 99, actualStartTurn: 1 })],
+        variantId: null,
+      },
+    });
+    const engine = new GameEngine(stageData);
+    engine.processTurn([]); // turn 1 で 100 到達
+    const task = engine.getState().gantt.tasks[0]!;
+    expect(task.progress).toBe(100);
+    expect(task.actualEndTurn).toBe(1);
+    expect(task.status).toBe("done");
+  });
+
+  it("進捗が増えないターンでは actualStartTurn は null のまま（着手なしに完了しない）", () => {
+    // skill 0 かつ progress 0 のタスク。進捗ダイス下限が 0 なら着手されないことがある。
+    // ここでは担当メンバーの居ないタスクにして確実に進捗0とする
+    const stageData = makeStageData({
+      initialMembers: [{ id: "m1", name: "Alice", skill: 10, exp: 0, morale: 100, health: 100 }],
+      initialGantt: {
+        tasks: [makeTask({ id: "t1", assignedMemberId: "no-such-member", progress: 0 })],
+        variantId: null,
+      },
+    });
+    const engine = new GameEngine(stageData);
+    engine.processTurn([]);
+    const task = engine.getState().gantt.tasks[0]!;
+    expect(task.progress).toBe(0);
+    expect(task.actualStartTurn).toBeNull();
+    expect(task.actualEndTurn).toBeNull();
+  });
+
+  it("一度設定された actualStartTurn は後続ターンで変化しない", () => {
+    const stageData = makeStageData({
+      initialMembers: [{ id: "m1", name: "Alice", skill: 100, exp: 0, morale: 100, health: 100 }],
+      initialGantt: {
+        tasks: [makeTask({ id: "t1", assignedMemberId: "m1", progress: 0, duration: 20 })],
+        variantId: null,
+      },
+    });
+    const engine = new GameEngine(stageData);
+    engine.processTurn([]); // turn1 で着手
+    const startAfterT1 = engine.getState().gantt.tasks[0]!.actualStartTurn;
+    if (!engine.isGameOver()) {
+      engine.processTurn([]); // turn2
+    }
+    const startAfterT2 = engine.getState().gantt.tasks[0]!.actualStartTurn;
+    expect(startAfterT1).toBe(1);
+    expect(startAfterT2).toBe(1);
   });
 });

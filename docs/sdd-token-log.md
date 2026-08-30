@@ -77,6 +77,14 @@ Spec Kitコマンドごとのトークン消費を記録する。
 | Spec-17 | /speckit-plan | 2026-08-16 | — | — | plan.md/research.md/data-model.md/quickstart.md作成。Constitution Check全項目PASS（src/変更なしのため）。contracts/は対象外（外部インターフェースなし） |
 | Spec-17 | /speckit-tasks | 2026-08-16 | — | — | tasks.md作成（T001〜T012、5フェーズ、US1+US2） |
 | Spec-17 | /speckit-implement | 2026-08-16 | — | — | T001〜T012全完了。`docs/03-詳細設計/ステージ/PoCステージ01.md`を全面更新。ガントチャート表を1枚・31列（タスク列+ターン1〜30列、見出し「ターン番号(曜日)」形式）に書き換え、セルを■(平日稼働)/・(土日で非稼働)/空欄(期間外)の3値化。ヘッダーテーブル（締切22→30、初期カードに休出2種追加、パス参照をpublic/data/stages/poc-01.jsonに修正）と条件付きイベント表のターン番号（5,12,16,22,24）をSpec-16後の実データに整合。markdownlintエラー0（作業中に自作ファイルのMD013/MD036指摘を修正） |
+| Spec-18 | /speckit-specify | 2026-08-30 | — | — | ゲーム内ガントチャートUI。Q1=B(予定/実績2行＋稲妻線＋依存タスクのPERT的表示)・Q2=B(実績＝着手/完了ターンを新規保持)・Q3=A(ディレクトリ019/グラフDBはSpec-18)を確定。US1稲妻線(P1)・US2実績確認(P2)・US3依存表示(P3)、FR13件・SC5件・Out of Scope明記。品質チェックリスト全項目PASS・markdownlint 0。specs/019-in-game-gantt-ui/に作成 |
+| Spec-18 | /sync-graphdb | 2026-08-30 | — | — | Spec-18ノードをplanned→specifiedに更新、spec.md/checklistノード追加(HAS_SPEC/HAS_CHECKLIST)、ADR-027追加。346ノード/449リレーション |
+| Spec-18 | /speckit-plan | 2026-08-30 | — | — | plan.md/research.md/data-model.md/contracts/quickstart.md作成。Constitution Check（Phase0前/Phase1後）全項目PASS。GanttTaskにactualStartTurn/actualEndTurn追加、engine.processTurnで実績記録、gantt.tsに稲妻線算出純関数(plannedRate/progressDeviation/actualPosition)、src/ui/GanttChartUI.ts新規(DOM overlay)、MainGameUIに画面切替(nav-gantt-btn/nav-dashboard-btn)。数値バランス不変。markdownlint 0 |
+| Spec-18 | /sync-graphdb | 2026-08-30 | — | — | Spec-18ノードをspecified→plannedに更新、plan成果物5ノード追加(HAS_PLAN)、ADR-028追加。352ノード/453リレーション |
+| Spec-18 | /speckit-tasks | 2026-08-30 | — | — | tasks.md作成（T001〜T029、6フェーズ、US1〜US3）。Phase1 Setup/Phase2 Foundational(実績フィールド・schema・engine実績記録・稲妻線純関数・リスケ引き継ぎ＋テスト)/Phase3 US1(P1/MVP)/Phase4 US2(P2)/Phase5 US3(P3)/Phase6 Polish。テスト必須(Constitution II)。markdownlint 0 |
+| Spec-18 | /sync-graphdb | 2026-08-30 | — | — | Spec-18のnext_action更新、tasks.mdノード追加(HAS_TASKS)。353ノード/454リレーション |
+| Spec-18 | /speckit-implement | 2026-08-30 | — | — | T001〜T029全完了。GanttTaskにactualStartTurn/actualEndTurn追加、engine.processTurnで実績記録、gantt.tsに稲妻線算出純関数(plannedRate/progressDeviation/actualPosition)・applyVariant実績引き継ぎ、src/ui/GanttChartUI.ts新規(DOM overlay: 予定/実績2行・稲妻線data-deviation・ターン軸曜日・依存パネル・スクロール)、MainGameUIにnav-gantt-btn、MainScene配線。ユニット17件+E2E24件追加。tsc 0、src/gameカバレッジlines99.48%/funcs100%/branches93.33%、全ユニット375件・全E2E82件PASS、biome/markdownlint 0。数値バランス不変 |
+| Spec-18 | /sync-graphdb | 2026-08-30 | — | — | Spec-18ノードをimplementedに更新、implement結果ノード追加(HAS_RESULT)、GanttChartUI Concept追加。355ノード/456リレーション |
 
 ## 累計
 

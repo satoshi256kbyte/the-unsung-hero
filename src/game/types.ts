@@ -110,6 +110,10 @@ export interface GanttTask {
   progress: number;
   status: TaskStatus;
   dependencies: string[];
+  /** 実際に着手したターン（未着手は null） */
+  actualStartTurn: number | null;
+  /** 実際に完了したターン（未完了は null） */
+  actualEndTurn: number | null;
 }
 
 export interface GanttChart {

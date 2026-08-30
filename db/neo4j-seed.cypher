@@ -1761,3 +1761,131 @@ MATCH (n:Document {name: 'Spec-18: ゲーム内ガントチャートUI'})
 SET n.status = 'planned',
     n.next_action = 'brainstorming skillのarchitectural pathで設計から開始する（新規UIサブシステムのため）。着手条件（Spec-16・17の実装・コミット完了）は満たしている。',
     n.checkpoint_date = '2026-08-16';
+
+// =============================================================================
+// Spec-18 /speckit-specify（2026-08-30）: ゲーム内ガントチャートUIの仕様確定
+// ディレクトリは specs/019-in-game-gantt-ui/、グラフDB上は Spec-18（番号ずれは既存慣習を踏襲）
+// =============================================================================
+
+// spec-entry ノードの更新: planned → specified、description を Q1=B 確定内容に更新
+MATCH (n:Document {name: 'Spec-18: ゲーム内ガントチャートUI'})
+SET n.status = 'specified',
+    n.description = 'ゲーム内に予定/実績2行＋稲妻線＋タスク選択による依存（先行タスク）のPERT的表示を持つガントチャート画面を新規実装する。Spec-16・Spec-17に依存。',
+    n.next_action = '/speckit-plan で技術方針を確定する。稲妻線の折れ量算出方式・リスケ時の実績連続性の扱いを plan で決定する。',
+    n.checkpoint_date = '2026-08-30';
+
+// spec.md ノード
+MERGE (:Document {name: 'Spec-18 spec.md', path: 'specs/019-in-game-gantt-ui/spec.md', type: 'spec', spec: 'Spec-18',
+  description: 'ゲーム内ガントチャートUIの仕様。US1予定/実績2行＋稲妻線(P1)、US2実績(着手・完了ターン)確認(P2)、US3依存タスクのPERT的表示(P3)。FR13件・SC5件。閲覧専用。実績フィールド(着手・完了ターン)を新規保持。Out of Scopeにpert/EVM/リスク独立ビュー・直接編集・将来予測外挿を明記。',
+  status: 'draft', created: '2026-08-30'});
+
+// checklist ノード
+MERGE (:Document {name: 'Spec-18 checklists/requirements.md', path: 'specs/019-in-game-gantt-ui/checklists/requirements.md', type: 'checklist', spec: 'Spec-18',
+  description: '仕様品質チェックリスト。Content Quality・Requirement Completeness・Feature Readiness の全項目PASS。NEEDS CLARIFICATIONマーカー0件。',
+  status: 'completed', created: '2026-08-30'});
+
+MATCH (s18:Document {name: 'Spec-18: ゲーム内ガントチャートUI'}), (spec:Document {name: 'Spec-18 spec.md'})
+MERGE (s18)-[:HAS_SPEC]->(spec);
+MATCH (s18:Document {name: 'Spec-18: ゲーム内ガントチャートUI'}), (cl:Document {name: 'Spec-18 checklists/requirements.md'})
+MERGE (s18)-[:HAS_CHECKLIST]->(cl);
+
+// ADR-027: ゲーム内ガントチャートUIのスコープと実績データ保持方式
+MERGE (:ADR {
+  id: 'ADR-027',
+  title: 'ゲーム内ガントチャートUIのスコープと実績データ保持方式',
+  date: '2026-08-30',
+  status: 'accepted',
+  context: 'Spec-18は新規UIサブシステム。予定/実績2行＋稲妻線が中核だが、(a)依存タスク（PERT的情報）表示を含めるか、(b)実績（着手・完了ターン）をどう保持するか、(c)ディレクトリ番号とグラフDB Spec番号のずれ、の3点が未確定だった。現状のGanttTaskはstartTurn/duration/progress/statusのみを持ち実績を記録する仕組みがない。画面構成.mdは「PERT図は独立ビューを持たず、ガントのタスクから依存をたどる」方針。',
+  decision: 'Q1=B: ガントチャート画面のスコープに「予定/実績2行＋稲妻線」に加えて「タスク選択による依存（先行タスク）のPERT的表示」を含める（画面構成.mdの方針を完全充足）。Q2=B: GanttTaskに実績フィールド（実際の着手ターン・完了ターン）を新たに記録・保持する。progressからの導出のみに頼らず着手/完了の時期を明示的に持つ。Q3=A: ディレクトリは019、グラフDB上はSpec-18として管理する（既存の番号ずれ慣習を踏襲）。',
+  rationale: '依存表示は画面構成の既存方針（独立PERTビューを持たない）を満たすため同一画面に統合するのが自然で、別Specに切り出すと画面へ二度手を入れることになる。実績フィールドの明示保持は、稲妻線（予定対実績のずれ）と実績行（着手〜完了の帯）を正確に描くにはprogressだけでは情報不足（いつ着手したかはprogressから復元できない）なため。番号ずれは既にSpec-16/17で発生済みで、揃え直すと過去分との一貫性が崩れるため踏襲する。',
+  consequences: 'planフェーズでGanttTask（types.ts）への実績フィールド追加、turn.ts/engine.tsでの着手・完了ターン記録、ガントチャート画面（src/ui/配下）の新規実装、MainGameUIからの画面切替導線が必要になる。稲妻線の折れ量の厳密な算出方式（進捗率ベース/残作業ベース）とリスケによる予定差し替え時の実績連続性はplanで確定する。依存表示を含めたことでUS3(P3)分のスコープが増える。'
+});
+MATCH (adr:ADR {id: 'ADR-027'}), (s18:Document {name: 'Spec-18: ゲーム内ガントチャートUI'}) MERGE (adr)-[:AFFECTS]->(s18);
+MATCH (adr:ADR {id: 'ADR-027'}), (spec:Document {name: 'Spec-18 spec.md'}) MERGE (adr)-[:AFFECTS]->(spec);
+
+// =============================================================================
+// Spec-18 /speckit-plan（2026-08-30）: ゲーム内ガントチャートUIの技術方針確定
+// =============================================================================
+
+// spec-entry ノードの更新: specified → planned（Spec Kit上のplan完了）
+MATCH (n:Document {name: 'Spec-18: ゲーム内ガントチャートUI'})
+SET n.status = 'planned',
+    n.next_action = '/speckit-tasks でタスク分解する。',
+    n.checkpoint_date = '2026-08-30';
+
+// plan 成果物ノード
+MERGE (:Document {name: 'Spec-18 plan.md', path: 'specs/019-in-game-gantt-ui/plan.md', type: 'plan', spec: 'Spec-18',
+  description: 'ゲーム内ガントチャートUIの実装計画。Constitution Check（Phase0前/Phase1後）全項目PASS。GanttTaskに実績2フィールド追加、engine.processTurnで実績記録、gantt.tsに稲妻線算出純関数追加、src/ui/GanttChartUI.ts新規（DOM overlay）、MainGameUIに画面切替メニュー追加。数値バランス不変。',
+  status: 'completed', created: '2026-08-30'});
+MERGE (:Document {name: 'Spec-18 research.md', path: 'specs/019-in-game-gantt-ui/research.md', type: 'research', spec: 'Spec-18',
+  description: '6つのDecision: 実績フィールド追加、engine実績記録、進捗率ベース稲妻線、id基準リスケ実績引き継ぎ、DOM overlay画面切替、ターン軸全描画+横スクロール。',
+  status: 'completed', created: '2026-08-30'});
+MERGE (:Document {name: 'Spec-18 data-model.md', path: 'specs/019-in-game-gantt-ui/data-model.md', type: 'data-model', spec: 'Spec-18',
+  description: 'GanttTaskにactualStartTurn/actualEndTurn(number|null)追加。検証ルール・状態遷移・派生データ(稲妻線/帯範囲)・リスケ引き継ぎ・影響範囲。',
+  status: 'completed', created: '2026-08-30'});
+MERGE (:Document {name: 'Spec-18 contracts/ui-and-module-contracts.md', path: 'specs/019-in-game-gantt-ui/contracts/ui-and-module-contracts.md', type: 'contracts', spec: 'Spec-18',
+  description: 'GanttTask拡張、engine.processTurn挙動、gantt.ts純関数(plannedRate/progressDeviation/actualPosition)、GanttChartUIクラス契約、data-testid一覧、MainGameUIのnav-gantt-btn/nav-dashboard-btn、互換性契約。',
+  status: 'completed', created: '2026-08-30'});
+MERGE (:Document {name: 'Spec-18 quickstart.md', path: 'specs/019-in-game-gantt-ui/quickstart.md', type: 'quickstart', spec: 'Spec-18',
+  description: '自動検証(vitest/tsc/playwright)+手動5シナリオ(画面切替/稲妻線遅れ前倒し/実績帯/依存ハイライト/スクロール)。',
+  status: 'completed', created: '2026-08-30'});
+
+MATCH (s18:Document {name: 'Spec-18: ゲーム内ガントチャートUI'}), (plan:Document {name: 'Spec-18 plan.md'})
+MERGE (s18)-[:HAS_PLAN]->(plan);
+
+// ADR-028: ゲーム内ガントチャートUIの技術方針
+MERGE (:ADR {
+  id: 'ADR-028',
+  title: 'ゲーム内ガントチャートUIの技術方針（実績データ・稲妻線算出・DOM overlay）',
+  date: '2026-08-30',
+  status: 'accepted',
+  context: 'Spec-18 planで(1)実績（着手・完了ターン）の保持方法、(2)実績記録タイミング、(3)稲妻線の折れ量算出方式、(4)リスケ時の実績連続性、(5)ガント画面の実装方式を確定する必要があった。現状GanttTaskはstartTurn/duration/progress/statusのみで実績を持たず、MainGameUIはDOM overlay方式だが画面切替メニュー未実装。turn.tsは純粋関数でstateを変更せず、engine.tsがstateを確定する。',
+  decision: '(1)GanttTaskにactualStartTurn:number|null / actualEndTurn:number|null を追加（未着手/未完了はnull）。(2)実績記録はGameEngine.processTurn内のタスク更新時。progressが0→正に増えたターンでactualStartTurn=state.turn、progress100到達ターンでactualEndTurn=state.turn。turn.tsの純粋関数シグネチャは不変。(3)稲妻線は進捗率ベース: plannedRate=clamp((T-startTurn+1)/duration,0,1)*100、deviation=progress-plannedRate、実績到達ターン=startTurn-1+duration*(progress/100)。gantt.tsにplannedRate/progressDeviation/actualPositionの純関数追加。(4)リスケ(ganttVariants差し替え)時はtask idをキーに実績を引き継ぐ。(5)ガント画面はDOM overlay方式のGanttChartUIをsrc/ui/に新規実装(Phaser非使用)、MainGameUIにnav-gantt-btn/nav-dashboard-btnを追加しトグル。閲覧専用。ステージJSONの実績フィールドはoptionalでnull補完。',
+  rationale: 'progressだけでは着手ターンを復元できず実績表示に不足するため明示保持。実績確定はstateを持つengineの責務で、turn.tsの既存契約(Spec-16で維持と明記)を崩さない。進捗率ベースの稲妻線は既存フィールドだけで算出でき将来予測(Out of Scope)に踏み込まない。DOM overlayは既存UIと一貫しConstitution原則I(canvasはE2E不透明、DOMでE2E可能)を満たす。',
+  consequences: 'types.ts/engine.ts/gantt.ts/schemas/stageData.tsの変更、src/ui/GanttChartUI.ts新規、MainGameUI.tsとMainScene.tsの画面切替配線。既存ステージJSONは変更不要。数値バランスは不変。依存表示(US3/P3)分の実装が加わる。E2E参照点としてgantt-screen/gantt-turn-col-<turn>/gantt-planned-row/gantt-actual-row/gantt-lightning-line-<id>(data-deviation=ahead|behind|ontrack)/gantt-dep-highlight-<id>/nav-gantt-btn/nav-dashboard-btnを公開。'
+});
+MATCH (adr:ADR {id: 'ADR-028'}), (s18:Document {name: 'Spec-18: ゲーム内ガントチャートUI'}) MERGE (adr)-[:AFFECTS]->(s18);
+MATCH (adr:ADR {id: 'ADR-028'}), (plan:Document {name: 'Spec-18 plan.md'}) MERGE (adr)-[:AFFECTS]->(plan);
+MATCH (adr:ADR {id: 'ADR-028'}), (c:Concept {name: 'ガントチャート'}) MERGE (adr)-[:AFFECTS]->(c);
+
+// =============================================================================
+// Spec-18 /speckit-tasks（2026-08-30）: タスク分解
+// =============================================================================
+
+// spec-entry ノードの next_action 更新（status は planned のまま）
+MATCH (n:Document {name: 'Spec-18: ゲーム内ガントチャートUI'})
+SET n.next_action = '/speckit-implement で T001〜T029 を実装する。',
+    n.checkpoint_date = '2026-08-30';
+
+// tasks.md ノード
+MERGE (:Document {name: 'Spec-18 tasks.md', path: 'specs/019-in-game-gantt-ui/tasks.md', type: 'tasks', spec: 'Spec-18',
+  description: 'タスク分解（T001〜T029、6フェーズ）。Phase1 Setup(既存データ/契約確認)、Phase2 Foundational(GanttTask実績フィールド・schema・engine実績記録・gantt.ts稲妻線純関数・リスケ引き継ぎ＋各テスト)、Phase3 US1(P1/MVP: GanttChartUI新規・予定/実績2行・稲妻線・MainGameUIメニュー・MainScene配線＋E2E)、Phase4 US2(P2: 実績行3状態＋E2E)、Phase5 US3(P3: 依存ハイライト＋E2E)、Phase6 Polish(スクロール・型/カバレッジ/lint/quickstart)。テスト必須(Constitution II)。',
+  status: 'completed', created: '2026-08-30'});
+MATCH (s18:Document {name: 'Spec-18: ゲーム内ガントチャートUI'}), (t:Document {name: 'Spec-18 tasks.md'})
+MERGE (s18)-[:HAS_TASKS]->(t);
+
+// =============================================================================
+// Spec-18 /speckit-implement（2026-08-30）: ゲーム内ガントチャートUI 実装完了
+// =============================================================================
+
+// spec-entry ノードを implemented に更新
+MATCH (n:Document {name: 'Spec-18: ゲーム内ガントチャートUI'})
+SET n.status = 'implemented',
+    n.next_action = '実装完了。コミットは人手で行う。',
+    n.checkpoint_date = '2026-08-30';
+
+// 実装結果ノード
+MERGE (:Document {name: 'Spec-18 implement結果', path: 'specs/019-in-game-gantt-ui/tasks.md',
+  type: 'implementation-summary', spec: 'Spec-18',
+  description: 'T001〜T029全完了。GanttTaskにactualStartTurn/actualEndTurn追加(types.ts/schemas/stageData.tsでoptional null補完)、engine.processTurnで実績記録(progress増加で着手ターン、100到達で完了ターン)、gantt.tsにplannedRate/progressDeviation/actualPosition追加・applyVariantをid基準の実績引き継ぎに拡張。src/ui/GanttChartUI.ts新規(DOM overlay、予定行/実績行/稲妻線data-deviation/ターン軸曜日/依存パネル/スクロール)、MainGameUIにnav-gantt-btn、MainSceneで画面切替配線。ユニット17件+E2E24件(chromium/Mobile Chrome)追加。tsc 0、src/gameカバレッジlines99.48%/funcs100%/branches93.33%、全ユニット375件・全E2E82件PASS、biome/markdownlint 0。数値バランス不変。',
+  status: 'completed', created: '2026-08-30'});
+MATCH (s18:Document {name: 'Spec-18: ゲーム内ガントチャートUI'}), (r:Document {name: 'Spec-18 implement結果'})
+MERGE (s18)-[:HAS_RESULT]->(r);
+
+// GanttChartUI Concept
+MERGE (:Concept {name: 'GanttChartUI', description: 'ゲーム内ガントチャート画面(DOM overlay、閲覧専用)。予定行/実績行の2行、現在ターンの稲妻線(予定対実績の遅れ・前倒し)、タスク選択による先行タスクのハイライト表示。Spec-18で実装。', file: 'src/ui/GanttChartUI.ts', spec: 'Spec-18'});
+MATCH (adr:ADR {id: 'ADR-028'}), (g:Concept {name: 'GanttChartUI'}) MERGE (adr)-[:AFFECTS]->(g);
+
+// ガントチャート Concept にゲーム内UI実装を追記
+MATCH (n:Concept {name: 'ガントチャート'})
+SET n.description = coalesce(n.description, '') + '（Spec-18でゲーム内UI GanttChartUIを実装。予定/実績2行・稲妻線・依存表示、閲覧専用のDOM overlay。実績はGanttTask.actualStartTurn/actualEndTurnで保持）';
