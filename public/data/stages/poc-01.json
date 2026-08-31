@@ -151,5 +151,35 @@
       "params": { "message": "終盤80%以上の進捗：リリースに向けて順調です", "category": "バフ系" }
     }
   ],
-  "initialCards": ["デイリー", "レビュー", "モニタリング", "休出（土）", "休出（日）"]
+  "initialCards": ["デイリー", "レビュー", "モニタリング", "休出（土）"],
+  "handLimit": 8,
+  "cardPool": [
+    { "name": "デイリー", "weight": 8 },
+    { "name": "モニタリング", "weight": 6 },
+    { "name": "レビュー", "weight": 6 },
+    { "name": "サマライズ", "weight": 4 },
+    { "name": "雑談", "weight": 4 },
+    { "name": "教育", "weight": 3 },
+    { "name": "ペアプログラミング", "weight": 3 },
+    { "name": "個別面談", "weight": 3 },
+    { "name": "停滞対応", "weight": 3 },
+    { "name": "臨時MTG", "weight": 3 },
+    { "name": "臨時モニタリング", "weight": 3 },
+    { "name": "臨時サマライズ", "weight": 3 },
+    { "name": "デイリー中止", "weight": 2 },
+    { "name": "残業許可", "weight": 2 },
+    { "name": "計画休", "weight": 2 },
+    { "name": "休出（土）", "weight": 2 },
+    { "name": "休出（日）", "weight": 2 },
+    { "name": "表彰", "weight": 2, "maxDraws": 2 },
+    { "name": "進捗ブースト", "weight": 2, "maxDraws": 2 },
+    { "name": "巻取り", "weight": 2, "maxDraws": 2 },
+    { "name": "強制締め", "weight": 1, "maxDraws": 1 },
+    { "name": "アサイン", "weight": 1, "maxDraws": 1 },
+    { "name": "入れ替え", "weight": 1, "maxDraws": 1 },
+    { "name": "リスケ", "weight": 1, "maxDraws": 1 },
+    { "name": "メンバー追加", "weight": 1, "maxDraws": 1 },
+    { "name": "納期交渉", "weight": 1, "maxDraws": 1 },
+    { "name": "スコープ交渉", "weight": 1, "maxDraws": 1 }
+  ]
 }

@@ -181,7 +181,16 @@ const pocStage: StageData = {
       params: { message: "終盤80%以上の進捗：リリースに向けて順調です", category: "バフ系" },
     },
   ],
-  initialCards: ["デイリー", "レビュー", "モニタリング", "休出（土）", "休出（日）"],
+  initialCards: ["デイリー", "レビュー", "モニタリング", "休出（土）"],
+  handLimit: 8,
+  cardPool: [
+    { name: "デイリー", weight: 8 },
+    { name: "モニタリング", weight: 6 },
+    { name: "レビュー", weight: 6 },
+    { name: "休出（土）", weight: 2 },
+    { name: "休出（日）", weight: 2 },
+    { name: "メンバー追加", weight: 1, maxDraws: 1 },
+  ],
 };
 
 // =============================================================================
@@ -213,11 +222,11 @@ describe("pocStage - US1: GameEngine初期化", () => {
     expect(engine.getState().deadline).toBe(30);
   });
 
-  it("getState().hand に 2〜5枚の CardName が含まれる", () => {
+  it("getState().hand に初期配布の CardName が含まれる（4枚）", () => {
     const engine = new GameEngine(pocStage);
     const hand = engine.getState().hand;
-    expect(hand.length).toBeGreaterThanOrEqual(2);
-    expect(hand.length).toBeLessThanOrEqual(5);
+    expect(hand.length).toBe(4);
+    expect(hand).toEqual(["デイリー", "レビュー", "モニタリング", "休出（土）"]);
   });
 
   it("getState().gantt.tasks に 8〜10件のタスクがある", () => {

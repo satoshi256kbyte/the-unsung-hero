@@ -20,6 +20,7 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
     tension: 100,
     isGameOver: false,
     gameOverReason: null,
+    drawCounts: {},
     ...overrides,
   };
 }

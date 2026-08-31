@@ -43,6 +43,7 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
     tension: 100,
     isGameOver: false,
     gameOverReason: null,
+    drawCounts: {},
     ...overrides,
   };
 }
@@ -319,6 +320,7 @@ const arbGameState = fc
         activeEffects: [] as GameState["activeEffects"],
         isGameOver: false,
         gameOverReason: null,
+        drawCounts: {} as GameState["drawCounts"],
       })),
   );
 

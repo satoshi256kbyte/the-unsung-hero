@@ -42,6 +42,8 @@ function makeStageData(overrides: Partial<StageData> = {}): StageData {
     ganttVariants: {},
     conditionalEvents: [],
     initialCards: [],
+    cardPool: [],
+    handLimit: 8,
     ...overrides,
   };
 }
@@ -350,5 +352,91 @@ describe("GameEngine - Spec-18 実績記録", () => {
     const startAfterT2 = engine.getState().gantt.tasks[0]!.actualStartTurn;
     expect(startAfterT1).toBe(1);
     expect(startAfterT2).toBe(1);
+  });
+});
+
+// =============================================================================
+// US1: 手札補充（初期配布 → ターン補充）
+// =============================================================================
+
+describe("GameEngine - US1 hand refill", () => {
+  it("buildInitialState 直後の手札は initialCards 枚数である", () => {
+    const stageData = makeStageData({
+      initialCards: ["デイリー", "レビュー", "モニタリング"],
+      cardPool: [{ name: "教育", weight: 1 }],
+      handLimit: 8,
+    });
+    const engine = new GameEngine(stageData);
+    expect(engine.getState().hand).toEqual(["デイリー", "レビュー", "モニタリング"]);
+  });
+
+  it("drawCounts が initialCards から初期化される", () => {
+    const stageData = makeStageData({
+      initialCards: ["デイリー", "デイリー", "レビュー"],
+      cardPool: [],
+      handLimit: 8,
+    });
+    const engine = new GameEngine(stageData);
+    const counts = engine.getState().drawCounts;
+    expect(counts["デイリー"]).toBe(2);
+    expect(counts["レビュー"]).toBe(1);
+  });
+
+  it("processTurn 後の次ターン開始で手札が handLimit まで補充される", () => {
+    const stageData = makeStageData({
+      initialMembers: [{ id: "m1", name: "Alice", skill: 10, exp: 0, morale: 100, health: 100 }],
+      initialGantt: {
+        tasks: [makeTask({ id: "t1", assignedMemberId: "m1", duration: 30 })],
+        variantId: null,
+      },
+      deadline: 30,
+      initialCards: ["デイリー"],
+      cardPool: [{ name: "教育", weight: 1 }],
+      handLimit: 4,
+    });
+    // rng=0 は常に先頭候補（教育）を配る
+    const engine = new GameEngine(stageData, () => 0);
+    engine.processTurn([]);
+    if (!engine.isGameOver()) {
+      expect(engine.getState().hand.length).toBe(4);
+    }
+  });
+
+  it("手札が handLimit を超えて増えない", () => {
+    const stageData = makeStageData({
+      initialMembers: [{ id: "m1", name: "Alice", skill: 10, exp: 0, morale: 100, health: 100 }],
+      initialGantt: {
+        tasks: [makeTask({ id: "t1", assignedMemberId: "m1", duration: 30 })],
+        variantId: null,
+      },
+      deadline: 30,
+      initialCards: ["デイリー", "レビュー"],
+      cardPool: [{ name: "教育", weight: 1 }],
+      handLimit: 3,
+    });
+    const engine = new GameEngine(stageData, () => 0);
+    engine.processTurn([]);
+    if (!engine.isGameOver()) {
+      expect(engine.getState().hand.length).toBeLessThanOrEqual(3);
+    }
+  });
+
+  it("配布プールが空なら補充されず手札は現状のまま", () => {
+    const stageData = makeStageData({
+      initialMembers: [{ id: "m1", name: "Alice", skill: 10, exp: 0, morale: 100, health: 100 }],
+      initialGantt: {
+        tasks: [makeTask({ id: "t1", assignedMemberId: "m1", duration: 30 })],
+        variantId: null,
+      },
+      deadline: 30,
+      initialCards: ["デイリー"],
+      cardPool: [],
+      handLimit: 8,
+    });
+    const engine = new GameEngine(stageData, () => 0);
+    engine.processTurn([]);
+    if (!engine.isGameOver()) {
+      expect(engine.getState().hand).toEqual(["デイリー"]);
+    }
   });
 });
