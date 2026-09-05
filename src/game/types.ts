@@ -172,6 +172,17 @@ export interface GameState {
   tension: number;
   isGameOver: boolean;
   gameOverReason: string | null;
+  /** カード名 → ステージ中の累計配布回数（配布回数上限の判定に用いる） */
+  drawCounts: Record<string, number>;
+}
+
+/** 配布プールの1エントリ（配布され得るカードと、その出やすさ・任意の配布回数上限） */
+export interface CardPoolEntry {
+  readonly name: CardName;
+  /** 出やすさ（相対重み、> 0） */
+  readonly weight: number;
+  /** ステージ中の配布回数上限（省略時は無制限） */
+  readonly maxDraws?: number;
 }
 
 export interface StageData {
@@ -186,4 +197,8 @@ export interface StageData {
   ganttVariants: Record<string, GanttChart>;
   conditionalEvents: ConditionalEvent[];
   initialCards: CardName[];
+  /** 配布プール（配布され得るカードと重み・任意の配布回数上限） */
+  cardPool: CardPoolEntry[];
+  /** 手札上限枚数 */
+  handLimit: number;
 }

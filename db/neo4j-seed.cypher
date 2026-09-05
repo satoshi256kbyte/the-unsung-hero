@@ -1889,3 +1889,247 @@ MATCH (adr:ADR {id: 'ADR-028'}), (g:Concept {name: 'GanttChartUI'}) MERGE (adr)-
 // ガントチャート Concept にゲーム内UI実装を追記
 MATCH (n:Concept {name: 'ガントチャート'})
 SET n.description = coalesce(n.description, '') + '（Spec-18でゲーム内UI GanttChartUIを実装。予定/実績2行・稲妻線・依存表示、閲覧専用のDOM overlay。実績はGanttTask.actualStartTurn/actualEndTurnで保持）';
+
+// =============================================================================
+// Spec-19 /speckit-specify（2026-08-30）: カード選択・手札への組み込み機能の仕様確定
+// ディレクトリは specs/020-card-selection-hand/、グラフDB上は Spec-19（番号ずれは既存慣習）
+// =============================================================================
+
+// spec-entry ノードの更新: backlog → specified
+MATCH (n:Document {name: 'Spec-19: カード選択・手札への組み込み機能'})
+SET n.status = 'specified',
+    n.next_action = '/speckit-plan で技術方針を確定する。手札上限・初期枚数・poc-01プール内容・乱数方式・重複配布可否・ADR-026暫定対応の置き換えを plan で決定する。',
+    n.checkpoint_date = '2026-08-30';
+
+// spec.md / checklist ノード
+MERGE (:Document {name: 'Spec-19 spec.md', path: 'specs/020-card-selection-hand/spec.md', type: 'spec', spec: 'Spec-19',
+  description: 'カード選択・手札への組み込み機能の仕様。US1毎ターン手札補充(P1)、US2ステージ配布プールで出現制御(P2)、US3配布回数上限カード(P3)。FR11件・SC5件。手札を固定配列からプール補充方式に変更。Out of Scopeにデッキビルド・能動ドロー・レアリティを明記。',
+  status: 'draft', created: '2026-08-30'});
+MERGE (:Document {name: 'Spec-19 checklists/requirements.md', path: 'specs/020-card-selection-hand/checklists/requirements.md', type: 'checklist', spec: 'Spec-19',
+  description: '仕様品質チェックリスト。全項目PASS。NEEDS CLARIFICATIONマーカー0件。',
+  status: 'completed', created: '2026-08-30'});
+
+MATCH (s19:Document {name: 'Spec-19: カード選択・手札への組み込み機能'}), (spec:Document {name: 'Spec-19 spec.md'})
+MERGE (s19)-[:HAS_SPEC]->(spec);
+MATCH (s19:Document {name: 'Spec-19: カード選択・手札への組み込み機能'}), (cl:Document {name: 'Spec-19 checklists/requirements.md'})
+MERGE (s19)-[:HAS_CHECKLIST]->(cl);
+
+// ADR-029: 手札をステージ配布プールからのターン補充方式にする（配布回数上限つき）
+MERGE (:ADR {
+  id: 'ADR-029',
+  title: '手札をステージ配布プールからのターン補充方式にする（配布回数上限つき）',
+  date: '2026-08-30',
+  status: 'accepted',
+  context: 'ADR-026で「state.handはinitialCards固定で補充機構がなく、initialCardsに含めないカードは到達不能」という制約が判明し、暫定対応(休出カードをinitialCardsへ静的追加)のうえ恒久対応をSpec-19にバックログ化していた。基本設計「ターン制とカード.md」には既に「ステージ開始時に一定数配布＋ターンごとにランダム配布」「ステージ中1回しか配布されないカードもある」という方針が記載されている。',
+  decision: 'Q1=A ステージごとに配布プール(配布され得るカード集合＋出やすさの重み)を定義しそこからランダム配布。Q2=A 毎ターン開始時に手札を手札上限まで補充(不足分をプールから引く、上限超過なし)。Q3=A カードに「ステージ中の配布回数上限」を任意で持たせ、上限到達で配布対象から除外。配布可能カードが尽きたら補充せず手札を現状維持(エラーにしない)。',
+  rationale: '基本設計の既定方針(開始時＋ターンごとのランダム配布、1回限りカードあり)を最も素直に満たす。プール方式はステージごとの難易度・テーマ設計と利益率インバリアント(Constitution III)の調整を可能にする。全27カードからの一律ランダム(案B)は設計自由度が低く却下。デッキビルド(案C)はスコープ過大で却下(Out of Scope)。',
+  consequences: 'ステージデータ(poc-01.json等)に配布プール定義(カード・重み・配布回数上限)と手札上限・初期枚数の追加が必要。GameStateに配布回数の記録を持たせ、ターン処理に補充ステップを追加する。既存のinitialCardsによる静的手札は配布プール経由に置き換わる想定(移行方法はplan)。手札上限・初期枚数の具体値、poc-01プール内容、乱数方式、重複配布可否はplanで確定。'
+});
+MATCH (adr:ADR {id: 'ADR-029'}), (s19:Document {name: 'Spec-19: カード選択・手札への組み込み機能'}) MERGE (adr)-[:AFFECTS]->(s19);
+MATCH (adr:ADR {id: 'ADR-029'}), (spec:Document {name: 'Spec-19 spec.md'}) MERGE (adr)-[:AFFECTS]->(spec);
+MATCH (adr:ADR {id: 'ADR-029'}), (prev:ADR {id: 'ADR-026'}) MERGE (adr)-[:SUPERSEDES]->(prev);
+
+// =============================================================================
+// Spec-19 /speckit-plan（2026-08-30）: カード選択・手札への組み込み機能の技術方針確定
+// =============================================================================
+
+// spec-entry ノードの更新: specified → planned
+MATCH (n:Document {name: 'Spec-19: カード選択・手札への組み込み機能'})
+SET n.status = 'planned',
+    n.next_action = '/speckit-tasks でタスク分解する。',
+    n.checkpoint_date = '2026-08-30';
+
+// plan 成果物ノード
+MERGE (:Document {name: 'Spec-19 plan.md', path: 'specs/020-card-selection-hand/plan.md', type: 'plan', spec: 'Spec-19',
+  description: 'カード選択・手札への組み込み機能の実装計画。Constitution Check(Phase0前/Phase1後)全項目PASS(原則IIIは配布数値をdocs/03-詳細設計に文書化する運用で充足)。StageDataにcardPool/handLimit、GameStateにdrawCounts追加、src/game/deck.ts新規(純関数)、engine.processTurnに補充ステップ、poc-01.jsonにプール定義。turn.ts純関数不変。UI変更なし。',
+  status: 'completed', created: '2026-08-30'});
+MERGE (:Document {name: 'Spec-19 research.md', path: 'specs/020-card-selection-hand/research.md', type: 'research', spec: 'Spec-19',
+  description: '7つのDecision: cardPoolデータ構造/handLimit・initialCards据え置き/engine補充ステップ+deck.ts純関数/drawCounts記録/initialCards移行(休出はプールへ)/重複配布許可/Math.random踏襲+rng注入テスト。',
+  status: 'completed', created: '2026-08-30'});
+MERGE (:Document {name: 'Spec-19 data-model.md', path: 'specs/020-card-selection-hand/data-model.md', type: 'data-model', spec: 'Spec-19',
+  description: 'StageDataにcardPool(CardPoolEntry[])・handLimit、GameStateにdrawCounts追加。CardPoolEntry(name/weight/maxDraws?)。検証ルール・状態遷移・影響範囲。',
+  status: 'completed', created: '2026-08-30'});
+MERGE (:Document {name: 'Spec-19 contracts/module-contracts.md', path: 'specs/020-card-selection-hand/contracts/module-contracts.md', type: 'contracts', spec: 'Spec-19',
+  description: '型契約(CardPoolEntry/StageData/GameState拡張)、deck.tsの純関数eligibleEntries/drawCards(rng注入可)、engine挙動、zodスキーマ、互換性契約(turn.ts・applyCards・UI不変)。',
+  status: 'completed', created: '2026-08-30'});
+MERGE (:Document {name: 'Spec-19 quickstart.md', path: 'specs/020-card-selection-hand/quickstart.md', type: 'quickstart', spec: 'Spec-19',
+  description: '自動検証(vitest/tsc/playwright)+deck.tsユニット要点+手動5シナリオ(手札補充/プール制御/配布回数上限/到達可能性/回帰)。',
+  status: 'completed', created: '2026-08-30'});
+
+MATCH (s19:Document {name: 'Spec-19: カード選択・手札への組み込み機能'}), (plan:Document {name: 'Spec-19 plan.md'})
+MERGE (s19)-[:HAS_PLAN]->(plan);
+
+// =============================================================================
+// Spec-19 /speckit-tasks（2026-08-31）: カード選択・手札への組み込み機能のタスク分解
+// =============================================================================
+
+// spec-entry ノードの更新: planned → tasks-generated
+MATCH (n:Document {name: 'Spec-19: カード選択・手札への組み込み機能'})
+SET n.status = 'tasks-generated',
+    n.next_action = '/speckit-implement で実装する（MVP=US1から）。',
+    n.checkpoint_date = '2026-08-31';
+
+// tasks.md ノード
+MERGE (:Document {name: 'Spec-19 tasks.md', path: 'specs/020-card-selection-hand/tasks.md', type: 'tasks', spec: 'Spec-19',
+  description: 'タスク分解（T001〜T022、6フェーズ）。Phase1 Setup(既存types/テスト構成確認)、Phase2 Foundational(types.tsにCardPoolEntry/StageData拡張/GameState.drawCounts、stageData.ts zodスキーマ)、Phase3 US1(P1/MVP: deck.ts drawCards純関数・engine buildInitialState/processTurn補充+各テスト)、Phase4 US2(P2: 重み付き抽選・プール内限定・poc-01.json cardPool/handLimit+統計テスト)、Phase5 US3(P3: eligibleEntriesでmaxDraws除外+テスト)、Phase6 Polish(docs/03-詳細設計に配布数値文書化(原則III)・ADR-026恒久化・回帰・tsc/カバレッジ・quickstart検証)。テスト必須(Constitution II)。',
+  status: 'completed', created: '2026-08-31'});
+MATCH (s19:Document {name: 'Spec-19: カード選択・手札への組み込み機能'}), (t:Document {name: 'Spec-19 tasks.md'})
+MERGE (s19)-[:HAS_TASKS]->(t);
+
+// =============================================================================
+// Spec-19 /speckit-implement（2026-08-31）: カード選択・手札への組み込み機能の実装完了
+// =============================================================================
+
+// spec-entry ノードの更新: tasks-generated → implemented
+MATCH (n:Document {name: 'Spec-19: カード選択・手札への組み込み機能'})
+SET n.status = 'implemented',
+    n.next_action = 'なし（実装完了。ユニット396件・E2E82件パス、tsc 0エラー、src/game カバレッジ基準クリア）。',
+    n.checkpoint_date = '2026-08-31';
+
+// 実装成果物ノード
+MERGE (:Document {name: 'Spec-19 deck.ts', path: 'src/game/deck.ts', type: 'source', spec: 'Spec-19',
+  description: '新規。純関数 eligibleEntries(maxDraws未到達エントリ抽出)・drawCards(手札をhandLimitまで重み付き抽選で補充、rng注入可、プール外を配らない、配布可能が尽きたら打ち切り)。Phaser/DOM非依存。',
+  status: 'implemented', created: '2026-08-31'});
+MERGE (:Document {name: 'Spec-19 deck.test.ts', path: 'tests/unit/deck.test.ts', type: 'test', spec: 'Spec-19',
+  description: 'US1基本補充・US2プール制御と重み(fast-check)・US3配布回数上限(eligibleEntries/maxDraws)のユニット/プロパティテスト。決定論rng注入。全パス。',
+  status: 'all-pass', created: '2026-08-31'});
+MERGE (:Document {name: 'Spec-19 engine.ts(変更)', path: 'src/game/engine.ts', type: 'source', spec: 'Spec-19',
+  description: 'buildInitialStateでdrawCountsをinitialCardsから初期化。GameEngineがcardPool/handLimit/rngを保持。processTurn末尾でゲーム継続時のみdrawCardsによりhandLimitまで補充。turn.tsシグネチャ不変。',
+  status: 'implemented', created: '2026-08-31'});
+MERGE (:Document {name: 'Spec-19 implement結果', path: 'specs/020-card-selection-hand/tasks.md', type: 'implementation-summary', spec: 'Spec-19',
+  description: 'T001〜T022全完了。types.ts(CardPoolEntry/StageData.cardPool・handLimit/GameState.drawCounts)、schemas/stageData.ts(cardPool既定[]・handLimit既定initialCards長、後方互換)、deck.ts新規、engine.ts補充ステップ、poc-01.json(cardPool全27種・handLimit=8)。docs/03-詳細設計/ステージ/PoCステージ01.mdに配布数値を文書化(原則III)。検証: tsc 0、ユニット396パス、E2E82パス、src/gameカバレッジ lines94.4/branches89.4/funcs99.3で基準(80/75/80)クリア。',
+  status: 'completed', created: '2026-08-31'});
+
+MATCH (s19:Document {name: 'Spec-19: カード選択・手札への組み込み機能'}), (d:Document {name: 'Spec-19 implement結果'})
+MERGE (s19)-[:HAS_IMPLEMENTATION]->(d);
+
+// ADR-030: 休出（土）はE2E安定のため initialCards にも残し入手経路を二重化する
+MERGE (adr:ADR {id: 'ADR-030'})
+SET adr.title = '休出（土）はE2E安定のため初期カードにも残し、プールと二重化する',
+    adr.date = '2026-08-31',
+    adr.status = 'accepted',
+    adr.context = 'Spec-19でADR-026の暫定対応(休出をinitialCardsへ静的追加)をcardPool経由に恒久化する方針だったが、requiresTargetを持つカードは休出（土）（日）のみで、対象選択UIのE2E(tests/e2e/target-picker.spec.ts, Spec-16)が初期手札に休出（土）が存在することに依存している。補充はランダムのためE2Eで確実に休出を手札へ出すのが困難。',
+    adr.decision = 'poc-01のinitialCardsに休出（土）を1枚残し、cardPoolにも休出（土）（日）を含める(入手経路の二重化)。休出（日）はプール経由のみ。initialCardsは4枚(デイリー・レビュー・モニタリング・休出（土）)、handLimit=8。',
+    adr.rationale = '案1(初期カードに休出（土）を残す)を採用。E2Eの安定性を保ちつつSpec-19のプール化(SC-001到達可能性)も両立する。案2(E2Eを補充後取得に書き換え)は乱数依存で不安定になるため却下。',
+    adr.consequences = '休出（土）は初期手札に固定される点でADR-026の暫定対応の一部が残存するが、cardPoolにも含むため配布仕組みの検証は成立する。将来requiresTargetカードが増えればE2Eを別カードへ移し初期カードから外せる。';
+MATCH (adr:ADR {id: 'ADR-030'}), (prev:ADR {id: 'ADR-026'}) MERGE (adr)-[:SUPERSEDES]->(prev);
+MATCH (adr:ADR {id: 'ADR-030'}), (s19:Document {name: 'Spec-19: カード選択・手札への組み込み機能'}) MERGE (adr)-[:AFFECTS]->(s19);
+
+// =============================================================================
+// Spec-19 /speckit-analyze（2026-08-31）: 整合性分析（読み取り専用）とremediation
+// =============================================================================
+
+// spec-entry に analyze 結果を記録（status は implemented を維持）
+MATCH (n:Document {name: 'Spec-19: カード選択・手札への組み込み機能'})
+SET n.analyze_result = 'CRITICAL 0件。FRカバレッジ100%(FR11/SC5、全FRに1タスク以上)。Constitution技術ゲート(原則I境界/II閾値/III数値docs化/IVグラフDB)全遵守。指摘: C1=token log未記録(HIGH,是正済)、I1=tasks T015記述と案1実装の差分(MEDIUM,research.md追記とADR-030で是正済)。unmapped task 0、duplication 0、ambiguity 1(LOW解消済)。',
+    n.analyze_date = '2026-08-31';
+
+// =============================================================================
+// Spec-20 /speckit-specify（2026-08-31）: ゲームクリア/失敗のリザルト画面
+// ディレクトリは specs/021-result-screen/、グラフDB上は Spec-20（番号ずれは既存慣習）
+// =============================================================================
+
+MERGE (:Document {name: 'Spec-20: ゲームクリア/失敗のリザルト画面', path: 'docs/sdd-tasks.md', type: 'spec-entry', spec: 'Spec-20',
+  description: 'ゲーム終了(全タスク完了/納期到達)時に成否判定(クリア/失敗)と最終利益・利益率・成否理由・主要数値を提示する専用リザルト画面。US1成否と利益率提示(P1)・US2成否理由と内訳(P2)・US3タイトルへ戻る導線(P3)。FR11件・SC5件・Out of Scope明記。成否ルール=最終利益率が目標利益率以上かつ納期内完遂でクリア。',
+  status: 'specified', created: '2026-08-31'});
+
+MERGE (:Document {name: 'Spec-20 spec.md', path: 'specs/021-result-screen/spec.md', type: 'spec', spec: 'Spec-20',
+  description: 'リザルト画面の仕様。ゲーム終了時にリザルト表示(FR-001)、成否判定明示(FR-002)、成否ルール=利益率≥目標かつ納期内完遂でクリア(FR-003)、最終利益・利益率表示(FR-004)、成否理由(FR-005)、主要数値(FR-006)、非終了時は非表示(FR-007)、タイトルへ戻る導線(FR-008)、ゼロ除算回避(FR-009)、同時成立時の優先(FR-010)、既存挙動不破壊(FR-011)。',
+  status: 'draft', created: '2026-08-31'});
+
+MERGE (:Document {name: 'Spec-20 checklists/requirements.md', path: 'specs/021-result-screen/checklists/requirements.md', type: 'checklist', spec: 'Spec-20',
+  description: '仕様品質チェックリスト。Content Quality/Requirement Completeness/Feature Readiness 全項目PASS。NEEDS CLARIFICATION 0。',
+  status: 'completed', created: '2026-08-31'});
+
+MATCH (s20:Document {name: 'Spec-20: ゲームクリア/失敗のリザルト画面'}), (spec:Document {name: 'Spec-20 spec.md'})
+MERGE (s20)-[:HAS_SPEC]->(spec);
+MATCH (s20:Document {name: 'Spec-20: ゲームクリア/失敗のリザルト画面'}), (cl:Document {name: 'Spec-20 checklists/requirements.md'})
+MERGE (s20)-[:HAS_CHECKLIST]->(cl);
+
+// =============================================================================
+// Spec-20 /speckit-plan（2026-08-31）: リザルト画面の技術方針確定
+// =============================================================================
+
+// spec-entry 更新: specified → planned
+MATCH (n:Document {name: 'Spec-20: ゲームクリア/失敗のリザルト画面'})
+SET n.status = 'planned',
+    n.next_action = '/speckit-tasks でタスク分解する。',
+    n.checkpoint_date = '2026-08-31';
+
+MERGE (:Document {name: 'Spec-20 plan.md', path: 'specs/021-result-screen/plan.md', type: 'plan', spec: 'Spec-20',
+  description: 'リザルト画面の実装計画。Constitution Check(Phase0前/Phase1後)全項目PASS。成否判定は src/game/result.ts(新規純関数 evaluateResult)、表示は src/ui/ResultUI.ts(新規DOMオーバーレイ、data-testid付き)、MainScene.confirmTurn末尾で終了検知しResultUI表示・TitleSceneへ遷移。turn.ts/engine.tsの終了判定・シグネチャ不変。新規依存なし・新規数値なし(目標利益率は既存TARGET_PROFIT_RATE参照)。',
+  status: 'completed', created: '2026-08-31'});
+MERGE (:Document {name: 'Spec-20 research.md', path: 'specs/021-result-screen/research.md', type: 'research', spec: 'Spec-20',
+  description: '6つのDecision: 成否ルール(全タスク完了かつ利益率≥目標でclear)/利益率算出(既存踏襲・ゼロ除算回避)/純関数+DOMオーバーレイ方式/表示タイミングとTitle遷移・確定無効化/主要数値の取得元(getCompletionRate等)/同時成立は全タスク完了優先。',
+  status: 'completed', created: '2026-08-31'});
+MERGE (:Document {name: 'Spec-20 data-model.md', path: 'specs/021-result-screen/data-model.md', type: 'data-model', spec: 'Spec-20',
+  description: 'GameResult(outcome/reason/profit/profitRate/targetProfitRate/budget/totalCost/turn/completionRate、派生値・保存しない)。判定ルール・検証ルール(ゼロ除算回避・純関数)・影響範囲。',
+  status: 'completed', created: '2026-08-31'});
+MERGE (:Document {name: 'Spec-20 contracts/module-contracts.md', path: 'specs/021-result-screen/contracts/module-contracts.md', type: 'contracts', spec: 'Spec-20',
+  description: 'GameResult/GameOutcome型、evaluateResult(state,targetProfitRate)純関数、ResultUI(show/hide/setOnBackToTitle)、UI contract(data-testid: result-screen/outcome/reason/profit-rate/profit/stats/back-to-title)、MainScene挙動、互換性契約(turn/engine/MainGameUI/Scene遷移不変)。',
+  status: 'completed', created: '2026-08-31'});
+MERGE (:Document {name: 'Spec-20 quickstart.md', path: 'specs/021-result-screen/quickstart.md', type: 'quickstart', spec: 'Spec-20',
+  description: '自動検証(tsc/vitest/coverage/playwright)+result.tsユニット要点+手動6シナリオ(終了時表示/成否・数値/未終了時非表示/タイトルへ戻る/多重進行なし)+SC対応。',
+  status: 'completed', created: '2026-08-31'});
+
+MATCH (s20:Document {name: 'Spec-20: ゲームクリア/失敗のリザルト画面'}), (plan:Document {name: 'Spec-20 plan.md'}) MERGE (s20)-[:HAS_PLAN]->(plan);
+
+// ADR-031: リザルト成否判定は純関数result.tsに置きDOMオーバーレイで表示する
+MERGE (adr:ADR {id: 'ADR-031'})
+SET adr.title = 'リザルトの成否判定を純関数result.tsに分離しDOMオーバーレイで表示する',
+    adr.date = '2026-08-31', adr.status = 'accepted',
+    adr.context = 'ゲーム終了判定(isGameOver/gameOverReason)は既存だが、成否(クリア/失敗)と最終利益率の提示画面が無い。判定ロジックをどこに置くか、リザルトをPhaser SceneとDOMオーバーレイのどちらで作るかを決める必要があった。',
+    adr.decision = '成否判定と利益率算出をsrc/game/result.tsのevaluateResult(state,targetProfitRate)純関数に置く。クリア条件は全タスク完了(reason=全タスク完了)かつprofitRate≥targetProfitRate、それ以外はfail。表示はsrc/ui/ResultUI.ts(DOMオーバーレイ、data-testid付き)。MainScene.confirmTurn末尾で終了検知しResultUI表示、タイトルへ戻るでTitleScene遷移、終了後は確定無効化。',
+    adr.rationale = 'Constitution原則I(src/gameはPhaser/DOM非依存)に従い判定を純関数化して決定論テスト可能にする。既存の情報表示画面(MainGameUI/StageSelectUI)が全てDOMオーバーレイでPlaywright参照性が高いため合わせる。目標利益率は既存TARGET_PROFIT_RATEを参照し新規数値を導入しない(原則III)。turn.ts/engine.tsの終了判定は不変で回帰リスクを抑える。',
+    adr.consequences = 'リザルトは派生値で状態を持たないため永続化・スコア等は別途必要なら拡張。Phaser Sceneではないため演出は限定的だがテスト容易性を優先。';
+MATCH (adr:ADR {id: 'ADR-031'}), (s20:Document {name: 'Spec-20: ゲームクリア/失敗のリザルト画面'}) MERGE (adr)-[:AFFECTS]->(s20);
+
+// =============================================================================
+// Spec-20 /speckit-tasks（2026-08-31）: リザルト画面のタスク分解
+// =============================================================================
+
+MATCH (n:Document {name: 'Spec-20: ゲームクリア/失敗のリザルト画面'})
+SET n.status = 'tasks-generated', n.next_action = '/speckit-implement で実装する（MVP=US1から）。', n.checkpoint_date = '2026-08-31';
+
+MERGE (:Document {name: 'Spec-20 tasks.md', path: 'specs/021-result-screen/tasks.md', type: 'tasks', spec: 'Spec-20',
+  description: 'タスク分解(T001〜T015、6フェーズ)。Phase1 Setup(既存終了判定/利益率/getCompletionRate/UI流儀確認)、Phase2 Foundational(result.tsにGameOutcome/GameResult型)、Phase3 US1(P1/MVP: evaluateResult純関数・ResultUI基本表示・MainScene配線+ユニット/E2E)、Phase4 US2(P2: 成否理由result-reason・内訳result-stats+ユニット)、Phase5 US3(P3: result-back-to-title・TitleScene遷移・確定無効化+E2E)、Phase6 Polish(回帰・tsc/カバレッジ・quickstart)。テスト必須(Constitution II)。turn/engine不変。',
+  status: 'completed', created: '2026-08-31'});
+MATCH (s20:Document {name: 'Spec-20: ゲームクリア/失敗のリザルト画面'}), (t:Document {name: 'Spec-20 tasks.md'}) MERGE (s20)-[:HAS_TASKS]->(t);
+
+// =============================================================================
+// Spec-20 /speckit-implement（2026-09-01）: リザルト画面の実装完了
+// =============================================================================
+
+MATCH (n:Document {name: 'Spec-20: ゲームクリア/失敗のリザルト画面'})
+SET n.status = 'implemented',
+    n.next_action = 'なし（実装完了。ユニット407件・E2E88件パス、tsc 0、src/gameカバレッジ基準クリア）。',
+    n.checkpoint_date = '2026-09-01';
+
+MERGE (:Document {name: 'Spec-20 result.ts', path: 'src/game/result.ts', type: 'source', spec: 'Spec-20',
+  description: '新規。GameOutcome/GameResult型とevaluateResult(state,targetProfitRate)純関数。profit=budget−totalCost、profitRate=budget>0?profit/budget:0(ゼロ除算回避)、outcome=(reason=="全タスク完了"&&profitRate>=target)?"clear":"fail"、completionRate=getCompletionRate。Phaser/DOM非依存。',
+  status: 'implemented', created: '2026-09-01'});
+MERGE (:Document {name: 'Spec-20 result.test.ts', path: 'tests/unit/result.test.ts', type: 'test', spec: 'Spec-20',
+  description: 'US1成否と利益率・US2理由と内訳・プロパティテスト(fast-check)。全11件パス。',
+  status: 'all-pass', created: '2026-09-01'});
+MERGE (:Document {name: 'Spec-20 ResultUI.ts', path: 'src/ui/ResultUI.ts', type: 'source', spec: 'Spec-20',
+  description: '新規。DOMオーバーレイ。show(result)/hide()/setOnBackToTitle()。data-testid: result-screen/outcome/reason/profit-rate/profit/stats/back-to-title。成否・利益率・理由・主要数値・タイトルへ戻るを描画。',
+  status: 'implemented', created: '2026-09-01'});
+MERGE (:Document {name: 'Spec-20 result.spec.ts', path: 'tests/e2e/result.spec.ts', type: 'test', spec: 'Spec-20',
+  description: 'E2E。未終了時非表示・ゲーム終了後のリザルト表示(成否/利益率/理由/内訳)・タイトルへ戻り再開。全6件パス。',
+  status: 'all-pass', created: '2026-09-01'});
+MERGE (:Document {name: 'Spec-20 MainScene.ts(変更)', path: 'src/scenes/MainScene.ts', type: 'source', spec: 'Spec-20',
+  description: 'confirmTurn末尾でisGameOver時にevaluateResult(state,TARGET_PROFIT_RATE)を算出しResultUI表示・確定ボタン無効化(多重進行防止)。ResultUIのonBackToTitleでTitleSceneへ遷移。MainGameUIにsetConfirmEnabled追加。',
+  status: 'implemented', created: '2026-09-01'});
+MERGE (:Document {name: 'Spec-20 implement結果', path: 'specs/021-result-screen/tasks.md', type: 'implementation-summary', spec: 'Spec-20',
+  description: 'T001〜T015全完了。result.ts新規(evaluateResult純関数)、ResultUI.ts新規(DOMオーバーレイ)、MainScene配線(終了検知→表示→Title遷移・確定無効化)、MainGameUI.setConfirmEnabled追加。turn.ts/engine.ts不変。検証: tsc0・ユニット407パス・E2E88パス・result.tsカバレッジ100/87.5/100/100・全体94.5/89.3/99.3で基準クリア・biome/markdownlint 0。engine.test.tsの一部はMath.random順序依存でフルスイート時に稀にフレーキー(本Spec非起因)。',
+  status: 'completed', created: '2026-09-01'});
+
+MATCH (s20:Document {name: 'Spec-20: ゲームクリア/失敗のリザルト画面'}), (d:Document {name: 'Spec-20 implement結果'}) MERGE (s20)-[:HAS_IMPLEMENTATION]->(d);
+
+// =============================================================================
+// Spec-20 /speckit-analyze（2026-09-01）: 整合性分析（読み取り専用）
+// =============================================================================
+
+MATCH (n:Document {name: 'Spec-20: ゲームクリア/失敗のリザルト画面'})
+SET n.analyze_result = 'CRITICAL 0件。FRカバレッジ100%(FR11/SC5)。Constitution全原則遵守(I境界/IIテストゲート/III数値なし/IVグラフDB/V依存)。指摘はLOWのみ(A1成否表示文言はspec非規定・実装裁量、N1日英対応一貫、C1 token log analyze行追記)。unmapped0/duplication0。',
+    n.analyze_date = '2026-09-01';

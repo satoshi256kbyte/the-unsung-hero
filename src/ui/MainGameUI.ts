@@ -307,6 +307,13 @@ export class MainGameUI {
     this.onConfirm = cb;
   }
 
+  /** ターン確定ボタンの有効/無効を切り替える（ゲーム終了後の多重進行防止に使用） */
+  setConfirmEnabled(enabled: boolean): void {
+    this.confirmBtn.disabled = !enabled;
+    this.confirmBtn.style.opacity = enabled ? "1" : "0.5";
+    this.confirmBtn.style.cursor = enabled ? "pointer" : "not-allowed";
+  }
+
   render(state: GameState): void {
     this.currentMembers = state.members;
 

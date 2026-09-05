@@ -14,6 +14,8 @@ function makeStageData(overrides: Partial<StageData> = {}): StageData {
     ganttVariants: {},
     conditionalEvents: [],
     initialCards: [],
+    cardPool: [],
+    handLimit: 8,
     ...overrides,
   };
 }

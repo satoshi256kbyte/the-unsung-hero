@@ -36,17 +36,32 @@ const conditionalEventSchema = z.object({
   params: z.record(z.string(), z.unknown()),
 });
 
-export const stageDataSchema = z.object({
-  id: z.string(),
+const cardPoolEntrySchema = z.object({
   name: z.string(),
-  description: z.string(),
-  budget: z.number(),
-  deadline: z.number(),
-  initialMembers: z.array(memberSchema),
-  initialGantt: ganttChartSchema,
-  ganttVariants: z.record(z.string(), ganttChartSchema),
-  conditionalEvents: z.array(conditionalEventSchema),
-  initialCards: z.array(z.string()),
+  weight: z.number().positive(),
+  maxDraws: z.number().int().positive().optional(),
 });
+
+export const stageDataSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    description: z.string(),
+    budget: z.number(),
+    deadline: z.number(),
+    initialMembers: z.array(memberSchema),
+    initialGantt: ganttChartSchema,
+    ganttVariants: z.record(z.string(), ganttChartSchema),
+    conditionalEvents: z.array(conditionalEventSchema),
+    initialCards: z.array(z.string()),
+    // 配布プール（未記載の既存ステージJSONは既定 [] で補完し後方互換を保つ）
+    cardPool: z.array(cardPoolEntrySchema).default([]),
+    // 手札上限（未記載時は initialCards の枚数を既定値とする）
+    handLimit: z.number().int().positive().optional(),
+  })
+  .transform((data) => ({
+    ...data,
+    handLimit: data.handLimit ?? Math.max(1, data.initialCards.length),
+  }));
 
 export type StageDataJson = z.infer<typeof stageDataSchema>;

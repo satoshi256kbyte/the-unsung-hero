@@ -85,6 +85,26 @@ Spec Kitコマンドごとのトークン消費を記録する。
 | Spec-18 | /sync-graphdb | 2026-08-30 | — | — | Spec-18のnext_action更新、tasks.mdノード追加(HAS_TASKS)。353ノード/454リレーション |
 | Spec-18 | /speckit-implement | 2026-08-30 | — | — | T001〜T029全完了。GanttTaskにactualStartTurn/actualEndTurn追加、engine.processTurnで実績記録、gantt.tsに稲妻線算出純関数(plannedRate/progressDeviation/actualPosition)・applyVariant実績引き継ぎ、src/ui/GanttChartUI.ts新規(DOM overlay: 予定/実績2行・稲妻線data-deviation・ターン軸曜日・依存パネル・スクロール)、MainGameUIにnav-gantt-btn、MainScene配線。ユニット17件+E2E24件追加。tsc 0、src/gameカバレッジlines99.48%/funcs100%/branches93.33%、全ユニット375件・全E2E82件PASS、biome/markdownlint 0。数値バランス不変 |
 | Spec-18 | /sync-graphdb | 2026-08-30 | — | — | Spec-18ノードをimplementedに更新、implement結果ノード追加(HAS_RESULT)、GanttChartUI Concept追加。355ノード/456リレーション |
+| Spec-19 | /speckit-specify | 2026-08-30 | — | — | カード選択・手札への組み込み機能。Q1=A(ステージ配布プール)・Q2=A(毎ターン手札上限まで補充)・Q3=A(配布回数上限属性)を確定。US1補充(P1)・US2プール制御(P2)・US3配布回数上限(P3)、FR11件・SC5件・Out of Scope明記。品質チェックリスト全項目PASS・markdownlint 0。specs/020-card-selection-hand/に作成 |
+| Spec-19 | /sync-graphdb | 2026-08-30 | — | — | Spec-19ノードをbacklog→specifiedに更新、spec.md/checklistノード追加(HAS_SPEC/HAS_CHECKLIST)、ADR-029追加(ADR-026をSUPERSEDES)。358ノード/461リレーション |
+| Spec-19 | /speckit-plan | 2026-08-30 | — | — | plan.md/research.md/data-model.md/contracts/quickstart.md作成。Constitution Check(Phase0前/Phase1後)全項目PASS(原則IIIは配布数値をdocs/03-詳細設計に文書化する運用で充足)。StageDataにcardPool/handLimit、GameStateにdrawCounts、src/game/deck.ts新規(純関数eligibleEntries/drawCards、rng注入)、engine.processTurnに補充ステップ、poc-01.jsonにプール定義。turn.ts純関数不変・UI変更なし。markdownlint 0 |
+| Spec-19 | /sync-graphdb | 2026-08-30 | — | — | Spec-19ノードをspecified→plannedに更新、plan成果物5ノード追加(HAS_PLAN)。363ノード/462リレーション |
+| Spec-19 | /speckit-tasks | 2026-08-31 | — | — | tasks.md作成(T001〜T022、6フェーズ)。US1補充(P1/MVP)・US2プール制御と重み(P2)・US3配布回数上限(P3)。テスト必須(Constitution II)。全FRにタスク対応・チェックリスト形式準拠。markdownlint 0 |
+| Spec-19 | /sync-graphdb | 2026-08-31 | — | — | Spec-19ノードをplanned→tasks-generatedに更新、tasks.mdノード追加(HAS_TASKS) |
+| Spec-19 | /speckit-implement | 2026-08-31 | — | — | T001〜T022全完了。types(CardPoolEntry/StageData.cardPool・handLimit/GameState.drawCounts)、schemas/stageData.ts(既定値補完で後方互換)、deck.ts新規(eligibleEntries/drawCards)、engine補充ステップ、poc-01.json(cardPool全27種・handLimit8)、docsに配布数値文書化(原則III)。案1採用で休出（土）はinitialCards併存(ADR-030)。検証: tsc 0・ユニット396パス・E2E82パス・src/gameカバレッジlines94.4/branches89.4/funcs99.3で基準クリア・biome/markdownlint 0 |
+| Spec-19 | /sync-graphdb | 2026-08-31 | — | — | Spec-19ノードをtasks-generated→implementedに更新、実装成果物ノード+implement結果(HAS_IMPLEMENTATION)追加、ADR-030追加(ADR-026をSUPERSEDES) |
+| Spec-19 | /speckit-analyze | 2026-08-31 | — | — | 整合性分析(読み取り専用)。CRITICAL 0件、FRカバレッジ100%、Constitution技術ゲート全遵守。指摘: C1(token log未記録・HIGH)、I1(T015記述と案1実装の差分・MEDIUM)。両者を本セッションで是正 |
+| Spec-19 | /speckit-converge | 2026-08-31 | — | — | 収束評価。missing/partial/contradicts/unrequested 全0件で✅Converged。tasks.mdはappend-only契約に従い未変更(git diff差分0)。after_convergeフックは未登録かつConstitution上sync不要でskip |
+| Spec-20 | /speckit-specify | 2026-08-31 | — | — | ゲームクリア/失敗のリザルト画面。US1成否と利益率提示(P1)・US2成否理由と内訳(P2)・US3タイトルへ戻る(P3)、FR11件・SC5件・Out of Scope明記。成否ルール=最終利益率≥目標利益率かつ納期内完遂でクリア。品質チェックリスト全項目PASS・markdownlint 0。specs/021-result-screen/に作成 |
+| Spec-20 | /sync-graphdb | 2026-08-31 | — | — | Spec-20 spec-entryノード(specified)、spec.md/checklistノード追加(HAS_SPEC/HAS_CHECKLIST) |
+| Spec-20 | /speckit-plan | 2026-08-31 | — | — | plan.md/research.md/data-model.md/contracts/quickstart.md作成。Constitution Check全項目PASS。成否判定はsrc/game/result.ts(純関数evaluateResult)、表示はsrc/ui/ResultUI.ts(DOMオーバーレイ)、MainScene末尾で終了検知しResultUI表示・TitleScene遷移。turn.ts/engine.ts不変・新規依存/数値なし。markdownlint 0 |
+| Spec-20 | /sync-graphdb | 2026-08-31 | — | — | Spec-20ノードをspecified→plannedに更新、plan成果物5ノード追加(HAS_PLAN)、ADR-031追加(成否判定を純関数result.tsに分離・DOMオーバーレイ表示) |
+| Spec-20 | /speckit-tasks | 2026-08-31 | — | — | tasks.md作成(T001〜T015、6フェーズ)。US1成否と利益率提示(P1/MVP)・US2成否理由と内訳(P2)・US3タイトルへ戻る(P3)。テスト必須(Constitution II、Vitest+Playwright)。全FRにタスク対応・チェックリスト形式準拠。turn/engine不変。markdownlint 0 |
+| Spec-20 | /sync-graphdb | 2026-08-31 | — | — | Spec-20ノードをplanned→tasks-generatedに更新、tasks.mdノード追加(HAS_TASKS) |
+| Spec-20 | /speckit-implement | 2026-09-01 | — | — | T001〜T015全完了。result.ts新規(evaluateResult純関数)、ResultUI.ts新規(DOMオーバーレイ、data-testid付き)、MainScene配線(終了検知→ResultUI表示→TitleScene遷移・確定無効化)、MainGameUI.setConfirmEnabled追加。turn.ts/engine.ts不変。検証: tsc0・ユニット407パス・E2E88パス・result.tsカバレッジ100/87.5/100/100・全体94.5/89.3/99.3で基準クリア・biome/markdownlint 0 |
+| Spec-20 | /sync-graphdb | 2026-09-01 | — | — | Spec-20ノードをtasks-generated→implementedに更新、実装成果物ノード(result.ts/result.test.ts/ResultUI.ts/result.spec.ts/MainScene変更)+implement結果(HAS_IMPLEMENTATION)追加 |
+| Spec-20 | /speckit-analyze | 2026-09-01 | — | — | 整合性分析(読み取り専用)。CRITICAL 0件、FRカバレッジ100%、Constitution全原則遵守。指摘はLOWのみ(成否表示文言・日英対応・token log追記)。是正必須事項なし |
+| Spec-20 | /speckit-converge | 2026-09-01 | — | — | 収束評価。missing/partial/contradicts/unrequested 全0件で✅Converged。tasks.mdはappend-only契約に従い未変更(git diff差分0)。after_convergeフックは未登録かつConstitution上sync不要でskip |
 
 ## 累計
 

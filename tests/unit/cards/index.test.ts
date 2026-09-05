@@ -20,6 +20,7 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
     tension: 100,
     isGameOver: false,
     gameOverReason: null,
+    drawCounts: {},
     ...overrides,
   };
 }
@@ -102,6 +103,7 @@ const arbGameState = fc.record({
   tension: fc.integer({ min: 0, max: 150 }),
   isGameOver: fc.boolean(),
   gameOverReason: fc.constantFrom(null, "全タスク完了", "納期超過"),
+  drawCounts: fc.constant({} as GameState["drawCounts"]),
 });
 
 describe("applyCards - fast-check properties", () => {

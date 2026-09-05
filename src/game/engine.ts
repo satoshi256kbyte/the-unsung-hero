@@ -1,8 +1,10 @@
 import { getConfig } from "./config.js";
+import { drawCards } from "./deck.js";
 import { setTaskStatus, updateTaskProgress } from "./gantt.js";
 import { processTurn as processTurnCore } from "./turn.js";
 import type {
   CardName,
+  CardPoolEntry,
   ConditionalEvent,
   GameState,
   Member,
@@ -16,6 +18,11 @@ function clamp(value: number, min: number, max: number): number {
 
 function buildInitialState(stageData: StageData): GameState {
   const { MEMBER_PARAMS } = getConfig().balance;
+  // 初期配布分を drawCounts に集計する（配布回数上限の判定に含める）
+  const drawCounts: Record<string, number> = {};
+  for (const name of stageData.initialCards) {
+    drawCounts[name] = (drawCounts[name] ?? 0) + 1;
+  }
   return {
     turn: 1,
     members: [...stageData.initialMembers],
@@ -29,6 +36,7 @@ function buildInitialState(stageData: StageData): GameState {
     tension: MEMBER_PARAMS.TENSION.INITIAL,
     isGameOver: false,
     gameOverReason: null,
+    drawCounts,
   };
 }
 
@@ -61,9 +69,15 @@ function applyMemberUpdates(members: Member[], result: TurnResult): Member[] {
 export class GameEngine {
   private state: GameState;
   private readonly conditionalEvents: ConditionalEvent[];
+  private readonly cardPool: CardPoolEntry[];
+  private readonly handLimit: number;
+  private readonly rng: () => number;
 
-  constructor(stageData: StageData) {
+  constructor(stageData: StageData, rng: () => number = Math.random) {
     this.conditionalEvents = stageData.conditionalEvents;
+    this.cardPool = stageData.cardPool;
+    this.handLimit = stageData.handLimit;
+    this.rng = rng;
     this.state = buildInitialState(stageData);
   }
 
@@ -98,6 +112,22 @@ export class GameEngine {
 
     const updatedMembers = applyMemberUpdates(this.state.members, result);
 
+    // 次ターン開始時点の手札を配布プールから handLimit まで補充する。
+    // ゲーム終了時は補充しない（補充が終了判定を妨げないこと。Edge Case）。
+    let nextHand = this.state.hand;
+    let nextDrawCounts = this.state.drawCounts;
+    if (!result.isGameOver) {
+      const drawn = drawCards(
+        this.cardPool,
+        this.state.drawCounts,
+        this.state.hand,
+        this.handLimit,
+        this.rng,
+      );
+      nextHand = drawn.hand;
+      nextDrawCounts = drawn.drawCounts;
+    }
+
     this.state = {
       ...this.state,
       gantt: { ...this.state.gantt, tasks: updatedTasks },
@@ -107,6 +137,8 @@ export class GameEngine {
       isGameOver: result.isGameOver,
       gameOverReason: result.gameOverReason,
       activeEffects: result.activeEffectsAfterTick,
+      hand: nextHand,
+      drawCounts: nextDrawCounts,
     };
 
     return result;
